@@ -14,7 +14,12 @@ class SuperAdminSeeder extends Seeder
      */
     public function run()
     {
-        SuperAdmin::create([
+        SuperAdmin::updateOrCreate([
+            'superadmin_fullname' => 'Super Administrator',
+            'superadmin_email' => 'admin@irisepro.in',
+            'password' => Hash::make('KillBill123#@!'),
+            'status' => 'active'
+        ], [
             'superadmin_fullname' => 'Super Administrator',
             'superadmin_email' => 'admin@irisepro.in',
             'password' => Hash::make('KillBill123#@!'),

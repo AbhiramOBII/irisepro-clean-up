@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call(SuperAdminSeeder::class);
         $this->call(AttributeSeeder::class);
         $this->call(SubAttributeSeeder::class);
         $this->call(StudentSeeder::class);
