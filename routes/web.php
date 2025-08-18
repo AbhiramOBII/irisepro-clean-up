@@ -15,6 +15,7 @@ use App\Http\Controllers\MobileStudentController;
 */
 
 Route::get('/', 'LandingController@index');
+Route::get('/challenges', 'LandingController@challenges')->name('challenges.all');
 
 // Challenge Details and Enrollment Routes
 Route::get('/challenge/{id}', 'EnrollmentController@showChallengeDetails')->name('challenge.details');

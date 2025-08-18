@@ -30,4 +30,22 @@ class LandingController extends Controller
 
         return view('landing.index', compact('upcomingChallenges'));
     }
+
+    /**
+     * Display all available challenges with their batches
+     */
+    public function challenges()
+    {
+        // Get all active challenges with their batches
+        $challenges = Challenge::with(['batches' => function($query) {
+            $query->where('start_date', '>=', Carbon::now()->addDays(2)->toDateString())
+                  ->where('status', 'active')
+                  ->orderBy('start_date', 'asc');
+        }])
+        ->where('status', 'active')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        return view('landing.challenges', compact('challenges'));
+    }
 }

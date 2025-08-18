@@ -35,9 +35,9 @@
     <!-- Top Bar with Contact Info and Social Media -->
     <div class="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-white py-2 relative overflow-hidden">
         <!-- Animated Decorative Elements -->
-        <div class="absolute top-0 right-0 w-64 h-full bg-primary opacity-10 skew-x-12 animate-pulse"></div>
-        <div class="absolute top-0 left-1/4 w-32 h-full bg-blue-500 opacity-10 -skew-x-12"></div>
-        <div class="absolute top-0 left-1/2 w-16 h-full bg-green-500 opacity-10 skew-x-12"></div>
+        <div class="absolute top-0 right-0 w-64 h-full bg-primary opacity-10 skew-x-12 hidden md:block md:animate-pulse"></div>
+        <div class="absolute top-0 left-1/4 w-32 h-full bg-blue-500 opacity-10 -skew-x-12 hidden md:block"></div>
+        <div class="absolute top-0 left-1/2 w-16 h-full bg-green-500 opacity-10 skew-x-12 hidden md:block"></div>
         
         <div class="container mx-auto px-4 sm:px-6 relative z-10">
             <!-- Contact Information and Social Media -->
@@ -59,7 +59,7 @@
                 </div>
                 
                 <!-- Social Media Links with Enhanced Hover Effects -->
-                <div class="flex space-x-3 mt-2 sm:mt-0">
+                <!-- <div class="flex space-x-3 mt-2 sm:mt-0">
                     <a href="#" class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary hover:scale-110 transition-all duration-300 group" aria-label="Facebook">
                         <i class="fab fa-facebook-f text-sm group-hover:text-white"></i>
                     </a>
@@ -72,7 +72,7 @@
                     <a href="#" class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary hover:scale-110 transition-all duration-300 group" aria-label="YouTube">
                         <i class="fab fa-youtube text-sm group-hover:text-white"></i>
                     </a>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -93,7 +93,7 @@
             <div class="container mx-auto px-4 sm:px-6 flex flex-col items-center relative z-10">
                 <div class="flex justify-center">
                     <a href="#" class="transition-transform duration-300 hover:scale-105">
-                        <img src="{{asset('images/irisepro-logo.png')}}" alt="iRisePro Logo" class="h-[100px] sm:h-[110px]">
+                        <img src="images/irisepro-logo.png" alt="iRisePro Logo" class="h-[100px] sm:h-[110px]">
                     </a>
                 </div>
             </div>
@@ -109,7 +109,7 @@
                         Why iRiSEPro™
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                     </a>
-                    <a href="#courses" class="font-medium hover:text-primary transition-colors relative group">
+                    <a href="{{route('challenges.all')}}" class="font-medium hover:text-primary transition-colors relative group">
                         Our Courses
                         <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                     </a>
@@ -163,7 +163,7 @@
                     <a href="#why-irise" class="font-medium hover:text-primary transition-colors py-3 border-b border-gray-100 flex items-center">
                         <i class="fas fa-info-circle mr-3 text-primary/80"></i>Why iRiSEPro™
                     </a>
-                    <a href="#courses" class="font-medium hover:text-primary transition-colors py-3 border-b border-gray-100 flex items-center">
+                    <a href="{{route('challenges.all')}}" class="font-medium hover:text-primary transition-colors py-3 border-b border-gray-100 flex items-center">
                         <i class="fas fa-graduation-cap mr-3 text-primary/80"></i>Programs
                     </a>
                     <a href="#about" class="font-medium hover:text-primary transition-colors py-3 border-b border-gray-100 flex items-center">
