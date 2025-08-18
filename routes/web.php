@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MobileStudentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -87,14 +88,13 @@ Route::prefix('mobile')->middleware('web')->group(function () {
     })->name('mobile.splash');
     
     // Student Authentication Routes
-    Route::get('/login', 'MobileStudentController@showLogin')->name('mobile.login');
-    Route::post('/send-otp', 'MobileStudentController@sendOtp')->name('mobile.send-otp');
-    Route::get('/otp-verification', 'MobileStudentController@showOtpVerification')->name('mobile.otp-verification');
-    Route::post('/verify-otp', 'MobileStudentController@verifyOtp')->name('mobile.verify-otp');
-    Route::post('/logout', 'MobileStudentController@logout')->name('mobile.logout');
+    Route::get('/login', [MobileStudentController::class, 'showLogin'])->name('mobile.login');
+    Route::post('/send-otp', [MobileStudentController::class, 'sendOtp'])->name('mobile.send-otp');
+    Route::get('/otp-verification', [MobileStudentController::class, 'showOtpVerification'])->name('mobile.otp-verification');
+    Route::post('/verify-otp', [MobileStudentController::class, 'verifyOtp'])->name('mobile.verify-otp');
+    Route::post('/logout', [MobileStudentController::class, 'logout'])->name('mobile.logout');
     
     // Welcome Screen Routes
-    Route::get('/welcome', [MobileStudentController::class, 'welcome'])->name('mobile.welcome');
     Route::get('/welcome', 'MobileStudentController@showWelcome')->name('mobile.welcome');
     Route::post('/mark-welcome-seen', 'MobileStudentController@markWelcomeSeen')->name('mobile.mark-welcome-seen');
     

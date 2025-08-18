@@ -23,6 +23,7 @@ class CreateStudentTaskResponsesTable extends Migration
             $table->json('submission_multimedia')->nullable();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('submitted_at')->nullable();
+            $table->timestamp('datestamp')->nullable();
             $table->enum('status', ['submitted', 'reviewed', 'not-submitted'])->default('not-submitted');
            
             $table->timestamps();
