@@ -78,6 +78,9 @@ Route::prefix('superadmin')->middleware('web')->group(function () {
     // Habit Management Routes
     Route::resource('habits', 'HabitController');
     
+    // Achievement Management Routes
+    Route::resource('achievements', 'AchievementController');
+    
     // Enrollment Management Routes
     Route::get('enrollments', 'SuperAdminEnrollmentController@index')->name('superadmin.enrollments.index');
     Route::get('enrollments/{id}', 'SuperAdminEnrollmentController@show')->name('superadmin.enrollments.show');
