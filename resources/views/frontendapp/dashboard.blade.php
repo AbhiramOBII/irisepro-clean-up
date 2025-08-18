@@ -625,7 +625,7 @@
                     <div class="habit-item flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:bg-[#FFF9F5] transition-all duration-200 mb-3 @if($habit->completed_today) bg-green-50 border-green-200 @endif">
                         <div class="flex items-center">
                             <input type="checkbox" id="habit-{{ $habit->id }}" class="habit-checkbox hidden" @if($habit->completed_today) checked disabled @endif>
-                            <label for="habit-{{ $habit->id }}" class="w-6 h-6 border-2 @if($habit->completed_today) border-green-500 bg-green-500 @else border-[#F58321] @endif rounded-md flex items-center justify-center mr-3 @if($habit->can_submit) cursor-pointer @else cursor-not-allowed opacity-50 @endif">
+                            <label for="habit-{{ $habit->id }}" class="habit-checkbox-label w-6 h-6 border-2 @if($habit->completed_today) border-green-500 bg-green-500 @else border-[#F58321] @endif rounded-md flex items-center justify-center mr-3 @if($habit->can_submit) cursor-pointer @else cursor-not-allowed opacity-50 @endif" data-habit-id="{{ $habit->id }}">
                                 <i class="fas fa-check text-white @if($habit->completed_today) scale-100 @else scale-0 @endif transition-transform duration-200"></i>
                             </label>
                             <div>
@@ -653,7 +653,7 @@
                     <div class="habit-item flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:bg-[#FFF9F5] transition-all duration-200">
                         <div class="flex items-center">
                             <input type="checkbox" id="habit-1" class="habit-checkbox hidden">
-                            <label for="habit-1" class="w-6 h-6 border-2 border-[#F58321] rounded-md flex items-center justify-center mr-3 cursor-pointer">
+                            <label for="habit-1" class="habit-checkbox-label w-6 h-6 border-2 border-[#F58321] rounded-md flex items-center justify-center mr-3 cursor-pointer" data-habit-id="1">
                                 <i class="fas fa-check text-white scale-0 transition-transform duration-200"></i>
                             </label>
                             <div>
@@ -816,6 +816,100 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Habit checkbox confirmation popup
+    const habitCheckboxLabels = document.querySelectorAll('.habit-checkbox-label');
+    
+    habitCheckboxLabels.forEach(label => {
+        if (label.classList.contains('opacity-50')) return; // Skip disabled checkboxes
+        
+        label.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default checkbox behavior
+            
+            const habitId = this.getAttribute('data-habit-id');
+            const checkbox = document.getElementById('habit-' + habitId);
+            
+            // Show confirmation popup
+            if (!checkbox.checked) {
+                // Create and show confirmation popup
+                showConfirmationPopup(habitId, this);
+            }
+        });
+    });
+    
+    function showConfirmationPopup(habitId, labelElement) {
+        // Create popup elements
+        const overlay = document.createElement('div');
+        overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        
+        const popup = document.createElement('div');
+        popup.className = 'bg-white rounded-2xl p-6 w-10/12 max-w-sm shadow-2xl transform transition-all duration-300';
+        
+        popup.innerHTML = `
+            <div class="text-center mb-4">
+                <div class="w-16 h-16 bg-[#FFF9F5] rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-check-circle text-[#F58321] text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800">Confirm Completion</h3>
+                <p class="text-gray-600 mt-2">Have you completed this habit today?</p>
+            </div>
+            <div class="flex justify-center space-x-3 mt-4">
+                <button type="button" class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
+                    Cancel
+                </button>
+                <button type="button" class="confirm-btn px-4 py-2 bg-[#F58321] text-white rounded-lg hover:bg-[#E57311] transition-colors duration-200">
+                    Yes, Complete
+                </button>
+            </div>
+        `;
+        
+        overlay.appendChild(popup);
+        document.body.appendChild(overlay);
+        
+        // Handle button clicks
+        const cancelBtn = popup.querySelector('.cancel-btn');
+        const confirmBtn = popup.querySelector('.confirm-btn');
+        
+        cancelBtn.addEventListener('click', function() {
+            document.body.removeChild(overlay);
+        });
+        
+        confirmBtn.addEventListener('click', function() {
+            // Mark checkbox as checked
+            const checkbox = document.getElementById('habit-' + habitId);
+            checkbox.checked = true;
+            
+            // Update visual appearance
+            const checkIcon = labelElement.querySelector('i');
+            labelElement.classList.add('bg-green-500', 'border-green-500');
+            checkIcon.classList.remove('scale-0');
+            checkIcon.classList.add('scale-100');
+            
+            // Close popup
+            document.body.removeChild(overlay);
+            
+            // You can add AJAX call here to update the server
+            // Example:
+            /*
+            fetch('/habit/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                },
+                body: JSON.stringify({
+                    habit_id: habitId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Habit marked as complete:', data);
+            })
+            .catch(error => {
+                console.error('Error completing habit:', error);
+            });
+            */
+        });
+    }
     let timerInterval = null;
     let timerStartTime = null;
     
