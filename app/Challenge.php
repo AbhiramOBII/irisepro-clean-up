@@ -34,4 +34,12 @@ class Challenge extends Model
     {
         return $this->belongsToMany(Task::class, 'challenge_task', 'challenge_id', 'task_id');
     }
+
+    /**
+     * The batches that belong to the challenge.
+     */
+    public function batches()
+    {
+        return $this->hasMany(Batch::class);
+    }
 }

@@ -229,6 +229,7 @@ class TaskDetailsController extends Controller
         
         // Get challenge details
         $challenge =  $batch->challenge;
+        $challengeId = $challenge->id;
 
         // Get task progress information
         $completedTaskIds = DB::table('student_task_responses')
