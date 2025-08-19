@@ -10,7 +10,7 @@
             <div class="flex flex-col md:flex-row justify-between items-center mb-12 pb-8 border-b border-gray-800">
                 <div class="mb-6 md:mb-0">
                     <a href="#" class="inline-block">
-                        <img src="images/irisepro-logo.png" alt="iRisePro Logo" class="h-16">
+                        <img src="{{ asset('images/irisepro-logo.png') }}" alt="iRisePro Logo" class="h-16">
                     </a>
                 </div>
                 
