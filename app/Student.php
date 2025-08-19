@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Batch;
 
 class Student extends Model
 {
@@ -45,7 +46,7 @@ class Student extends Model
     }
 
     /**
-     * The batches that belong to the student.
+     * Get the batches that the student belongs to.
      */
     public function batches()
     {

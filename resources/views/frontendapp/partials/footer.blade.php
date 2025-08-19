@@ -7,7 +7,7 @@
         </a>
         
         <!-- Leaderboard -->
-        <a href="#" class="w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 @if(isset($activeMenu) && $activeMenu == 'leaderboard') bg-primary text-white shadow-button @else text-gray-400 hover:text-primary hover:bg-gray-50 @endif">
+        <a href="{{route('mobile.leaderboard')}}" class="w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 @if(isset($activeMenu) && $activeMenu == 'leaderboard') bg-primary text-white shadow-button @else text-gray-400 hover:text-primary hover:bg-gray-50 @endif">
             <i class="fas fa-trophy text-xl"></i>
         </a>
         

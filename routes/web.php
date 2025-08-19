@@ -132,6 +132,7 @@ Route::prefix('mobile')->middleware('web')->group(function () {
     Route::get('/achievements', 'MobileStudentController@achievements')->name('mobile.achievements');
     Route::get('/performance', 'MobileStudentController@performance')->name('mobile.performance');
     Route::get('/performance/{taskId}', 'MobileStudentController@performanceDetail')->name('mobile.performance.detail');
+    Route::get('/leaderboard/{period?}', 'LeaderboardController@index')->name('mobile.leaderboard');
     
     // Habit Submission Route
     Route::post('/habit-submit', 'MobileStudentController@submitHabit')->name('habit.submit');
