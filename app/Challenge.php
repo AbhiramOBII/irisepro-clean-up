@@ -42,4 +42,9 @@ class Challenge extends Model
     {
         return $this->hasMany(Batch::class);
     }
+
+    public function getAmountAttribute()
+    {
+        return $this->special_price ?? $this->selling_price;
+    }
 }

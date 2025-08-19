@@ -118,7 +118,7 @@ class EnrollmentController extends Controller
             'gender'         => 'required|in:male,female,prefer_not_to_say',
             'education'      => 'nullable|string|max:100',
             'goals'          => 'nullable|string|max:1000',
-            'amount'         => 'required|numeric|min:1'
+            'terms'          => 'required|accepted'
         ]);
 
         if ($validator->fails()) {
@@ -156,10 +156,13 @@ class EnrollmentController extends Controller
             'payment_status'   => 'pending'
         ]);
 
+        $challenge = Challenge::find($request->challenge_id);
+        $amount = $challenge ? $challenge->amount : 0;
+
         $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
         $order = $api->order->create([
             'receipt'         => 'enroll_'.$enrollment->id,
-            'amount'          => $request->amount * 100, // paise
+            'amount'          => $amount * 100, // paise
             'currency'        => 'INR',
             'payment_capture' => 1,
         ]);

@@ -189,8 +189,6 @@
                         <form action="{{ route('enrollment.pay') }}" method="POST" class="space-y-4">
                             @csrf
                             <input type="hidden" name="challenge_id" value="{{ $challenge->id }}">
-                            <input type="hidden" name="amount" value="{{ $challenge->special_price ?? $challenge->selling_price }}">
-                            
                             @if($challenge->batches->count() > 0)
                                 <div>
                                     <label for="batch_id" class="block text-gray-700 text-sm font-medium mb-2">Select Batch *</label>
