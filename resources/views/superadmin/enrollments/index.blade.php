@@ -17,6 +17,139 @@
     </div>
 @endif
 
+<!-- Search and Filter Form -->
+<div class="bg-card-bg rounded-lg shadow p-6 mb-6">
+    <form method="GET" action="{{ route('superadmin.enrollments.index') }}" class="space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-end lg:space-x-4 space-y-4 lg:space-y-0">
+            <!-- Search Box -->
+            <div class="flex-1">
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-search mr-1"></i>
+                    Search Students
+                </label>
+                <input type="text" 
+                       id="search" 
+                       name="search" 
+                       value="{{ request('search') }}"
+                       placeholder="Search by name, email, or phone number..."
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+
+            <!-- Challenge Filter -->
+            <div class="lg:w-64">
+                <label for="challenge_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-trophy mr-1"></i>
+                    Challenge
+                </label>
+                <select id="challenge_id" 
+                        name="challenge_id" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <option value="">All Challenges</option>
+                    @foreach($challenges as $challenge)
+                        <option value="{{ $challenge->id }}" {{ request('challenge_id') == $challenge->id ? 'selected' : '' }}>
+                            {{ $challenge->title }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Batch Filter -->
+            <div class="lg:w-64">
+                <label for="batch_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-users mr-1"></i>
+                    Batch
+                </label>
+                <select id="batch_id" 
+                        name="batch_id" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <option value="">All Batches</option>
+                    @foreach($batches as $batch)
+                        <option value="{{ $batch->id }}" {{ request('batch_id') == $batch->id ? 'selected' : '' }}>
+                            {{ $batch->title }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Payment Status Filter -->
+            <div class="lg:w-48">
+                <label for="payment_status" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-credit-card mr-1"></i>
+                    Payment Status
+                </label>
+                <select id="payment_status" 
+                        name="payment_status" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+                    <option value="">All Payments</option>
+                    <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid</option>
+                    <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                </select>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex space-x-2">
+                <button type="submit" 
+                        class="px-6 py-2 bg-primary hover:bg-primary-dark text-white rounded-md transition duration-200 flex items-center">
+                    <i class="fas fa-filter mr-2"></i>
+                    Filter
+                </button>
+                <a href="{{ route('superadmin.enrollments.index') }}" 
+                   class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition duration-200 flex items-center">
+                    <i class="fas fa-times mr-2"></i>
+                    Clear
+                </a>
+            </div>
+        </div>
+
+        <!-- Active Filters Display -->
+        @if(request()->hasAny(['search', 'challenge_id', 'batch_id', 'payment_status']))
+            <div class="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-200">
+                <span class="text-sm font-medium text-gray-600">Active Filters:</span>
+                
+                @if(request('search'))
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <i class="fas fa-search mr-1"></i>
+                        Search: "{{ request('search') }}"
+                        <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="ml-2 text-blue-600 hover:text-blue-800">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+
+                @if(request('challenge_id'))
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <i class="fas fa-trophy mr-1"></i>
+                        Challenge: {{ $challenges->find(request('challenge_id'))->title ?? 'Unknown' }}
+                        <a href="{{ request()->fullUrlWithQuery(['challenge_id' => null]) }}" class="ml-2 text-green-600 hover:text-green-800">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+
+                @if(request('batch_id'))
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        <i class="fas fa-users mr-1"></i>
+                        Batch: {{ $batches->find(request('batch_id'))->title ?? 'Unknown' }}
+                        <a href="{{ request()->fullUrlWithQuery(['batch_id' => null]) }}" class="ml-2 text-purple-600 hover:text-purple-800">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+
+                @if(request('payment_status'))
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                        <i class="fas fa-credit-card mr-1"></i>
+                        Payment: {{ ucfirst(request('payment_status')) }}
+                        <a href="{{ request()->fullUrlWithQuery(['payment_status' => null]) }}" class="ml-2 text-orange-600 hover:text-orange-800">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
+            </div>
+        @endif
+    </form>
+</div>
+
 <!-- Statistics Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Total Enrollments -->
@@ -82,11 +215,18 @@
 
 <!-- Enrollments Table -->
 <div class="bg-card-bg rounded-lg shadow">
-    <div class="px-6 py-4 border-b border-gray-200">
+    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
         <h3 class="text-lg font-semibold text-gray-900 flex items-center">
             <i class="fas fa-list mr-2 text-primary"></i>
             All Enrollments
         </h3>
+        <div class="text-sm text-gray-600">
+            @if($enrollments->total() > 0)
+                Showing {{ $enrollments->firstItem() }} to {{ $enrollments->lastItem() }} of {{ $enrollments->total() }} results
+            @else
+                No results found
+            @endif
+        </div>
     </div>
     
     <div class="overflow-x-auto">
@@ -211,7 +351,7 @@
     <!-- Pagination -->
     @if($enrollments->hasPages())
         <div class="px-6 py-4 border-t border-gray-200">
-            {{ $enrollments->links() }}
+            {{ $enrollments->appends(request()->query())->links() }}
         </div>
     @endif
 </div>
