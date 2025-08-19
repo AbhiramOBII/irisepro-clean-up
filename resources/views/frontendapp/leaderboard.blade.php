@@ -3,7 +3,7 @@
 @section('content')
 
     <!-- Main Content -->
-    <div class="px-4 mb-24">
+    <div class="p-4 bg-gradient-to-b from-white to-[#EFCAA6] min-h-screen">
         <div
             class="bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] rounded-xl p-5 mb-4 shadow-md relative overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 cursor-pointer group">
             <!-- Decorative circle elements -->
@@ -43,7 +43,7 @@
         </div>
 
         <!-- Filter and Time Period Selection -->
-        <div class="flex justify-around items-center">
+        <div class="flex justify-around items-center mb-4">
             <div class="flex space-x-2">
                 <a href="{{ route('mobile.leaderboard', ['period' => '7days']) }}" data-period="7days"
                     class="border text-xs px-3 py-1 rounded-full hover:bg-gray-50
@@ -86,14 +86,14 @@
                     <span class="text-xs text-gray-500">Overall Rank</span>
                     <div class="flex items-center">
                         <span
-                            class="text-2xl font-bold text-[#FF8A3D] user-rank">{{ $leaderboardData['current_user']['rank'] ?? '4' }}</span>
+                            class="text-2xl font-bold text-[#FF8A3D] user-rank">{{ isset($leaderboardData['current_user']['rank']) && $leaderboardData['current_user']['rank'] ? $leaderboardData['current_user']['rank'] : '-' }}</span>
                         @if (isset($leaderboardData['current_user']['data']) &&
                                 isset($leaderboardData['current_user']['data']['change_direction']) &&
                                 $leaderboardData['current_user']['data']['change_direction'] == 'up')
                             <div class="flex items-center ml-1 text-green-500">
                                 <i class="fas fa-arrow-up text-xs mr-1"></i>
                                 <span
-                                    class="text-xs user-rank-change">{{ $leaderboardData['current_user']['data']['change_percentage'] ?? '2' }}</span>
+                                    class="text-xs user-rank-change">{{ $leaderboardData['current_user']['data']['change_percentage'] ?? '-' }}</span>
                             </div>
                         @elseif(isset($leaderboardData['current_user']['data']) &&
                                 isset($leaderboardData['current_user']['data']['change_direction']) &&
@@ -101,13 +101,10 @@
                             <div class="flex items-center ml-1 text-red-500">
                                 <i class="fas fa-arrow-down text-xs mr-1"></i>
                                 <span
-                                    class="text-xs">{{ $leaderboardData['current_user']['data']['change_percentage'] ?? '0' }}</span>
+                                    class="text-xs">{{ $leaderboardData['current_user']['data']['change_percentage'] ?? '-' }}</span>
                             </div>
                         @else
-                            <div class="flex items-center ml-1 text-green-500">
-                                <i class="fas fa-arrow-up text-xs mr-1"></i>
-                                <span class="text-xs">2</span>
-                            </div>
+                            <!-- No change data available -->
                         @endif
                     </div>
                 </div>
@@ -122,27 +119,21 @@
                     </div>
                     <p class="text-sm font-medium text-gray-700 mb-1">Aptitude</p>
                     <div class="flex items-center justify-center">
-                        <span
-                            class="text-xl font-bold text-[#FF8A3D] mr-1 aptitude-rank">{{ isset($leaderboardData['current_user']['aace_ranks']['aptitude']['rank']) ? $leaderboardData['current_user']['aace_ranks']['aptitude']['rank'] : '3' }}</span>
-                        @if (isset($leaderboardData['current_user']['aace_ranks']['aptitude']['change_direction']) &&
-                                $leaderboardData['current_user']['aace_ranks']['aptitude']['change_direction'] == 'up')
-                            <div class="flex items-center text-green-500">
-                                <i class="fas fa-arrow-up text-xs"></i>
-                                <span
-                                    class="text-xs aptitude-change">{{ $leaderboardData['current_user']['aace_ranks']['aptitude']['change_value'] ?? '1' }}</span>
-                            </div>
-                        @elseif(isset($leaderboardData['current_user']['aace_ranks']['aptitude']['change_direction']) &&
-                                $leaderboardData['current_user']['aace_ranks']['aptitude']['change_direction'] == 'down')
-                            <div class="flex items-center text-red-500">
-                                <i class="fas fa-arrow-down text-xs"></i>
-                                <span
-                                    class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['aptitude']['change_value'] ?? '0' }}</span>
-                            </div>
+                        @if (isset($leaderboardData['current_user']['aace_ranks']['aptitude']['rank']) && $leaderboardData['current_user']['aace_ranks']['aptitude']['rank'])
+                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 aptitude-rank">{{ $leaderboardData['current_user']['aace_ranks']['aptitude']['rank'] }}</span>
+                            @if (isset($leaderboardData['current_user']['aace_ranks']['aptitude']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['aptitude']['change_value']) && $leaderboardData['current_user']['aace_ranks']['aptitude']['change_direction'] == 'up')
+                                <div class="flex items-center text-green-500">
+                                    <i class="fas fa-arrow-up text-xs"></i>
+                                    <span class="text-xs aptitude-change">{{ $leaderboardData['current_user']['aace_ranks']['aptitude']['change_value'] }}</span>
+                                </div>
+                            @elseif(isset($leaderboardData['current_user']['aace_ranks']['aptitude']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['aptitude']['change_value']) && $leaderboardData['current_user']['aace_ranks']['aptitude']['change_direction'] == 'down')
+                                <div class="flex items-center text-red-500">
+                                    <i class="fas fa-arrow-down text-xs"></i>
+                                    <span class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['aptitude']['change_value'] }}</span>
+                                </div>
+                            @endif
                         @else
-                            <div class="flex items-center text-green-500">
-                                <i class="fas fa-arrow-up text-xs"></i>
-                                <span class="text-xs">1</span>
-                            </div>
+                            <span class="text-xl font-bold text-[#FF8A3D]">-</span>
                         @endif
                     </div>
                 </div>
@@ -154,27 +145,21 @@
                     </div>
                     <p class="text-sm font-medium text-gray-700 mb-1">Attitude</p>
                     <div class="flex items-center justify-center">
-                        <span
-                            class="text-xl font-bold text-[#FF8A3D] mr-1 attitude-rank">{{ isset($leaderboardData['current_user']['aace_ranks']['attitude']['rank']) ? $leaderboardData['current_user']['aace_ranks']['attitude']['rank'] : '5' }}</span>
-                        @if (isset($leaderboardData['current_user']['aace_ranks']['attitude']['change_direction']) &&
-                                $leaderboardData['current_user']['aace_ranks']['attitude']['change_direction'] == 'up')
-                            <div class="flex items-center text-green-500">
-                                <i class="fas fa-arrow-up text-xs"></i>
-                                <span
-                                    class="text-xs attitude-change">{{ $leaderboardData['current_user']['aace_ranks']['attitude']['change_value'] ?? '0' }}</span>
-                            </div>
-                        @elseif(isset($leaderboardData['current_user']['aace_ranks']['attitude']['change_direction']) &&
-                                $leaderboardData['current_user']['aace_ranks']['attitude']['change_direction'] == 'down')
-                            <div class="flex items-center text-red-500">
-                                <i class="fas fa-arrow-down text-xs"></i>
-                                <span
-                                    class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['attitude']['change_value'] ?? '2' }}</span>
-                            </div>
+                        @if (isset($leaderboardData['current_user']['aace_ranks']['attitude']['rank']) && $leaderboardData['current_user']['aace_ranks']['attitude']['rank'])
+                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 attitude-rank">{{ $leaderboardData['current_user']['aace_ranks']['attitude']['rank'] }}</span>
+                            @if (isset($leaderboardData['current_user']['aace_ranks']['attitude']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['attitude']['change_value']) && $leaderboardData['current_user']['aace_ranks']['attitude']['change_direction'] == 'up')
+                                <div class="flex items-center text-green-500">
+                                    <i class="fas fa-arrow-up text-xs"></i>
+                                    <span class="text-xs attitude-change">{{ $leaderboardData['current_user']['aace_ranks']['attitude']['change_value'] }}</span>
+                                </div>
+                            @elseif(isset($leaderboardData['current_user']['aace_ranks']['attitude']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['attitude']['change_value']) && $leaderboardData['current_user']['aace_ranks']['attitude']['change_direction'] == 'down')
+                                <div class="flex items-center text-red-500">
+                                    <i class="fas fa-arrow-down text-xs"></i>
+                                    <span class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['attitude']['change_value'] }}</span>
+                                </div>
+                            @endif
                         @else
-                            <div class="flex items-center text-red-500">
-                                <i class="fas fa-arrow-down text-xs"></i>
-                                <span class="text-xs">2</span>
-                            </div>
+                            <span class="text-xl font-bold text-[#FF8A3D]">-</span>
                         @endif
                     </div>
                 </div>
@@ -189,27 +174,21 @@
                     </div>
                     <p class="text-sm font-medium text-gray-700 mb-1">Communication</p>
                     <div class="flex items-center justify-center">
-                        <span
-                            class="text-xl font-bold text-[#FF8A3D] mr-1 communication-rank">{{ isset($leaderboardData['current_user']['aace_ranks']['communication']['rank']) ? $leaderboardData['current_user']['aace_ranks']['communication']['rank'] : '2' }}</span>
-                        @if (isset($leaderboardData['current_user']['aace_ranks']['communication']['change_direction']) &&
-                                $leaderboardData['current_user']['aace_ranks']['communication']['change_direction'] == 'up')
-                            <div class="flex items-center text-green-500">
-                                <i class="fas fa-arrow-up text-xs"></i>
-                                <span
-                                    class="text-xs communication-change">{{ $leaderboardData['current_user']['aace_ranks']['communication']['change_value'] ?? '3' }}</span>
-                            </div>
-                        @elseif(isset($leaderboardData['current_user']['aace_ranks']['communication']['change_direction']) &&
-                                $leaderboardData['current_user']['aace_ranks']['communication']['change_direction'] == 'down')
-                            <div class="flex items-center text-red-500">
-                                <i class="fas fa-arrow-down text-xs"></i>
-                                <span
-                                    class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['communication']['change_value'] ?? '0' }}</span>
-                            </div>
+                        @if (isset($leaderboardData['current_user']['aace_ranks']['communication']['rank']) && $leaderboardData['current_user']['aace_ranks']['communication']['rank'])
+                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 communication-rank">{{ $leaderboardData['current_user']['aace_ranks']['communication']['rank'] }}</span>
+                            @if (isset($leaderboardData['current_user']['aace_ranks']['communication']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['communication']['change_value']) && $leaderboardData['current_user']['aace_ranks']['communication']['change_direction'] == 'up')
+                                <div class="flex items-center text-green-500">
+                                    <i class="fas fa-arrow-up text-xs"></i>
+                                    <span class="text-xs communication-change">{{ $leaderboardData['current_user']['aace_ranks']['communication']['change_value'] }}</span>
+                                </div>
+                            @elseif(isset($leaderboardData['current_user']['aace_ranks']['communication']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['communication']['change_value']) && $leaderboardData['current_user']['aace_ranks']['communication']['change_direction'] == 'down')
+                                <div class="flex items-center text-red-500">
+                                    <i class="fas fa-arrow-down text-xs"></i>
+                                    <span class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['communication']['change_value'] }}</span>
+                                </div>
+                            @endif
                         @else
-                            <div class="flex items-center text-green-500">
-                                <i class="fas fa-arrow-up text-xs"></i>
-                                <span class="text-xs">3</span>
-                            </div>
+                            <span class="text-xl font-bold text-[#FF8A3D]">-</span>
                         @endif
                     </div>
                 </div>
@@ -221,27 +200,21 @@
                     </div>
                     <p class="text-sm font-medium text-gray-700 mb-1">Execution</p>
                     <div class="flex items-center justify-center">
-                        <span
-                            class="text-xl font-bold text-[#FF8A3D] mr-1 execution-rank">{{ isset($leaderboardData['current_user']['aace_ranks']['execution']['rank']) ? $leaderboardData['current_user']['aace_ranks']['execution']['rank'] : '6' }}</span>
-                        @if (isset($leaderboardData['current_user']['aace_ranks']['execution']['change_direction']) &&
-                                $leaderboardData['current_user']['aace_ranks']['execution']['change_direction'] == 'up')
-                            <div class="flex items-center text-green-500">
-                                <i class="fas fa-arrow-up text-xs"></i>
-                                <span
-                                    class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['execution']['change_value'] ?? '0' }}</span>
-                            </div>
-                        @elseif(isset($leaderboardData['current_user']['aace_ranks']['execution']['change_direction']) &&
-                                $leaderboardData['current_user']['aace_ranks']['execution']['change_direction'] == 'down')
-                            <div class="flex items-center text-red-500">
-                                <i class="fas fa-arrow-down text-xs"></i>
-                                <span
-                                    class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['execution']['change_value'] ?? '0' }}</span>
-                            </div>
+                        @if (isset($leaderboardData['current_user']['aace_ranks']['execution']['rank']) && $leaderboardData['current_user']['aace_ranks']['execution']['rank'])
+                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 execution-rank">{{ $leaderboardData['current_user']['aace_ranks']['execution']['rank'] }}</span>
+                            @if (isset($leaderboardData['current_user']['aace_ranks']['execution']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['execution']['change_value']) && $leaderboardData['current_user']['aace_ranks']['execution']['change_direction'] == 'up')
+                                <div class="flex items-center text-green-500">
+                                    <i class="fas fa-arrow-up text-xs"></i>
+                                    <span class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['execution']['change_value'] }}</span>
+                                </div>
+                            @elseif(isset($leaderboardData['current_user']['aace_ranks']['execution']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['execution']['change_value']) && $leaderboardData['current_user']['aace_ranks']['execution']['change_direction'] == 'down')
+                                <div class="flex items-center text-red-500">
+                                    <i class="fas fa-arrow-down text-xs"></i>
+                                    <span class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['execution']['change_value'] }}</span>
+                                </div>
+                            @endif
                         @else
-                            <div class="flex items-center text-gray-500">
-                                <i class="fas fa-minus text-xs"></i>
-                                <span class="text-xs">0</span>
-                            </div>
+                            <span class="text-xl font-bold text-[#FF8A3D]">-</span>
                         @endif
                     </div>
                 </div>
@@ -257,27 +230,21 @@
                     </div>
                     <p class="text-sm font-medium text-gray-700 mb-1">Empathy</p>
                     <div class="flex items-center justify-center">
-                        <span
-                            class="text-xl font-bold text-[#FF8A3D] mr-1 empathy-rank">{{ isset($leaderboardData['current_user']['aace_ranks']['empathy']['rank']) ? $leaderboardData['current_user']['aace_ranks']['empathy']['rank'] : '4' }}</span>
-                        @if (isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_direction']) &&
-                                $leaderboardData['current_user']['aace_ranks']['empathy']['change_direction'] == 'up')
-                            <div class="flex items-center text-green-500">
-                                <i class="fas fa-arrow-up text-xs"></i>
-                                <span
-                                    class="text-xs empathy-change">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['change_value'] ?? '1' }}</span>
-                            </div>
-                        @elseif(isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_direction']) &&
-                                $leaderboardData['current_user']['aace_ranks']['empathy']['change_direction'] == 'down')
-                            <div class="flex items-center text-red-500">
-                                <i class="fas fa-arrow-down text-xs"></i>
-                                <span
-                                    class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['change_value'] ?? '0' }}</span>
-                            </div>
+                        @if (isset($leaderboardData['current_user']['aace_ranks']['empathy']['rank']) && $leaderboardData['current_user']['aace_ranks']['empathy']['rank'])
+                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 empathy-rank">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['rank'] }}</span>
+                            @if (isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_value']) && $leaderboardData['current_user']['aace_ranks']['empathy']['change_direction'] == 'up')
+                                <div class="flex items-center text-green-500">
+                                    <i class="fas fa-arrow-up text-xs"></i>
+                                    <span class="text-xs empathy-change">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['change_value'] }}</span>
+                                </div>
+                            @elseif(isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_value']) && $leaderboardData['current_user']['aace_ranks']['empathy']['change_direction'] == 'down')
+                                <div class="flex items-center text-red-500">
+                                    <i class="fas fa-arrow-down text-xs"></i>
+                                    <span class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['change_value'] }}</span>
+                                </div>
+                            @endif
                         @else
-                            <div class="flex items-center text-green-500">
-                                <i class="fas fa-arrow-up text-xs"></i>
-                                <span class="text-xs">1</span>
-                            </div>
+                            <span class="text-xl font-bold text-[#FF8A3D]">-</span>
                         @endif
                     </div>
                 </div>
@@ -285,7 +252,8 @@
         </div>
 
         <!-- Top Performers Section -->
-        <div class="relative bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] p-6 rounded-3xl shadow-lg mb-10 overflow-hidden top-performers-container">
+        @if(isset($leaderboardData['top_performers']) && count($leaderboardData['top_performers']) > 0)
+        <div class="relative bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] p-6 rounded-3xl shadow-lg mb-4 overflow-hidden top-performers-container">
             <!-- Decorative elements -->
             <div class="absolute top-0 right-0 w-40 h-40 bg-[#F58321]/5 rounded-full -mr-10 -mt-10"></div>
             <div class="absolute bottom-0 left-0 w-40 h-40 bg-[#F58321]/5 rounded-full -ml-10 -mb-10"></div>
@@ -394,7 +362,7 @@
                             'icon' => '<i class="fas fa-crown text-[#FFD700] text-xl"></i>',
                             'icon_class' => 'absolute -top-4 left-1/2 transform -translate-x-1/2 animate-bounce',
                             'icon_style' => 'animation-duration: 1.5s',
-                            'default_initials' => 'AR'
+                            'default_initials' => '--'
                         ],
                         2 => [
                             'avatar_size' => 'h-16 w-16',
@@ -408,7 +376,7 @@
                             'icon' => '<i class="fas fa-medal text-[#C0C0C0] text-lg"></i>',
                             'icon_class' => 'absolute -top-2 -right-2 transform rotate-12 animate-bounce',
                             'icon_style' => 'animation-duration: 2s',
-                            'default_initials' => 'VP'
+                            'default_initials' => '--'
                         ],
                         3 => [
                             'avatar_size' => 'h-14 w-14',
@@ -422,7 +390,7 @@
                             'icon' => '<i class="fas fa-award text-[#CD7F32] text-lg"></i>',
                             'icon_class' => 'absolute -top-1 -right-1 transform -rotate-12 animate-bounce',
                             'icon_style' => 'animation-duration: 2.2s',
-                            'default_initials' => 'PS'
+                            'default_initials' => '--'
                         ]
                     ];
                 @endphp
@@ -432,7 +400,7 @@
                     <div class="relative float-animation" style="animation-delay: {{ $medalStyles[2]['delay'] }}">
                         <div class="{{ $medalStyles[2]['avatar_size'] }} rounded-full bg-white p-1 border-2 {{ $medalStyles[2]['border'] }} mb-2 {{ $medalStyles[2]['glow'] }}">
                             @if(isset($topThree[1]['profile_picture']) && $topThree[1]['profile_picture'])
-                                <img src="{{ $topThree[1]['profile_picture'] }}" alt="{{ $topThree[1]['name'] ?? '2nd Place' }}" class="w-full h-full rounded-full object-cover">
+                                <img src="{{ $topThree[1]['profile_picture'] }}" alt="{{ $topThree[1]['name'] ?? 'Top Performer' }}" class="w-full h-full rounded-full object-cover">
                             @else
                                 @php
                                     $initials = isset($topThree[1]['name']) ? 
@@ -454,11 +422,11 @@
                         @if(isset($topThree[1]['name']))
                             {{ explode(' ', $topThree[1]['name'])[0] }} {{ isset(explode(' ', $topThree[1]['name'])[1]) ? substr(explode(' ', $topThree[1]['name'])[1], 0, 1) . '.' : '' }}
                         @else
-                            Vikram P.
+                            -
                         @endif
                     </p>
                     <p class="text-xs font-bold text-[#F58321]">
-                        {{ isset($topThree[1]['score_percentage']) ? $topThree[1]['score_percentage'] : '92' }}
+                        {{ isset($topThree[1]['score_percentage']) ? $topThree[1]['score_percentage'] : '-' }}
                     </p>
                     <div class="w-12 {{ $medalStyles[2]['podium_height'] }} {{ $medalStyles[2]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.3s;"></div>
                 </div>
@@ -468,7 +436,7 @@
                     <div class="relative float-animation">
                         <div class="{{ $medalStyles[1]['avatar_size'] }} rounded-full bg-white p-1 border-2 {{ $medalStyles[1]['border'] }} mb-2 {{ $medalStyles[1]['glow'] }}">
                             @if(isset($topThree[0]['profile_picture']) && $topThree[0]['profile_picture'])
-                                <img src="{{ $topThree[0]['profile_picture'] }}" alt="{{ $topThree[0]['name'] ?? '1st Place' }}" class="w-full h-full rounded-full object-cover">
+                                <img src="{{ $topThree[0]['profile_picture'] }}" alt="{{ $topThree[0]['name'] ?? 'Top Performer' }}" class="w-full h-full rounded-full object-cover">
                             @else
                                 @php
                                     $initials = isset($topThree[0]['name']) ? 
@@ -494,11 +462,11 @@
                         @if(isset($topThree[0]['name']))
                             {{ explode(' ', $topThree[0]['name'])[0] }} {{ isset(explode(' ', $topThree[0]['name'])[1]) ? substr(explode(' ', $topThree[0]['name'])[1], 0, 1) . '.' : '' }}
                         @else
-                            Arjun R.
+                            -
                         @endif
                     </p>
                     <p class="text-xs font-bold text-[#F58321]">
-                        {{ isset($topThree[0]['score_percentage']) ? $topThree[0]['score_percentage'] : '98' }}
+                        {{ isset($topThree[0]['score_percentage']) ? $topThree[0]['score_percentage'] : '-' }}
                     </p>
                     <div class="w-12 {{ $medalStyles[1]['podium_height'] }} {{ $medalStyles[1]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.1s;"></div>
                 </div>
@@ -508,7 +476,7 @@
                     <div class="relative float-animation" style="animation-delay: {{ $medalStyles[3]['delay'] }}">
                         <div class="{{ $medalStyles[3]['avatar_size'] }} rounded-full bg-white p-1 border-2 {{ $medalStyles[3]['border'] }} mb-2 {{ $medalStyles[3]['glow'] }}">
                             @if(isset($topThree[2]['profile_picture']) && $topThree[2]['profile_picture'])
-                                <img src="{{ $topThree[2]['profile_picture'] }}" alt="{{ $topThree[2]['name'] ?? '3rd Place' }}" class="w-full h-full rounded-full object-cover">
+                                <img src="{{ $topThree[2]['profile_picture'] }}" alt="{{ $topThree[2]['name'] ?? 'Top Performer' }}" class="w-full h-full rounded-full object-cover">
                             @else
                                 @php
                                     $initials = isset($topThree[2]['name']) ? 
@@ -530,20 +498,22 @@
                         @if(isset($topThree[2]['name']))
                             {{ explode(' ', $topThree[2]['name'])[0] }} {{ isset(explode(' ', $topThree[2]['name'])[1]) ? substr(explode(' ', $topThree[2]['name'])[1], 0, 1) . '.' : '' }}
                         @else
-                            Priya S.
+                            -
                         @endif
                     </p>
                     <p class="text-xs font-bold text-[#F58321]">
-                        {{ isset($topThree[2]['score_percentage']) ? $topThree[2]['score_percentage'] : '87' }}
+                        {{ isset($topThree[2]['score_percentage']) ? $topThree[2]['score_percentage'] : '-' }}
                     </p>
                     <div class="w-12 {{ $medalStyles[3]['podium_height'] }} {{ $medalStyles[3]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.5s;"></div>
                 </div>
             </div>
             </div>
         </div>
+        @endif
 
         <!-- Leaderboard List -->
-        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        @if(isset($leaderboardData['entries']) && count($leaderboardData['entries']) > 0)
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mx-4 mb-4 ">
             <div class="p-5 bg-[#FFF9F5] border-b border-gray-100">
                 <h3 class="font-bold text-gray-800 text-lg">All Participants</h3>
             </div>
@@ -568,8 +538,8 @@
                                     <span>{{ $entry['rank'] }}</span>
                                     @if ($entry['change_direction'] == 'up')
                                         <div class="ml-1 bg-green-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-sm"
-                                            title="Moved up {{ $entry['change_percentage'] ?? 0 }} positions">
-                                            <span>+{{ $entry['change_percentage'] ?? 0 }}</span>
+                                            title="Moved up {{ isset($entry['change_percentage']) && $entry['change_percentage'] ? $entry['change_percentage'] : '-' }} positions">
+                                            <span>+{{ isset($entry['change_percentage']) && $entry['change_percentage'] ? $entry['change_percentage'] : '-' }}</span>
                                         </div>
                                     @elseif($entry['change_direction'] == 'down')
                                         <i class="fas fa-arrow-down ml-1 text-xs text-red-500"></i>
@@ -604,7 +574,7 @@
                             </div>
                             <div class="text-right {{ $entry['is_current_user'] ? 'relative z-10' : '' }}">
                                 <div class="font-bold text-[#F58321] {{ $entry['is_current_user'] ? 'text-lg' : '' }}">
-                                    {{ $entry['score_percentage'] ?? 0 }}</div>
+                                    {{ isset($entry['score_percentage']) && $entry['score_percentage'] ? $entry['score_percentage'].'%' : '-' }}</div>
                                 <div
                                     class="flex items-center justify-end text-xs {{ $entry['change_direction'] == 'up' ? 'text-green-500' : ($entry['change_direction'] == 'down' ? 'text-red-500' : 'text-gray-500') }}">
                                     @if ($entry['change_direction'] == 'up')
@@ -612,7 +582,7 @@
                                     @elseif($entry['change_direction'] == 'down')
                                         <i class="fas fa-arrow-down mr-1"></i>
                                     @endif
-                                    <span>{{ $entry['change_percentage'] ?? 0 }}</span>
+                                    <span>{{ isset($entry['change_percentage']) && $entry['change_percentage'] ? $entry['change_percentage'] : '-' }}</span>
                                 </div>
                                 @if ($entry['is_current_user'])
                                     <a href="{{ route('mobile.performance') }}"
@@ -626,6 +596,7 @@
                 @endforeach
             </div>
         </div>
+        @endif
     </div>
 @endsection
 
