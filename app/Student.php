@@ -43,4 +43,14 @@ class Student extends Model
                     ->withPivot('unlocked_at')
                     ->withTimestamps();
     }
+
+    /**
+     * The batches that belong to the student.
+     */
+    public function batches()
+    {
+        return $this->belongsToMany(Batch::class, 'batch_student', 'student_id', 'batch_id')
+                    ->withPivot('challenge_id', 'amount', 'payment_status', 'payment_time', 'payment_comments')
+                    ->withTimestamps();
+    }
 }

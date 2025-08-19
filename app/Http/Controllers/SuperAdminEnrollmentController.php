@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Enrollment;
 use App\Challenge;
 use App\Batch;
+use App\Student;
 
 class SuperAdminEnrollmentController extends Controller
 {
@@ -70,11 +71,90 @@ class SuperAdminEnrollmentController extends Controller
         ]);
 
         $enrollment = Enrollment::findOrFail($id);
+        $oldStatus = $enrollment->payment_status;
+        
         $enrollment->update([
             'payment_status' => $request->payment_status
         ]);
 
+        // If payment status changed to 'paid', move enrollment data to Student table
+        if ($request->payment_status === 'paid' && $oldStatus !== 'paid') {
+            $this->moveEnrollmentToStudent($enrollment);
+        }
+
         return redirect()->back()->with('success', 'Payment status updated successfully.');
+    }
+
+    /**
+     * Move enrollment data to Student table when payment is confirmed.
+     */
+    private function moveEnrollmentToStudent(Enrollment $enrollment)
+    {
+        // Check if student already exists with this email
+        $existingStudent = Student::where('email', $enrollment->email_id)->first();
+        
+        if (!$existingStudent) {
+            // Map enrollment data to student fields
+            $studentData = [
+                'full_name' => $enrollment->full_name,
+                'email' => $enrollment->email_id,
+                'phone_number' => $enrollment->phone_number,
+                'date_of_birth' => $enrollment->date_of_birth,
+                'gender' => $enrollment->gender === 'prefer_not_to_say' ? 'other' : $enrollment->gender,
+                'partner_institution' => null, // Not available in enrollment
+                'status' => 'active',
+                'email_verified_at' => null,
+                'has_seen_welcome' => false,
+                'B2C' => true // Set B2C to true for paid enrollments
+            ];
+
+            $student = Student::create($studentData);
+            
+            // Assign student to batch with paid status
+            $this->assignStudentToBatch($student, $enrollment);
+        } else {
+            // If student exists, still assign to batch if not already assigned
+            $this->assignStudentToBatch($existingStudent, $enrollment);
+        }
+    }
+
+    /**
+     * Assign student to batch with payment status as paid.
+     */
+    private function assignStudentToBatch(Student $student, Enrollment $enrollment)
+    {
+        // Check if student is already assigned to this batch
+        $existingAssignment = $student->batches()
+            ->wherePivot('batch_id', $enrollment->batch_selected)
+            ->wherePivot('challenge_id', $enrollment->challenge_id)
+            ->first();
+            
+        if (!$existingAssignment) {
+            // Get challenge amount for pivot table
+            $challenge = Challenge::find($enrollment->challenge_id);
+            $amount = $challenge ? $challenge->selling_price : 0;
+            
+            // Assign student to batch with paid status
+            $student->batches()->attach($enrollment->batch_selected, [
+                'challenge_id' => $enrollment->challenge_id,
+                'amount' => $amount,
+                'payment_status' => 'paid',
+                'payment_time' => now(),
+                'payment_comments' => 'Auto-assigned from enrollment payment confirmation',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        } else {
+            // Update existing assignment to paid status if it was unpaid
+            if ($existingAssignment->pivot->payment_status !== 'paid') {
+                $student->batches()->updateExistingPivot($enrollment->batch_selected, [
+                    'payment_status' => 'paid',
+                    'payment_time' => now(),
+                    'payment_comments' => 'Payment confirmed via enrollment',
+                    'updated_at' => now()
+                ]);
+            }
+        }
     }
 
     /**
