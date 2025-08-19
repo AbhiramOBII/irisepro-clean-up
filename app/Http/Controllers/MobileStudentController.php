@@ -255,6 +255,7 @@ class MobileStudentController extends Controller
         DB::table('habit_student')->insert([
             'student_id' => $student->id,
             'habit_id' => $request->habit_id,
+            'datestamp' => now(), // Add the required datestamp field
             'created_at' => now(),
             'updated_at' => now()
         ]);

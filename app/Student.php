@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Batch;
 
 class Student extends Model
 {
@@ -39,6 +40,16 @@ class Student extends Model
     {
         return $this->belongsToMany(Achievement::class, 'student_achievement')
                     ->withPivot('unlocked_at')
+                    ->withTimestamps();
+    }
+    
+    /**
+     * Get the batches that the student belongs to.
+     */
+    public function batches()
+    {
+        return $this->belongsToMany(Batch::class, 'batch_student', 'student_id', 'batch_id')
+                    ->withPivot('challenge_id', 'amount', 'payment_status', 'payment_time', 'payment_comments')
                     ->withTimestamps();
     }
 }
