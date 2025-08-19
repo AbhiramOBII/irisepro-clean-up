@@ -36,12 +36,6 @@ class YashodarshiEvaluationResult extends Model
         'evaluated_at' => 'datetime'
     ];
 
-    protected $dates = [
-        'evaluated_at',
-        'created_at',
-        'updated_at'
-    ];
-
     // Relationships
     public function batch()
     {

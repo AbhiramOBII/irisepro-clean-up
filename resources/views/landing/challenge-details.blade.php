@@ -186,9 +186,10 @@
                             </div>
                         @endif
 
-                        <form action="{{ route('enrollment.submit') }}" method="POST" class="space-y-4">
+                        <form action="{{ route('enrollment.pay') }}" method="POST" class="space-y-4">
                             @csrf
                             <input type="hidden" name="challenge_id" value="{{ $challenge->id }}">
+                            <input type="hidden" name="amount" value="{{ $challenge->special_price ?? $challenge->selling_price }}">
                             
                             @if($challenge->batches->count() > 0)
                                 <div>

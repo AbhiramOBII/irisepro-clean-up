@@ -5,11 +5,14 @@ namespace App;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Support\Str;
+
 class Enrollment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'uuid',
         'full_name',
         'email_id',
         'phone_number',
@@ -19,12 +22,35 @@ class Enrollment extends Model
         'goals',
         'batch_selected',
         'challenge_id',
-        'payment_status'
+        'payment_status',
+        'razorpay_order_id',
+        'razorpay_payment_id'
     ];
 
-    protected $dates = [
-        'date_of_birth'
+    protected $casts = [
+        'date_of_birth' => 'date',
     ];
+
+    /**
+     * Automatically generate UUID when creating.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid();
+            }
+        });
+    }
+
+    /**
+     * Use uuid for route model binding.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'uuid';
+    }
 
     /**
      * Get the challenge that owns the enrollment.

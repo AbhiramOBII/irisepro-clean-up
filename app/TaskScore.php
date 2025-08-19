@@ -36,16 +36,6 @@ class TaskScore extends Model
     ];
 
     /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
-
-    /**
      * Get the task that owns the task score.
      */
     public function task()

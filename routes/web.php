@@ -19,7 +19,11 @@ Route::get('/challenges', 'LandingController@challenges')->name('challenges.all'
 
 // Challenge Details and Enrollment Routes
 Route::get('/challenge/{id}', 'EnrollmentController@showChallengeDetails')->name('challenge.details');
-Route::post('/enrollment/submit', 'EnrollmentController@submitEnrollment')->name('enrollment.submit');
+// Enrollment & Payment Routes
+Route::post('/enrollment/pay', 'EnrollmentController@startPayment')->name('enrollment.pay');
+Route::get('/enrollment/{enrollment}/pay', 'EnrollmentController@paymentPage')->name('enrollment.pay.page');
+Route::post('/payment/verify', 'EnrollmentController@verifyPayment')->name('payment.verify');
+Route::post('/payment/webhook', 'EnrollmentController@webhook')->name('payment.webhook');
 
 // SuperAdmin Routes
 Route::prefix('superadmin')->middleware('web')->group(function () {

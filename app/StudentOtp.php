@@ -14,10 +14,6 @@ class StudentOtp extends Model
         'is_used'
     ];
 
-    protected $dates = [
-        'expires_at'
-    ];
-
     protected $casts = [
         'is_used' => 'boolean',
         'expires_at' => 'datetime'

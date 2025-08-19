@@ -16,10 +16,6 @@ class Batch extends Model
         'status'
     ];
 
-    protected $dates = [
-        'start_date'
-    ];
-
     protected $casts = [
         'start_date' => 'date',
         'time' => 'datetime:H:i:s'
