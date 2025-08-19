@@ -9,14 +9,15 @@ class Student extends Model
     protected $fillable = [
         'full_name',
         'email',
+        'phone_number',
         'date_of_birth',
         'gender',
-        'phone_number',
         'partner_institution',
         'status',
         'email_verified_at',
         'has_seen_welcome',
-        'B2C'
+        'B2C',
+        'profile_picture'
     ];
 
     protected $casts = [
@@ -32,6 +33,14 @@ class Student extends Model
     public function habits()
     {
         return $this->belongsToMany(Habit::class)->withPivot('datestamp')->withTimestamps();
+    }
+
+    /**
+     * The help requests that belong to the student.
+     */
+    public function helpRequests()
+    {
+        return $this->hasMany(HelpRequest::class);
     }
 
     /**

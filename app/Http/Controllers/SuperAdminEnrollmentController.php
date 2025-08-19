@@ -45,6 +45,11 @@ class SuperAdminEnrollmentController extends Controller
 
         $enrollments = $query->orderBy('created_at', 'desc')->paginate(20);
         
+        // Check which enrollments have corresponding students
+        foreach ($enrollments as $enrollment) {
+            $enrollment->student_exists = Student::where('email', $enrollment->email_id)->exists();
+        }
+        
         // Get all challenges and batches for filter dropdowns
         $challenges = Challenge::orderBy('title')->get();
         $batches = Batch::orderBy('title')->get();

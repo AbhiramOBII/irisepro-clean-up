@@ -81,6 +81,13 @@ Route::prefix('superadmin')->middleware('web')->group(function () {
     // Achievement Management Routes
     Route::resource('achievements', 'AchievementController');
     
+    // Support Request Management Routes
+    Route::get('support-requests', 'SupportRequestController@index')->name('superadmin.support-requests.index');
+    Route::get('support-requests/{id}', 'SupportRequestController@show')->name('superadmin.support-requests.show');
+    Route::get('support-requests/{id}/details', 'SupportRequestController@getDetails')->name('superadmin.support-requests.details');
+    Route::put('support-requests/{id}/status', 'SupportRequestController@updateStatus')->name('superadmin.support-requests.update-status');
+    Route::delete('support-requests/{id}', 'SupportRequestController@destroy')->name('superadmin.support-requests.destroy');
+    
     // Enrollment Management Routes
     Route::get('enrollments', 'SuperAdminEnrollmentController@index')->name('superadmin.enrollments.index');
     Route::get('enrollments/{id}', 'SuperAdminEnrollmentController@show')->name('superadmin.enrollments.show');
@@ -120,8 +127,8 @@ Route::prefix('mobile')->middleware('web')->group(function () {
     Route::get('/dashboard', 'MobileStudentController@dashboard')->name('mobile.dashboard');
     Route::get('/profile', 'MobileStudentController@profile')->name('mobile.profile');
     Route::put('/profile', 'MobileStudentController@updateProfile')->name('mobile.profile.update');
-    
-    // Student Features Routes (to be expanded)
+    Route::get('/support', 'MobileStudentController@support')->name('mobile.support');
+    Route::post('/support', 'MobileStudentController@submitSupport')->name('mobile.support.submit');
     Route::get('/tasks', 'MobileStudentController@tasks')->name('mobile.tasks');
     Route::get('/challenges', 'MobileStudentController@challenges')->name('mobile.challenges');
     Route::get('/habits', 'MobileStudentController@habits')->name('mobile.habits');
@@ -137,8 +144,6 @@ Route::prefix('mobile')->middleware('web')->group(function () {
     Route::get('/task/submission/{task_id}/{batch_id}/', [\App\Http\Controllers\TaskDetailsController::class, 'showSubmission'])->name('mobile.task.submission');
     Route::get('/task/confirmation/{task_id}/{batch_id}/', [\App\Http\Controllers\TaskDetailsController::class, 'showConfirmation'])->name('mobile.task.confirmation');
     Route::get('/task/success/{taskId}/{batch_id}/', [\App\Http\Controllers\TaskDetailsController::class, 'showSuccess'])->name('mobile.task.success');
-    Route::post('/task/{taskId}/start', [\App\Http\Controllers\TaskDetailsController::class, 'startTask'])->name('mobile.task.start');
-    Route::post('/task/submit/{task_id}/{batch_id}', [\App\Http\Controllers\TaskDetailsController::class, 'submitTask'])->name('mobile.task.submit');
 });
 
 // Yashodarshi Authentication Routes
