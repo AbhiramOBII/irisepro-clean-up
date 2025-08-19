@@ -125,7 +125,7 @@
                 <!-- OTP header -->
                 <div class="mb-8">
                     <h1 class="text-2xl font-bold text-[#F58321] mb-2">VERIFY OTP</h1>
-                    <div class="w-16 h-1 bg-primary rounded-full"></div>
+                    <div class="w-full max-w-[150px] h-1 bg-primary rounded-full"></div>
                 </div>
 
                 <!-- Email info -->

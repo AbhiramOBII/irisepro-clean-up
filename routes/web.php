@@ -14,9 +14,12 @@ use App\Http\Controllers\MobileStudentController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'LandingController@index');
+Route::get('/challenges', 'LandingController@challenges')->name('challenges.all');
+
+// Challenge Details and Enrollment Routes
+Route::get('/challenge/{id}', 'EnrollmentController@showChallengeDetails')->name('challenge.details');
+Route::post('/enrollment/submit', 'EnrollmentController@submitEnrollment')->name('enrollment.submit');
 
 // SuperAdmin Routes
 Route::prefix('superadmin')->middleware('web')->group(function () {
@@ -74,6 +77,15 @@ Route::prefix('superadmin')->middleware('web')->group(function () {
     
     // Habit Management Routes
     Route::resource('habits', 'HabitController');
+    
+    // Achievement Management Routes
+    Route::resource('achievements', 'AchievementController');
+    
+    // Enrollment Management Routes
+    Route::get('enrollments', 'SuperAdminEnrollmentController@index')->name('superadmin.enrollments.index');
+    Route::get('enrollments/{id}', 'SuperAdminEnrollmentController@show')->name('superadmin.enrollments.show');
+    Route::put('enrollments/{id}/payment', 'SuperAdminEnrollmentController@updatePaymentStatus')->name('superadmin.enrollments.payment');
+    Route::delete('enrollments/{id}', 'SuperAdminEnrollmentController@destroy')->name('superadmin.enrollments.destroy');
     
     // Settings Routes
     Route::get('settings', 'SettingsController@index')->name('superadmin.settings');

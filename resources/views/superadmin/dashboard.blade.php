@@ -89,6 +89,22 @@
         </div>
     </div>
 
+    <!-- Enrollments Statistics -->
+    <div class="bg-card-bg rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-plus text-white text-lg"></i>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Enrollments</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Enrollment::count() }}</p>
+                <p class="text-xs text-gray-500">Paid: {{ \App\Enrollment::where('payment_status', 'paid')->count() }}</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Habits Statistics -->
     <div class="bg-card-bg rounded-lg shadow p-6">
         <div class="flex items-center">
@@ -165,6 +181,10 @@
                 <a href="{{ route('yashodarshis.bulk-upload') }}" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-3 rounded-lg font-medium transition duration-200 text-center flex items-center justify-center">
                     <i class="fas fa-upload mr-2"></i>
                     Bulk Upload Yashodarshis
+                </a>
+                <a href="{{ route('superadmin.enrollments.index') }}" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-lg font-medium transition duration-200 text-center flex items-center justify-center">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    Manage Enrollments
                 </a>
             </div>
         </div>

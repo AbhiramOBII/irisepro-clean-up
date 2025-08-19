@@ -16,13 +16,15 @@ class Student extends Model
         'partner_institution',
         'status',
         'email_verified_at',
-        'has_seen_welcome'
+        'has_seen_welcome',
+        'B2C'
     ];
 
     protected $casts = [
         'date_of_birth' => 'date',
         'email_verified_at' => 'datetime',
-        'has_seen_welcome' => 'boolean'
+        'has_seen_welcome' => 'boolean',
+        'B2C' => 'boolean'
     ];
 
     /**
@@ -42,7 +44,7 @@ class Student extends Model
                     ->withPivot('unlocked_at')
                     ->withTimestamps();
     }
-    
+
     /**
      * Get the batches that the student belongs to.
      */

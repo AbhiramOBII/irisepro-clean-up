@@ -97,7 +97,7 @@
                 <!-- Login header -->
                 <div class="mb-8">
                     <h1 class="text-2xl font-bold text-[#F58321] mb-2">LOGIN</h1>
-                    <div class="w-12 h-1 bg-primary rounded-full"></div>
+                    <div class="w-full max-w-[80px] h-1 bg-primary rounded-full"></div>
                 </div>
 
                 <!-- Error/Success messages -->
