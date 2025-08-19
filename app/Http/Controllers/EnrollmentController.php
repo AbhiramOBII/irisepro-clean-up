@@ -222,7 +222,7 @@ class EnrollmentController extends Controller
     {
         $payload   = $request->getContent();
         $signature = $request->header('X-Razorpay-Signature');
-        $expected  = hash_hmac('sha256', $payload, config('services.razorpay.secret'));
+        $expected  = hash_hmac('sha256', $payload, config('services.razorpay.webhook_secret'));
 
         if (!hash_equals($expected, $signature)) {
             return response()->json(['error' => 'Invalid signature'], 400);
