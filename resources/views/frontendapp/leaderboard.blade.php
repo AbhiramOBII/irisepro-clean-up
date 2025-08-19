@@ -23,12 +23,12 @@
                             <div
                                 class="bg-[#FF8A3D]/10 rounded-full px-3 py-1 text-xs text-[#FF8A3D] font-medium flex items-center">
                                 <i class="fas fa-fire mr-1"></i> <span
-                                    class="user-streak">{{ $leaderboardData['current_user']['streak'] }}</span> Day Streak
+                                    class="user-streak">{{ $leaderboardData['current_user']['streak'] }} &nbsp;</span> Day Streak
                             </div>
                             <div
                                 class="bg-[#FFC107]/10 rounded-full px-3 py-1 text-xs text-[#FFC107] font-medium flex items-center ml-2">
                                 <i class="fas fa-chart-line mr-1"></i> +<span
-                                    class="user-improvement">{{ $leaderboardData['current_user']['weekly_improvement'] }}</span>
+                                    class="user-improvement">{{ $leaderboardData['current_user']['weekly_improvement'] }} &nbsp;</span>
                                 This Week
                             </div>
                         </div>
@@ -426,7 +426,7 @@
                         @endif
                     </p>
                     <p class="text-xs font-bold text-[#F58321]">
-                        {{ isset($topThree[1]['score_percentage']) ? $topThree[1]['score_percentage'] : '-' }}
+                        {{ isset($topThree[1]['score_percentage']) ? $topThree[1]['score_percentage'] . '%' : '-' }}
                     </p>
                     <div class="w-12 {{ $medalStyles[2]['podium_height'] }} {{ $medalStyles[2]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.3s;"></div>
                 </div>
@@ -466,7 +466,7 @@
                         @endif
                     </p>
                     <p class="text-xs font-bold text-[#F58321]">
-                        {{ isset($topThree[0]['score_percentage']) ? $topThree[0]['score_percentage'] : '-' }}
+                        {{ isset($topThree[0]['score_percentage']) ? $topThree[0]['score_percentage'] . '%' : '-' }}
                     </p>
                     <div class="w-12 {{ $medalStyles[1]['podium_height'] }} {{ $medalStyles[1]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.1s;"></div>
                 </div>
@@ -502,7 +502,7 @@
                         @endif
                     </p>
                     <p class="text-xs font-bold text-[#F58321]">
-                        {{ isset($topThree[2]['score_percentage']) ? $topThree[2]['score_percentage'] : '-' }}
+                        {{ isset($topThree[2]['score_percentage']) ? $topThree[2]['score_percentage'] . '%' : '-' }}
                     </p>
                     <div class="w-12 {{ $medalStyles[3]['podium_height'] }} {{ $medalStyles[3]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.5s;"></div>
                 </div>

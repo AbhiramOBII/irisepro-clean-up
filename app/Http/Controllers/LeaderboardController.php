@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Student;
 use App\YashodarshiEvaluationResult;
 use App\Batch;
+use App\TaskScore;
 use Carbon\Carbon;
 use App\Http\Controllers\MobileStudentController;
 
@@ -100,8 +101,13 @@ class LeaderboardController extends Controller
             
             // Calculate total scores and AACE scores
             $totalScore = $studentResults->sum('total_score');
-            $totalMaxScore = $studentResults->count() * 100; // Assuming each task is out of 100
-            $scorePercentage = $totalMaxScore > 0 ? round(($totalScore / $totalMaxScore) * 100, 1) : 0;
+            
+            // Get task scores for percentage calculation
+            $taskScores = TaskScore::whereIn('task_id', $studentResults->pluck('task_id')->toArray())->get();
+            $maxPossibleScore = $taskScores->sum('total_score');
+            
+            // Calculate percentage based on total_score from task_scores table
+            $scorePercentage = $maxPossibleScore > 0 ? round(($totalScore / $maxPossibleScore) * 100, 1) : 0;
             
             // Calculate AACE scores
             $aptitudeScore = $studentResults->sum('aptitude_score');
