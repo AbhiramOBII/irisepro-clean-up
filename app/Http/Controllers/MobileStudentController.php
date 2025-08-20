@@ -17,6 +17,7 @@ use App\Models\HelpRequest;
 use App\Models\StudentTaskResponse;
 use App\Models\Batch;
 use App\Models\TaskScore;
+use Illuminate\Support\Facades\Mail;
 
 class MobileStudentController extends Controller
 {
@@ -64,11 +65,13 @@ class MobileStudentController extends Controller
             'is_used' => false
         ]);
 
-        // TODO: Send OTP via email (implement email service)
-        // For now, we'll just return success
-        // Mail::send('emails.otp', ['otp' => $otp], function($message) use ($email) {
-        //     $message->to($email)->subject('iRisePro - Your Login OTP');
-        // });
+        Mail::send('emails.student-otp', [
+            'otp' => $otp,
+            'name' => $student->full_name,
+            'expires_in' => '10 minutes'
+        ], function($message) use ($email) {
+            $message->to($email)->subject('iRisePro - Your Login OTP');
+        });
 
         return response()->json([
             'success' => true,

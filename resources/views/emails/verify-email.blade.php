@@ -1,4 +1,3 @@
-{{-- resources/views/emails/verify-email.blade.php --}}
 @extends('emails.layouts.app')
 
 @section('body')
