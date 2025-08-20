@@ -24,7 +24,7 @@ Route::post('/mark-welcome-seen', [MobileStudentController::class, 'markWelcomeS
 
 // Habit Selection Routes
 Route::get('/select-habit', [MobileStudentController::class, 'selectHabit'])->name('mobile.select-habit');
-Route::post('/save-habits', [MobileStudentController::class, 'saveHabits'])->name('mobile.save-habits');
+Route::post('/save-habit', [MobileStudentController::class, 'saveHabit'])->name('mobile.save-habit');
 
 // Student Dashboard and Main Routes
 Route::get('/dashboard', [MobileStudentController::class, 'dashboard'])->name('mobile.dashboard');
