@@ -2,9 +2,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\TaskScore;
-use App\Student;
-use App\Task;
+use App\Models\TaskScore;
+use App\Models\Student;
+use App\Models\Task;
 
 class TaskScoreSeeder extends Seeder
 {

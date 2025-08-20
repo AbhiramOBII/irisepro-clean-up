@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\SuperAdmin;
+use App\Models\SuperAdmin;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class SuperAdminAuthController extends Controller
@@ -32,9 +33,8 @@ class SuperAdminAuthController extends Controller
                 'last_login_ip' => $request->ip()
             ]);
 
-            // Store in session
-            Session::put('superadmin_id', $superadmin->id);
-            Session::put('superadmin_logged_in', true);
+            // Authenticate via guard
+            Auth::guard('superadmin')->login($superadmin);
 
             return redirect()->route('superadmin.dashboard');
         }
@@ -44,17 +44,17 @@ class SuperAdminAuthController extends Controller
 
     public function dashboard()
     {
-        if (!Session::get('superadmin_logged_in')) {
+        if (!Auth::guard('superadmin')->check()) {
             return redirect()->route('superadmin.login');
         }
 
-        $superadmin = SuperAdmin::find(Session::get('superadmin_id'));
+        $superadmin = Auth::guard('superadmin')->user();
         return view('superadmin.dashboard', compact('superadmin'));
     }
 
     public function logout()
     {
-        Session::forget(['superadmin_id', 'superadmin_logged_in']);
+        Auth::guard('superadmin')->logout();
         return redirect()->route('superadmin.login');
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Task;
-use App\Attribute;
-use App\SubAttribute;
+use App\Models\Task;
+use App\Models\Attribute;
+use App\Models\SubAttribute;
+use App\Models\TaskScore;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -90,7 +91,7 @@ class TaskController extends Controller
         $categoryScores['total'] = array_sum($categoryScores);
 
         // Create task score record with the weights
-        \App\TaskScore::create([
+        TaskScore::create([
             'task_id' => $task->id,
             'attribute_score' => $attributeScore,
             'total_score' => $categoryScores['total'],
@@ -120,7 +121,7 @@ class TaskController extends Controller
         $attributes = Attribute::with('subAttributes')->where('status', 'active')->get();
         
         // Get existing task score data
-        $taskScore = \App\TaskScore::where('task_id', $task->id)->first();
+        $taskScore = TaskScore::where('task_id', $task->id)->first();
         $existingScores = $taskScore ? $taskScore->attribute_score : [];
         
         // Structure AACE framework data for the form
@@ -188,7 +189,7 @@ class TaskController extends Controller
         $categoryScores['total'] = array_sum($categoryScores);
 
         // Update or create task score record
-        \App\TaskScore::updateOrCreate(
+        TaskScore::updateOrCreate(
             ['task_id' => $task->id],
             [
                 'attribute_score' => $attributeScore,
@@ -223,7 +224,7 @@ class TaskController extends Controller
         $attributes = Attribute::with('subAttributes')->where('status', 'active')->get();
         
         // Get existing task score framework (weights)
-        $taskScore = \App\TaskScore::where('task_id', $task->id)->first();
+        $taskScore = TaskScore::where('task_id', $task->id)->first();
         $taskWeights = $taskScore ? $taskScore->attribute_score : [];
         
         // Get category totals from database

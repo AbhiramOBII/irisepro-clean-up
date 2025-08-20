@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('superadmin.layout')
 
 @section('title', 'Enrollment Management')
 @section('page-title', 'Enrollment Management')
@@ -162,7 +162,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Enrollments</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Enrollment::count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Enrollment::count() }}</p>
             </div>
         </div>
     </div>
@@ -177,7 +177,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Paid Enrollments</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Enrollment::where('payment_status', 'paid')->count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Enrollment::where('payment_status', 'paid')->count() }}</p>
             </div>
         </div>
     </div>
@@ -192,7 +192,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Unpaid Enrollments</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Enrollment::where('payment_status', 'unpaid')->count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Enrollment::where('payment_status', 'unpaid')->count() }}</p>
             </div>
         </div>
     </div>
@@ -207,7 +207,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Today's Enrollments</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Enrollment::whereDate('created_at', today())->count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Enrollment::whereDate('created_at', today())->count() }}</p>
             </div>
         </div>
     </div>

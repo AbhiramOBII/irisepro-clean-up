@@ -43,7 +43,9 @@ class RouteServiceProvider extends ServiceProvider
     public function map()
     {
         $this->mapApiRoutes();
-
+        $this->mapMobileRoutes();
+        $this->mapYashodarshiRoutes();
+        $this->mapSuperAdminRoutes();
         $this->mapWebRoutes();
 
         //
@@ -76,5 +78,29 @@ class RouteServiceProvider extends ServiceProvider
             ->middleware('api')
             ->namespace($this->namespace)
             ->group(base_path('routes/api.php'));
+    }
+
+    protected function mapMobileRoutes()
+    {
+        Route::prefix('mobile')
+            ->middleware('web')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/mobile.php'));
+    }
+
+    protected function mapYashodarshiRoutes()
+    {
+        Route::prefix('yashodarshi')
+            ->middleware('web')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/yashodarshi.php'));
+    }
+
+    protected function mapSuperAdminRoutes()
+    {
+        Route::prefix('superadmin')
+            ->middleware('web')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/superadmin.php'));
     }
 }

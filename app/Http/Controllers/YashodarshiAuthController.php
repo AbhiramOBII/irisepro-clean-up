@@ -6,6 +6,13 @@ use Illuminate\Http\Request;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Yashodarshi;
+use App\Models\Task;
+use App\Models\Batch;
+use App\Models\StudentTaskResponse;
+use App\Models\YashodarshiEvaluationResult;
+use App\Models\TaskScore;
 
 class YashodarshiAuthController extends Controller
 {
@@ -24,7 +31,7 @@ class YashodarshiAuthController extends Controller
     public function showLoginForm()
     {
         // If already logged in, redirect to dashboard
-        if (Session::get('yashodarshi_logged_in')) {
+        if (Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.dashboard');
         }
 
@@ -52,9 +59,9 @@ class YashodarshiAuthController extends Controller
         if ($result['success']) {
             Session::put('yashodarshi_email', $request->email);
             Session::put('yashodarshi_id', $result['yashodarshi_id']);
-            
+
             return redirect()->route('yashodarshi.verify-otp')
-                           ->with('success', $result['message']);
+                ->with('success', $result['message']);
         } else {
             return back()->with('error', $result['message'])->withInput();
         }
@@ -69,7 +76,7 @@ class YashodarshiAuthController extends Controller
     {
         if (!Session::get('yashodarshi_email')) {
             return redirect()->route('yashodarshi.login')
-                           ->with('error', 'Please enter your email first');
+                ->with('error', 'Please enter your email first');
         }
 
         return view('yashodarshi.auth.verify-otp');
@@ -94,21 +101,20 @@ class YashodarshiAuthController extends Controller
         $yashodarshiId = Session::get('yashodarshi_id');
         if (!$yashodarshiId) {
             return redirect()->route('yashodarshi.login')
-                           ->with('error', 'Session expired. Please try again.');
+                ->with('error', 'Session expired. Please try again.');
         }
 
         $result = $this->otpService->verifyOtp($yashodarshiId, $request->otp);
 
         if ($result['success']) {
-            // Set session data for logged in yashodarshi
-            Session::put('yashodarshi_logged_in', true);
-            Session::put('yashodarshi_data', $result['yashodarshi']);
-            
+            // Authenticate via guard
+            Auth::guard('yashodarshi')->login($result['yashodarshi']);
+
             // Clear temporary session data
             Session::forget(['yashodarshi_email', 'yashodarshi_id']);
 
             return redirect()->route('yashodarshi.dashboard')
-                           ->with('success', 'Welcome back, ' . $result['yashodarshi']->name);
+                ->with('success', 'Welcome back, ' . $result['yashodarshi']->name);
         } else {
             return back()->with('error', $result['message']);
         }
@@ -124,7 +130,7 @@ class YashodarshiAuthController extends Controller
         $email = Session::get('yashodarshi_email');
         if (!$email) {
             return redirect()->route('yashodarshi.login')
-                           ->with('error', 'Session expired. Please try again.');
+                ->with('error', 'Session expired. Please try again.');
         }
 
         $result = $this->otpService->sendOtp($email);
@@ -144,9 +150,9 @@ class YashodarshiAuthController extends Controller
      */
     public function logout()
     {
-        Session::forget(['yashodarshi_logged_in', 'yashodarshi_data']);
+        Auth::guard('yashodarshi')->logout();
         return redirect()->route('yashodarshi.login')
-                       ->with('success', 'Logged out successfully');
+            ->with('success', 'Logged out successfully');
     }
 
     /**
@@ -156,30 +162,29 @@ class YashodarshiAuthController extends Controller
      */
     public function dashboard()
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login');
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
-        
+        $yashodarshi = Auth::guard('yashodarshi')->user();
         // Get fresh yashodarshi data with batches
-        $yashodarshiWithBatches = \App\Yashodarshi::with(['batches.challenge', 'batches.students'])
-                                                  ->find($yashodarshi->id);
-        
+        $yashodarshiWithBatches = Yashodarshi::with(['batches.challenge', 'batches.students'])
+            ->find($yashodarshi->id);
+
         // Calculate statistics
         $totalBatches = $yashodarshiWithBatches->batches->count();
         $activeBatches = $yashodarshiWithBatches->batches->where('status', 'active')->count();
         $ongoingBatches = $yashodarshiWithBatches->batches->where('status', 'ongoing')->count();
-        $totalStudents = $yashodarshiWithBatches->batches->sum(function($batch) {
+        $totalStudents = $yashodarshiWithBatches->batches->sum(function ($batch) {
             return $batch->students->count();
         });
 
         return view('yashodarshi.dashboard', compact(
-            'yashodarshi', 
-            'yashodarshiWithBatches', 
-            'totalBatches', 
-            'activeBatches', 
-            'ongoingBatches', 
+            'yashodarshi',
+            'yashodarshiWithBatches',
+            'totalBatches',
+            'activeBatches',
+            'ongoingBatches',
             'totalStudents'
         ));
     }
@@ -192,19 +197,19 @@ class YashodarshiAuthController extends Controller
      */
     public function viewBatch($id)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login');
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
-        
+        $yashodarshi = Auth::guard('yashodarshi')->user();
+
         // Get batch with all related data, ensuring it belongs to this yashodarshi
-        $batch = \App\Batch::with([
+        $batch = Batch::with([
             'challenge.tasks',
             'students',
             'yashodarshi'
         ])->where('yashodarshi_id', $yashodarshi->id)
-          ->findOrFail($id);
+            ->findOrFail($id);
 
         return view('yashodarshi.batch.view', compact('batch', 'yashodarshi'));
     }
@@ -218,28 +223,28 @@ class YashodarshiAuthController extends Controller
      */
     public function evaluateTask($batchId, $taskId)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login');
         }
-        $task = \App\Task::find($taskId);
-        $batch = \App\Batch::find($batchId);
-        
-       $yashodarshiEvaluationResults = \App\YashodarshiEvaluationResult::where('batch_id', $batchId)
-                                                                        ->where('task_id', $taskId)
-                                                                        ->get();
-                
-       $yashodarshi = Session::get('yashodarshi_data');
-        
+        $task = Task::find($taskId);
+        $batch = Batch::find($batchId);
+
+        $yashodarshiEvaluationResults = YashodarshiEvaluationResult::where('batch_id', $batchId)
+            ->where('task_id', $taskId)
+            ->get();
+
+        $yashodarshi = Auth::guard('yashodarshi')->user();
+
         // Get batch ensuring it belongs to this yashodarshi
-        $batch = \App\Batch::where('yashodarshi_id', $yashodarshi->id)
-                          ->findOrFail($batchId);
+        $batch = Batch::where('yashodarshi_id', $yashodarshi->id)
+            ->findOrFail($batchId);
 
         // Get student submissions for this task and batch with evaluation results
-        $submissions = \App\StudentTaskResponse::with(['student', 'yashodarshiEvaluationResult'])
-                                               ->where('batch_id', $batchId)
-                                               ->where('task_id', $taskId)
-                                               ->get();
-        
+        $submissions = StudentTaskResponse::with(['student', 'yashodarshiEvaluationResult'])
+            ->where('batch_id', $batchId)
+            ->where('task_id', $taskId)
+            ->get();
+
         return view('yashodarshi.task.evaluate', compact('batch', 'task', 'submissions', 'yashodarshi', 'yashodarshiEvaluationResults'));
     }
 
@@ -251,12 +256,12 @@ class YashodarshiAuthController extends Controller
      */
     public function submitEvaluation(Request $request, $submissionId)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
-        
+        $yashodarshi = Auth::guard('yashodarshi')->user();
+
         // Validate input
         $request->validate([
             'score' => 'required|numeric|min:0',
@@ -265,9 +270,9 @@ class YashodarshiAuthController extends Controller
         ]);
 
         // Get submission and verify yashodarshi has access to this batch
-        $submission = \App\StudentTaskResponse::with('batch')
-                                              ->findOrFail($submissionId);
-        
+        $submission = StudentTaskResponse::with('batch')
+            ->findOrFail($submissionId);
+
         if ($submission->batch->yashodarshi_id != $yashodarshi->id) {
             return response()->json(['error' => 'Unauthorized access to this submission'], 403);
         }
@@ -295,16 +300,16 @@ class YashodarshiAuthController extends Controller
      */
     public function evaluateDetail($submissionId)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login');
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
-        
+        $yashodarshi = Auth::guard('yashodarshi')->user();
+
         // Get submission with all related data
-        $submission = \App\StudentTaskResponse::with(['student', 'batch', 'task.taskscore'])
-                                              ->findOrFail($submissionId);
-        
+        $submission = StudentTaskResponse::with(['student', 'batch', 'task.taskscore'])
+            ->findOrFail($submissionId);
+
         // Verify yashodarshi has access to this batch
         if ($submission->batch->yashodarshi_id != $yashodarshi->id) {
             abort(403, 'Unauthorized access to this submission');
@@ -314,7 +319,7 @@ class YashodarshiAuthController extends Controller
         $taskScore = $submission->task->taskscore;
         $attributeWeights = $taskScore ? $taskScore->attribute_score : [];
         $maxScore = $taskScore ? $taskScore->total_score : 0;
-      
+
         return view('yashodarshi.task.evaluate-detail', compact('submission', 'yashodarshi', 'attributeWeights', 'maxScore'));
     }
 
@@ -327,16 +332,16 @@ class YashodarshiAuthController extends Controller
      */
     public function submitDetailedEvaluation(Request $request, $submissionId)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
-        
+        $yashodarshi = Auth::guard('yashodarshi')->user();
+
         // Get submission and task scoring framework first
-        $submission = \App\StudentTaskResponse::with(['batch', 'task.taskscore'])
-                                              ->findOrFail($submissionId);
-        
+        $submission = StudentTaskResponse::with(['batch', 'task.taskscore'])
+            ->findOrFail($submissionId);
+
         if ($submission->batch->yashodarshi_id != $yashodarshi->id) {
             return response()->json(['error' => 'Unauthorized access to this submission'], 403);
         }
@@ -371,7 +376,7 @@ class YashodarshiAuthController extends Controller
         // Calculate total score from attribute scores (handle nested structure)
         $attributeScores = $request->attribute_scores;
         $totalScore = 0;
-        
+
         foreach ($attributeScores as $mainAttribute => $scores) {
             if (is_array($scores)) {
                 // Nested attributes - sum all sub-attribute scores
@@ -408,24 +413,24 @@ class YashodarshiAuthController extends Controller
      */
     public function storeEvaluationResult(Request $request, $submissionId)
     {
-     
+
         // Check yashodarshi authentication
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
-        
+        $yashodarshi = Auth::guard('yashodarshi')->user();
+
         // Get the submission with related data
-        $submission = \App\StudentTaskResponse::with(['batch', 'task', 'student'])
-                                              ->findOrFail($submissionId);
+        $submission = StudentTaskResponse::with(['batch', 'task', 'student'])
+            ->findOrFail($submissionId);
 
         // Verify yashodarshi has access to this batch
-        $batch = \App\Batch::where('yashodarshi_id', $yashodarshi->id)
-                          ->findOrFail($submission->batch_id);
+        $batch = Batch::where('yashodarshi_id', $yashodarshi->id)
+            ->findOrFail($submission->batch_id);
 
         // Get task scoring framework
-        $taskScore = \App\TaskScore::where('task_id', $submission->task_id)->first();
+        $taskScore = TaskScore::where('task_id', $submission->task_id)->first();
         $attributeWeights = [];
         if ($taskScore) {
             if (is_string($taskScore->attribute_score)) {
@@ -470,7 +475,7 @@ class YashodarshiAuthController extends Controller
 
         foreach ($attributeScores as $mainAttribute => $scores) {
             $categoryTotal = 0;
-            
+
             if (is_array($scores)) {
                 // Nested attributes - sum all sub-attribute scores
                 $categoryTotal = array_sum($scores);
@@ -494,12 +499,12 @@ class YashodarshiAuthController extends Controller
                     $executionScore = $categoryTotal;
                     break;
             }
-            
+
             $totalScore += $categoryTotal;
         }
 
         // Create or update evaluation result
-        $evaluationResult = \App\YashodarshiEvaluationResult::updateOrCreate(
+        $evaluationResult = YashodarshiEvaluationResult::updateOrCreate(
             [
                 'batch_id' => $submission->batch_id,
                 'task_id' => $submission->task_id,
@@ -522,12 +527,12 @@ class YashodarshiAuthController extends Controller
 
         // Update only the basic fields in the original submission record
         $submission->update([
-        
+
             'status' => 'reviewed'
         ]);
 
         return redirect()->route('yashodarshi.task.evaluate', [
-            'batchId' => $submission->batch_id, 
+            'batchId' => $submission->batch_id,
             'taskId' => $submission->task_id
         ])->with('success', 'Evaluation stored successfully! Total Score: ' . $totalScore . ' (Aptitude: ' . $aptitudeScore . ', Attitude: ' . $attitudeScore . ', Communication: ' . $communicationScore . ', Execution: ' . $executionScore . ')');
     }
@@ -540,33 +545,33 @@ class YashodarshiAuthController extends Controller
      */
     public function viewFullScore($submissionId)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login');
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
-        
+        $yashodarshi = Auth::guard('yashodarshi')->user();
+
         // Get submission with all related data
-        $submission = \App\StudentTaskResponse::with(['student', 'batch', 'task.taskscore'])
-                                              ->findOrFail($submissionId);
-        
+        $submission = StudentTaskResponse::with(['student', 'batch', 'task.taskscore'])
+            ->findOrFail($submissionId);
+
         // Verify yashodarshi has access to this batch
         if ($submission->batch->yashodarshi_id != $yashodarshi->id) {
             abort(403, 'Unauthorized access to this submission');
         }
 
         // Get the evaluation result
-        $evaluationResult = \App\YashodarshiEvaluationResult::where('batch_id', $submission->batch_id)
-                                                            ->where('task_id', $submission->task_id)
-                                                            ->where('student_id', $submission->student_id)
-                                                            ->where('yashodarshi_id', $yashodarshi->id)
-                                                            ->first();
+        $evaluationResult = YashodarshiEvaluationResult::where('batch_id', $submission->batch_id)
+            ->where('task_id', $submission->task_id)
+            ->where('student_id', $submission->student_id)
+            ->where('yashodarshi_id', $yashodarshi->id)
+            ->first();
 
         // Get task scoring framework (attribute weights)
         $taskScore = $submission->task->taskscore;
         $attributeWeights = $taskScore ? $taskScore->attribute_score : [];
         $maxScore = $taskScore ? $taskScore->total_score : 0;
-      
+
         return view('yashodarshi.task.view-full-score', compact('submission', 'yashodarshi', 'evaluationResult', 'attributeWeights', 'maxScore'));
     }
 }

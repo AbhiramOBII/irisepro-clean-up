@@ -1,9 +1,9 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Batch;
+use App\Models\Batch;
 
 class Student extends Model
 {

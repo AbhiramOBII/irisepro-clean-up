@@ -168,7 +168,7 @@
                             <h1 class="text-xl font-semibold text-gray-900">@yield('page-title', 'Dashboard')</h1>
                         </div>
                         <div class="flex items-center space-x-4">
-                            <span class="text-gray-700">Welcome, {{ session('superadmin_logged_in') ? \App\SuperAdmin::find(session('superadmin_id'))->superadmin_fullname : 'Admin' }}</span>
+                            <span class="text-gray-700">Welcome, {{ Auth::guard('superadmin')->user()->superadmin_fullname }}</span>
                         </div>
                     </div>
                 </div>

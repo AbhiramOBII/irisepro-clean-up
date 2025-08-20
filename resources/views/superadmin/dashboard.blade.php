@@ -16,8 +16,8 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Students</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Student::count() }}</p>
-                <p class="text-xs text-gray-500">Active: {{ \App\Student::where('status', 'active')->count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Student::count() }}</p>
+                <p class="text-xs text-gray-500">Active: {{ \App\Models\Student::where('status', 'active')->count() }}</p>
             </div>
         </div>
     </div>
@@ -32,7 +32,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Yashodarshis</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Yashodarshi::count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Yashodarshi::count() }}</p>
                 <p class="text-xs text-gray-500">Mentors & Guides</p>
             </div>
         </div>
@@ -48,8 +48,8 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Tasks</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Task::count() }}</p>
-                <p class="text-xs text-gray-500">Scores: {{ \App\TaskScore::count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Task::count() }}</p>
+                <p class="text-xs text-gray-500">Scores: {{ \App\Models\TaskScore::count() }}</p>
             </div>
         </div>
     </div>
@@ -64,7 +64,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Active Batches</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Batch::count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Batch::count() }}</p>
                 <p class="text-xs text-gray-500">Learning Groups</p>
             </div>
         </div>
@@ -83,7 +83,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Challenges</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Challenge::count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Challenge::count() }}</p>
                 <p class="text-xs text-gray-500">Growth Activities</p>
             </div>
         </div>
@@ -99,8 +99,8 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Enrollments</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Enrollment::count() }}</p>
-                <p class="text-xs text-gray-500">Paid: {{ \App\Enrollment::where('payment_status', 'paid')->count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Enrollment::count() }}</p>
+                <p class="text-xs text-gray-500">Paid: {{ \App\Models\Enrollment::where('payment_status', 'paid')->count() }}</p>
             </div>
         </div>
     </div>
@@ -115,7 +115,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Habits</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Habit::count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Habit::count() }}</p>
                 <p class="text-xs text-gray-500">Daily Practices</p>
             </div>
         </div>

@@ -3,18 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Yashodarshi;
+use App\Models\Yashodarshi;
 use Illuminate\Support\Facades\Session;
 
 class YashodarshiController extends Controller
 {
-    public function __construct()
-    {
-        // Check if superadmin is logged in
-        if (!Session::get('superadmin_logged_in')) {
-            return redirect()->route('superadmin.login');
-        }
-    }
 
     /**
      * Display a listing of the resource.

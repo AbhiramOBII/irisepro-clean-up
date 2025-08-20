@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Batch;
-use App\Challenge;
-use App\User;
-use App\Yashodarshi;
-use App\Student;
-use App\Enrollment;
+use App\Models\Batch;
+use App\Models\Challenge;
+use App\Models\User;
+use App\Models\Yashodarshi;
+use App\Models\Student;
+use App\Models\Enrollment;
 use Illuminate\Support\Facades\Mail;
 use Razorpay\Api\Api;
 use Carbon\Carbon;

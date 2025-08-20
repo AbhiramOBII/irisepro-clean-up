@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\SuperAdmin;
+use App\Models\SuperAdmin;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -39,7 +39,7 @@ class SettingsController extends Controller
                 ->withInput();
         }
 
-        $superAdmin = SuperAdmin::find(session('superadmin_id'));
+        $superAdmin = Auth::guard('superadmin')->user();
         
         if (!$superAdmin) {
             return redirect()->back()

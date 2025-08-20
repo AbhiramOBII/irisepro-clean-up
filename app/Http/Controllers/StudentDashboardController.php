@@ -6,9 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use App\Student;
-use App\Batch;
-use App\Challenge;
+use App\Models\Student;
+use App\Models\Batch;
+use App\Models\Challenge;
 
 class StudentDashboardController extends Controller
 {
