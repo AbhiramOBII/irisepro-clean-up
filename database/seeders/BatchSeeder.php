@@ -2,7 +2,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Batch;
+use App\Models\Batch;
+use App\Models\Challenge;
+use App\Models\Yashodarshi;
 
 class BatchSeeder extends Seeder
 {
@@ -14,8 +16,8 @@ class BatchSeeder extends Seeder
     public function run()
     {
         // First, we need to get challenge and yashodarshi IDs
-        $challenges = \App\Challenge::all();
-        $yashodarshis = \App\Yashodarshi::all();
+        $challenges = Challenge::all();
+        $yashodarshis = Yashodarshi::all();
         
         if ($challenges->isEmpty() || $yashodarshis->isEmpty()) {
             return; // Skip seeding if required data doesn't exist

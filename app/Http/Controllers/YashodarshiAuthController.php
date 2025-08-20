@@ -6,6 +6,12 @@ use Illuminate\Http\Request;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Yashodarshi;
+use App\Models\Task;
+use App\Models\Batch;
+use App\Models\StudentTaskResponse;
+use App\Models\YashodarshiEvaluationResult;
+use App\Models\TaskScore;
 
 class YashodarshiAuthController extends Controller
 {
@@ -163,7 +169,7 @@ class YashodarshiAuthController extends Controller
         $yashodarshi = Session::get('yashodarshi_data');
         
         // Get fresh yashodarshi data with batches
-        $yashodarshiWithBatches = \App\Yashodarshi::with(['batches.challenge', 'batches.students'])
+        $yashodarshiWithBatches = Yashodarshi::with(['batches.challenge', 'batches.students'])
                                                   ->find($yashodarshi->id);
         
         // Calculate statistics
@@ -199,7 +205,7 @@ class YashodarshiAuthController extends Controller
         $yashodarshi = Session::get('yashodarshi_data');
         
         // Get batch with all related data, ensuring it belongs to this yashodarshi
-        $batch = \App\Batch::with([
+        $batch = Batch::with([
             'challenge.tasks',
             'students',
             'yashodarshi'
@@ -221,21 +227,21 @@ class YashodarshiAuthController extends Controller
         if (!Session::get('yashodarshi_logged_in')) {
             return redirect()->route('yashodarshi.login');
         }
-        $task = \App\Task::find($taskId);
-        $batch = \App\Batch::find($batchId);
+        $task = Task::find($taskId);
+        $batch = Batch::find($batchId);
         
-       $yashodarshiEvaluationResults = \App\YashodarshiEvaluationResult::where('batch_id', $batchId)
+       $yashodarshiEvaluationResults = YashodarshiEvaluationResult::where('batch_id', $batchId)
                                                                         ->where('task_id', $taskId)
                                                                         ->get();
                 
        $yashodarshi = Session::get('yashodarshi_data');
         
         // Get batch ensuring it belongs to this yashodarshi
-        $batch = \App\Batch::where('yashodarshi_id', $yashodarshi->id)
+        $batch = Batch::where('yashodarshi_id', $yashodarshi->id)
                           ->findOrFail($batchId);
 
         // Get student submissions for this task and batch with evaluation results
-        $submissions = \App\StudentTaskResponse::with(['student', 'yashodarshiEvaluationResult'])
+        $submissions = StudentTaskResponse::with(['student', 'yashodarshiEvaluationResult'])
                                                ->where('batch_id', $batchId)
                                                ->where('task_id', $taskId)
                                                ->get();
@@ -265,7 +271,7 @@ class YashodarshiAuthController extends Controller
         ]);
 
         // Get submission and verify yashodarshi has access to this batch
-        $submission = \App\StudentTaskResponse::with('batch')
+        $submission = StudentTaskResponse::with('batch')
                                               ->findOrFail($submissionId);
         
         if ($submission->batch->yashodarshi_id != $yashodarshi->id) {
@@ -302,7 +308,7 @@ class YashodarshiAuthController extends Controller
         $yashodarshi = Session::get('yashodarshi_data');
         
         // Get submission with all related data
-        $submission = \App\StudentTaskResponse::with(['student', 'batch', 'task.taskscore'])
+        $submission = StudentTaskResponse::with(['student', 'batch', 'task.taskscore'])
                                               ->findOrFail($submissionId);
         
         // Verify yashodarshi has access to this batch
@@ -334,7 +340,7 @@ class YashodarshiAuthController extends Controller
         $yashodarshi = Session::get('yashodarshi_data');
         
         // Get submission and task scoring framework first
-        $submission = \App\StudentTaskResponse::with(['batch', 'task.taskscore'])
+        $submission = StudentTaskResponse::with(['batch', 'task.taskscore'])
                                               ->findOrFail($submissionId);
         
         if ($submission->batch->yashodarshi_id != $yashodarshi->id) {
@@ -417,15 +423,15 @@ class YashodarshiAuthController extends Controller
         $yashodarshi = Session::get('yashodarshi_data');
         
         // Get the submission with related data
-        $submission = \App\StudentTaskResponse::with(['batch', 'task', 'student'])
+        $submission = StudentTaskResponse::with(['batch', 'task', 'student'])
                                               ->findOrFail($submissionId);
 
         // Verify yashodarshi has access to this batch
-        $batch = \App\Batch::where('yashodarshi_id', $yashodarshi->id)
+        $batch = Batch::where('yashodarshi_id', $yashodarshi->id)
                           ->findOrFail($submission->batch_id);
 
         // Get task scoring framework
-        $taskScore = \App\TaskScore::where('task_id', $submission->task_id)->first();
+        $taskScore = TaskScore::where('task_id', $submission->task_id)->first();
         $attributeWeights = [];
         if ($taskScore) {
             if (is_string($taskScore->attribute_score)) {
@@ -499,7 +505,7 @@ class YashodarshiAuthController extends Controller
         }
 
         // Create or update evaluation result
-        $evaluationResult = \App\YashodarshiEvaluationResult::updateOrCreate(
+        $evaluationResult = YashodarshiEvaluationResult::updateOrCreate(
             [
                 'batch_id' => $submission->batch_id,
                 'task_id' => $submission->task_id,
@@ -547,7 +553,7 @@ class YashodarshiAuthController extends Controller
         $yashodarshi = Session::get('yashodarshi_data');
         
         // Get submission with all related data
-        $submission = \App\StudentTaskResponse::with(['student', 'batch', 'task.taskscore'])
+        $submission = StudentTaskResponse::with(['student', 'batch', 'task.taskscore'])
                                               ->findOrFail($submissionId);
         
         // Verify yashodarshi has access to this batch
@@ -556,7 +562,7 @@ class YashodarshiAuthController extends Controller
         }
 
         // Get the evaluation result
-        $evaluationResult = \App\YashodarshiEvaluationResult::where('batch_id', $submission->batch_id)
+        $evaluationResult = YashodarshiEvaluationResult::where('batch_id', $submission->batch_id)
                                                             ->where('task_id', $submission->task_id)
                                                             ->where('student_id', $submission->student_id)
                                                             ->where('yashodarshi_id', $yashodarshi->id)

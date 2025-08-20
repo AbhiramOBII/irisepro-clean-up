@@ -2,7 +2,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\SubAttribute;
+use App\Models\SubAttribute;
 
 class SubAttributeSeeder extends Seeder
 {

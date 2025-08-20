@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Yashodarshi;
+use App\Models\Yashodarshi;
 use Illuminate\Support\Facades\Session;
 
 class YashodarshiController extends Controller

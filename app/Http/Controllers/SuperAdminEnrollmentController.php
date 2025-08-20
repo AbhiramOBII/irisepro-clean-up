@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Enrollment;
-use App\Challenge;
-use App\Batch;
-use App\Student;
+use App\Models\Enrollment;
+use App\Models\Challenge;
+use App\Models\Batch;
+use App\Models\Student;
 
 class SuperAdminEnrollmentController extends Controller
 {

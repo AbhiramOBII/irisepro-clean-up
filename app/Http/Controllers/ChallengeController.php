@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Challenge;
-use App\Task;
+use App\Models\Challenge;
+use App\Models\Task;
 use Illuminate\Http\Request;
 
 class ChallengeController extends Controller

@@ -7,16 +7,16 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use App\Student;
-use App\StudentOtp;
-use App\Habit;
-use App\Task;
-use App\Challenge;
-use App\YashodarshiEvaluationResult;
-use App\HelpRequest;
-use App\StudentTaskResponse;
-use App\Batch;
-use App\TaskScore;
+use App\Models\Student;
+use App\Models\StudentOtp;
+use App\Models\Habit;
+use App\Models\Task;
+use App\Models\Challenge;
+use App\Models\YashodarshiEvaluationResult;
+use App\Models\HelpRequest;
+use App\Models\StudentTaskResponse;
+use App\Models\Batch;
+use App\Models\TaskScore;
 
 class MobileStudentController extends Controller
 {

@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
-use App\Student;
-use App\YashodarshiEvaluationResult;
-use App\Batch;
+use App\Models\Student;
+use App\Models\YashodarshiEvaluationResult;
+use App\Models\Batch;
 use Carbon\Carbon;
 use App\Http\Controllers\MobileStudentController;
 

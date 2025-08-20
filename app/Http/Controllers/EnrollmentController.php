@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Challenge;
-use App\Batch;
-use App\Student;
-use App\Enrollment;
+use App\Models\Challenge;
+use App\Models\Batch;
+use App\Models\Student;
+use App\Models\Enrollment;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Razorpay\Api\Api;
-use App\StudentOtp;
+use App\Models\StudentOtp;
 use Illuminate\Support\Facades\Mail;
 
 class EnrollmentController extends Controller

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Task;
-use App\TaskScore;
-use App\Attribute;
-use App\SubAttribute;
+use App\Models\Task;
+use App\Models\TaskScore;
+use App\Models\Attribute;
+use App\Models\SubAttribute;
 use Illuminate\Http\Request;
 
 class TaskScoreController extends Controller

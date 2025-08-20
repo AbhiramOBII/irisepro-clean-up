@@ -2,7 +2,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Yashodarshi;
+use App\Models\Yashodarshi;
 
 class YashodarshiSeeder extends Seeder
 {

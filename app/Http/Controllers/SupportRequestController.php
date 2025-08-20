@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\HelpRequest;
-use App\Student;
+use App\Models\HelpRequest;
+use App\Models\Student;
 
 class SupportRequestController extends Controller
 {
