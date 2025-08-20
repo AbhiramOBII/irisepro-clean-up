@@ -117,22 +117,39 @@
             <div id="filesList"></div>
         </div>
         
-        @if($taskSubmission && $taskSubmission->response_image)
+        @if($taskSubmission && $taskSubmission->submission_multimedia)
         <!-- Existing Submitted Files -->
         <div class="mb-5">
             <label class="block text-sm font-medium text-gray-700 mb-2">Submitted Files</label>
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center group">
-                <div class="w-10 h-10 bg-[#FF8A3D]/10 rounded flex items-center justify-center mr-3">
-                    <i class="fas fa-image text-[#FF8A3D]"></i>
+            @php
+                $files = is_string($taskSubmission->submission_multimedia) ? json_decode($taskSubmission->submission_multimedia) : $taskSubmission->submission_multimedia;
+            @endphp
+            @if(is_array($files) && count($files) > 0)
+                @foreach($files as $file)
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex items-center group mb-2">
+                    <div class="w-10 h-10 bg-[#FF8A3D]/10 rounded flex items-center justify-center mr-3">
+                        @if(Str::endsWith($file, ['.jpg', '.jpeg', '.png', '.gif']))
+                            <i class="fas fa-image text-[#FF8A3D]"></i>
+                        @elseif(Str::endsWith($file, ['.pdf']))
+                            <i class="fas fa-file-pdf text-[#FF8A3D]"></i>
+                        @elseif(Str::endsWith($file, ['.doc', '.docx']))
+                            <i class="fas fa-file-word text-[#FF8A3D]"></i>
+                        @elseif(Str::endsWith($file, ['.mp4', '.avi', '.mov']))
+                            <i class="fas fa-file-video text-[#FF8A3D]"></i>
+                        @else
+                            <i class="fas fa-file text-[#FF8A3D]"></i>
+                        @endif
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-medium text-gray-800 truncate">{{ basename($file) }}</div>
+                        <div class="text-xs text-gray-500">Submitted File</div>
+                    </div>
+                    <a href="{{ asset('storage/' . $file) }}" target="_blank" class="ml-2 text-[#FF8A3D] hover:text-[#FF8A3D]/80 transition-colors duration-200">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <div class="text-sm font-medium text-gray-800 truncate">{{ basename($taskSubmission->response_image) }}</div>
-                    <div class="text-xs text-gray-500">Submitted File</div>
-                </div>
-                <a href="{{ asset('storage/' . $taskSubmission->response_image) }}" target="_blank" class="ml-2 text-[#FF8A3D] hover:text-[#FF8A3D]/80 transition-colors duration-200">
-                    <i class="fas fa-external-link-alt"></i>
-                </a>
-            </div>
+                @endforeach
+            @endif
         </div>
         @endif
         
