@@ -3,7 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class YashodarshiAuth
 {
@@ -16,23 +16,17 @@ class YashodarshiAuth
      */
     public function handle($request, Closure $next)
     {
-        // Check if yashodarshi is logged in
-        if (!Session::get('yashodarshi_logged_in')) {
+        // Check authentication via guard
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login')
                            ->with('error', 'Please login to access yashodarshi panel');
         }
 
-        // Check if yashodarshi data exists in session
-        $yashodarshi = Session::get('yashodarshi_data');
-        if (!$yashodarshi) {
-            Session::forget(['yashodarshi_logged_in', 'yashodarshi_data']);
-            return redirect()->route('yashodarshi.login')
-                           ->with('error', 'Session expired. Please login again.');
-        }
+        $yashodarshi = Auth::guard('yashodarshi')->user();
 
-        // Check if yashodarshi is still active
+        // Extra safety: ensure active status
         if ($yashodarshi->status !== 'active') {
-            Session::forget(['yashodarshi_logged_in', 'yashodarshi_data']);
+            Auth::guard('yashodarshi')->logout();
             return redirect()->route('yashodarshi.login')
                            ->with('error', 'Your account has been deactivated. Please contact administrator.');
         }

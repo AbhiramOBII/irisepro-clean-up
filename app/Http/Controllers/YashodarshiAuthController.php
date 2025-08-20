@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\OtpService;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Yashodarshi;
 use App\Models\Task;
 use App\Models\Batch;
@@ -30,7 +31,7 @@ class YashodarshiAuthController extends Controller
     public function showLoginForm()
     {
         // If already logged in, redirect to dashboard
-        if (Session::get('yashodarshi_logged_in')) {
+        if (Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.dashboard');
         }
 
@@ -106,9 +107,8 @@ class YashodarshiAuthController extends Controller
         $result = $this->otpService->verifyOtp($yashodarshiId, $request->otp);
 
         if ($result['success']) {
-            // Set session data for logged in yashodarshi
-            Session::put('yashodarshi_logged_in', true);
-            Session::put('yashodarshi_data', $result['yashodarshi']);
+            // Authenticate via guard
+            Auth::guard('yashodarshi')->login($result['yashodarshi']);
 
             // Clear temporary session data
             Session::forget(['yashodarshi_email', 'yashodarshi_id']);
@@ -150,7 +150,7 @@ class YashodarshiAuthController extends Controller
      */
     public function logout()
     {
-        Session::forget(['yashodarshi_logged_in', 'yashodarshi_data']);
+        Auth::guard('yashodarshi')->logout();
         return redirect()->route('yashodarshi.login')
             ->with('success', 'Logged out successfully');
     }
@@ -162,11 +162,11 @@ class YashodarshiAuthController extends Controller
      */
     public function dashboard()
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login');
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
+        $yashodarshi = Auth::guard('yashodarshi')->user();
         // Get fresh yashodarshi data with batches
         $yashodarshiWithBatches = Yashodarshi::with(['batches.challenge', 'batches.students'])
             ->find($yashodarshi->id);
@@ -197,11 +197,11 @@ class YashodarshiAuthController extends Controller
      */
     public function viewBatch($id)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login');
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
+        $yashodarshi = Auth::guard('yashodarshi')->user();
 
         // Get batch with all related data, ensuring it belongs to this yashodarshi
         $batch = Batch::with([
@@ -223,7 +223,7 @@ class YashodarshiAuthController extends Controller
      */
     public function evaluateTask($batchId, $taskId)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login');
         }
         $task = Task::find($taskId);
@@ -233,7 +233,7 @@ class YashodarshiAuthController extends Controller
             ->where('task_id', $taskId)
             ->get();
 
-        $yashodarshi = Session::get('yashodarshi_data');
+        $yashodarshi = Auth::guard('yashodarshi')->user();
 
         // Get batch ensuring it belongs to this yashodarshi
         $batch = Batch::where('yashodarshi_id', $yashodarshi->id)
@@ -256,11 +256,11 @@ class YashodarshiAuthController extends Controller
      */
     public function submitEvaluation(Request $request, $submissionId)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
+        $yashodarshi = Auth::guard('yashodarshi')->user();
 
         // Validate input
         $request->validate([
@@ -300,11 +300,11 @@ class YashodarshiAuthController extends Controller
      */
     public function evaluateDetail($submissionId)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login');
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
+        $yashodarshi = Auth::guard('yashodarshi')->user();
 
         // Get submission with all related data
         $submission = StudentTaskResponse::with(['student', 'batch', 'task.taskscore'])
@@ -332,11 +332,11 @@ class YashodarshiAuthController extends Controller
      */
     public function submitDetailedEvaluation(Request $request, $submissionId)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
+        $yashodarshi = Auth::guard('yashodarshi')->user();
 
         // Get submission and task scoring framework first
         $submission = StudentTaskResponse::with(['batch', 'task.taskscore'])
@@ -415,11 +415,11 @@ class YashodarshiAuthController extends Controller
     {
 
         // Check yashodarshi authentication
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
+        $yashodarshi = Auth::guard('yashodarshi')->user();
 
         // Get the submission with related data
         $submission = StudentTaskResponse::with(['batch', 'task', 'student'])
@@ -545,11 +545,11 @@ class YashodarshiAuthController extends Controller
      */
     public function viewFullScore($submissionId)
     {
-        if (!Session::get('yashodarshi_logged_in')) {
+        if (!Auth::guard('yashodarshi')->check()) {
             return redirect()->route('yashodarshi.login');
         }
 
-        $yashodarshi = Session::get('yashodarshi_data');
+        $yashodarshi = Auth::guard('yashodarshi')->user();
 
         // Get submission with all related data
         $submission = StudentTaskResponse::with(['student', 'batch', 'task.taskscore'])

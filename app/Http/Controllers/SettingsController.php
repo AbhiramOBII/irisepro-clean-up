@@ -39,7 +39,7 @@ class SettingsController extends Controller
                 ->withInput();
         }
 
-        $superAdmin = SuperAdmin::find(session('superadmin_id'));
+        $superAdmin = Auth::guard('superadmin')->user();
         
         if (!$superAdmin) {
             return redirect()->back()

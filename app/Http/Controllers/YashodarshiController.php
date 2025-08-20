@@ -8,13 +8,6 @@ use Illuminate\Support\Facades\Session;
 
 class YashodarshiController extends Controller
 {
-    public function __construct()
-    {
-        // Check if superadmin is logged in
-        if (!Session::get('superadmin_logged_in')) {
-            return redirect()->route('superadmin.login');
-        }
-    }
 
     /**
      * Display a listing of the resource.
