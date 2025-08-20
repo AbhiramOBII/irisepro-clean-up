@@ -1,4 +1,4 @@
-@extends('layout')
+@extends('superadmin.layout')
 
 @section('title', 'Enrollment Management')
 @section('page-title', 'Enrollment Management')
