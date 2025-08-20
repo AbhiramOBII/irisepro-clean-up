@@ -637,10 +637,10 @@
                     <div class="habit-item flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:bg-[#FFF9F5] transition-all duration-200 mb-3 @if($habit->completed_today) bg-green-50 border-green-200 @endif">
                         <div class="flex items-center">
                             <input type="checkbox" id="habit-{{ $habit->id }}" class="habit-checkbox hidden" @if($habit->completed_today) checked disabled @endif>
-                            <label for="habit-{{ $habit->id }}" class="habit-checkbox-label w-6 h-6 border-2 @if($habit->completed_today) border-green-500 bg-green-500 @else border-[#F58321] @endif rounded-md flex items-center justify-center mr-3 @if($habit->can_submit) cursor-pointer @else cursor-not-allowed opacity-50 @endif" data-habit-id="{{ $habit->id }}">
+                            <label for="habit-{{ $habit->id }}" class="habit-checkbox-label w-6 h-6 border-2 @if($habit->completed_today) border-green-500 bg-green-500 @else border-[#F58321] @endif rounded-md flex items-center justify-center mr-3 @if($habit->can_submit) cursor-pointer @else cursor-not-allowed opacity-50 @endif" data-habit-id="{{ $habit->id }}" data-habit-title="{{ $habit->title ?? 'Daily Habit' }}" @if($habit->can_submit && !$habit->completed_today) onclick="openHabitModal({{ $habit->id }}, '{{ $habit->title ?? 'Daily Habit' }}')" @endif>
                                 <i class="fas fa-check text-white @if($habit->completed_today) scale-100 @else scale-0 @endif transition-transform duration-200"></i>
                             </label>
-                            <div>
+                            <div class="ml-2">
                                 <span class="text-gray-800 font-medium">{{ $habit->title ?? 'Daily Habit' }}</span>
                                 <div class="text-xs text-gray-500 mt-1">
                                     @if($habit->completed_today)
@@ -653,11 +653,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center">
-                            <div class="@if($habit->completed_today) bg-green-100 @else bg-[#F58321]/10 @endif rounded-full p-2 mr-2">
-                                <i class="fas @if($habit->completed_today) fa-check-circle text-green-500 @else fa-target text-[#F58321] @endif text-sm"></i>
-                            </div>
-                        </div>
+                
                     </div>
                     @endforeach
                 @else
@@ -665,10 +661,10 @@
                     <div class="habit-item flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:bg-[#FFF9F5] transition-all duration-200">
                         <div class="flex items-center">
                             <input type="checkbox" id="habit-1" class="habit-checkbox hidden">
-                            <label for="habit-1" class="habit-checkbox-label w-6 h-6 border-2 border-[#F58321] rounded-md flex items-center justify-center mr-3 cursor-pointer" data-habit-id="1">
+                            <label for="habit-1" class="habit-checkbox-label w-6 h-6 border-2 border-[#F58321] rounded-md flex items-center justify-center mr-6 cursor-pointer" data-habit-id="1" data-habit-title="30 minutes of exercise" onclick="openHabitModal(1, '30 minutes of exercise')">
                                 <i class="fas fa-check text-white scale-0 transition-transform duration-200"></i>
                             </label>
-                            <div>
+                            <div class="ml-2">
                                 <span class="text-gray-800 font-medium">30 minutes of exercise</span>
                                 <div class="text-xs text-gray-500 mt-1">Complete your daily workout routine</div>
                             </div>
@@ -681,19 +677,55 @@
                     </div>
                 @endif
                 
-                <!-- Habit Progress -->
-                <div class="flex items-center mt-4 p-3 bg-[#FFF9F5] rounded-xl">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 bg-[#F58321] rounded-full flex items-center justify-center mr-3">
-                            <i class="fas fa-target text-white"></i>
+               
+            </div>
+        </div>
+    </div>
+
+    <!-- Habit Submission Modal -->
+    <div id="habitModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="habitModalContent">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-[#F58321] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-camera text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2" id="habitModalTitle">Complete Your Habit</h3>
+                <p class="text-gray-600 text-sm">Take a photo to show your progress and complete this habit</p>
+            </div>
+            
+            <form id="habitSubmissionForm" action="{{ route('habit.submit') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="hidden" id="habitIdInput" name="habit_id" value="">
+                <input type="hidden" name="datestamp" value="{{ now() }}">
+                
+                <!-- Image Upload Area -->
+                <div class="mb-6">
+                    <div class="border-2 border-dashed border-[#F58321] rounded-xl p-6 text-center hover:bg-[#FFF9F5] transition-colors duration-200" id="imageUploadArea">
+                        <input type="file" id="habitImage" name="image" accept="image/*" class="hidden" required>
+                        <div id="uploadPrompt">
+                            <i class="fas fa-cloud-upload-alt text-[#F58321] text-3xl mb-3"></i>
+                            <p class="text-gray-600 mb-2">Click to upload your progress photo</p>
+                            <p class="text-xs text-gray-500">JPG, PNG, GIF up to 2MB</p>
                         </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Today's Goal</p>
-                            <p class="font-bold">Complete {{ isset($studentStatus['student_habits']) ? count($studentStatus['student_habits']) : 1 }} habit{{ isset($studentStatus['student_habits']) && count($studentStatus['student_habits']) > 1 ? 's' : '' }}</p>
+                        <div id="imagePreview" class="hidden">
+                            <img id="previewImg" src="" alt="Preview" class="max-w-full h-32 object-cover rounded-lg mx-auto mb-2">
+                            <p class="text-sm text-gray-600" id="fileName"></p>
+                            <button type="button" onclick="clearImage()" class="text-red-500 text-xs hover:text-red-700">Remove</button>
                         </div>
                     </div>
                 </div>
-            </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeHabitModal()" class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-200 font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-4 py-3 bg-[#F58321] text-white rounded-xl hover:bg-[#E5751E] transition-colors duration-200 font-medium" id="submitBtn">
+                        <span id="submitText">Complete Habit</span>
+                        <i class="fas fa-spinner fa-spin hidden" id="submitSpinner"></i>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -828,100 +860,8 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Habit checkbox confirmation popup
-    const habitCheckboxLabels = document.querySelectorAll('.habit-checkbox-label');
-    
-    habitCheckboxLabels.forEach(label => {
-        if (label.classList.contains('opacity-50')) return; // Skip disabled checkboxes
-        
-        label.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent default checkbox behavior
-            
-            const habitId = this.getAttribute('data-habit-id');
-            const checkbox = document.getElementById('habit-' + habitId);
-            
-            // Show confirmation popup
-            if (!checkbox.checked) {
-                // Create and show confirmation popup
-                showConfirmationPopup(habitId, this);
-            }
-        });
-    });
-    
-    function showConfirmationPopup(habitId, labelElement) {
-        // Create popup elements
-        const overlay = document.createElement('div');
-        overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-        
-        const popup = document.createElement('div');
-        popup.className = 'bg-white rounded-2xl p-6 w-10/12 max-w-sm shadow-2xl transform transition-all duration-300';
-        
-        popup.innerHTML = `
-            <div class="text-center mb-4">
-                <div class="w-16 h-16 bg-[#FFF9F5] rounded-full flex items-center justify-center mx-auto mb-3">
-                    <i class="fas fa-check-circle text-[#F58321] text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold text-gray-800">Confirm Completion</h3>
-                <p class="text-gray-600 mt-2">Have you completed this habit today?</p>
-            </div>
-            <div class="flex justify-center space-x-3 mt-4">
-                <button type="button" class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                    Cancel
-                </button>
-                <button type="button" class="confirm-btn px-4 py-2 bg-[#F58321] text-white rounded-lg hover:bg-[#E57311] transition-colors duration-200">
-                    Yes, Complete
-                </button>
-            </div>
-        `;
-        
-        overlay.appendChild(popup);
-        document.body.appendChild(overlay);
-        
-        // Handle button clicks
-        const cancelBtn = popup.querySelector('.cancel-btn');
-        const confirmBtn = popup.querySelector('.confirm-btn');
-        
-        cancelBtn.addEventListener('click', function() {
-            document.body.removeChild(overlay);
-        });
-        
-        confirmBtn.addEventListener('click', function() {
-            // Mark checkbox as checked
-            const checkbox = document.getElementById('habit-' + habitId);
-            checkbox.checked = true;
-            
-            // Update visual appearance
-            const checkIcon = labelElement.querySelector('i');
-            labelElement.classList.add('bg-green-500', 'border-green-500');
-            checkIcon.classList.remove('scale-0');
-            checkIcon.classList.add('scale-100');
-            
-            // Close popup
-            document.body.removeChild(overlay);
-            
-            // You can add AJAX call here to update the server
-            // Example:
-            /*
-            fetch('/habit/complete', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                },
-                body: JSON.stringify({
-                    habit_id: habitId
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Habit marked as complete:', data);
-            })
-            .catch(error => {
-                console.error('Error completing habit:', error);
-            });
-            */
-        });
-    }
+    // Note: Habit click handling is now done via onclick attributes in the HTML
+    // This prevents the double popup issue
     let timerInterval = null;
     let timerStartTime = null;
     
@@ -1058,5 +998,137 @@ function checkTimerState() {
         console.log('No active timer, showing Start Timer button');
     }
 }
+
+// Habit Modal Functions
+function openHabitModal(habitId, habitTitle) {
+    const modal = document.getElementById('habitModal');
+    const modalContent = document.getElementById('habitModalContent');
+    const modalTitle = document.getElementById('habitModalTitle');
+    const habitIdInput = document.getElementById('habitIdInput');
+    
+    // Set habit data
+    habitIdInput.value = habitId;
+    modalTitle.textContent = `Complete: ${habitTitle}`;
+    
+    // Show modal with animation
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closeHabitModal() {
+    const modal = document.getElementById('habitModal');
+    const modalContent = document.getElementById('habitModalContent');
+    
+    // Hide modal with animation
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        clearImage();
+    }, 300);
+}
+
+// Image upload handling
+document.addEventListener('DOMContentLoaded', function() {
+    const imageUploadArea = document.getElementById('imageUploadArea');
+    const habitImage = document.getElementById('habitImage');
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const fileName = document.getElementById('fileName');
+    const habitModal = document.getElementById('habitModal');
+    
+    // Only proceed if elements exist
+    if (!imageUploadArea || !habitImage || !habitModal) {
+        console.log('Habit modal elements not found');
+        return;
+    }
+    
+    // Click to upload
+    imageUploadArea.addEventListener('click', function() {
+        habitImage.click();
+    });
+    
+    // Handle file selection
+    habitImage.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file size (2MB max)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('File size must be less than 2MB');
+                habitImage.value = '';
+                return;
+            }
+            
+            // Validate file type
+            if (!file.type.match(/^image\/(jpeg|png|jpg|gif)$/)) {
+                alert('Please select a valid image file (JPG, PNG, GIF)');
+                habitImage.value = '';
+                return;
+            }
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                fileName.textContent = file.name;
+                uploadPrompt.classList.add('hidden');
+                imagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Form submission
+    const form = document.getElementById('habitSubmissionForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const submitSpinner = document.getElementById('submitSpinner');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Validate image is selected
+            if (!habitImage.files || habitImage.files.length === 0) {
+                e.preventDefault();
+                alert('Please select an image to upload');
+                return false;
+            }
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            submitSpinner.classList.remove('hidden');
+        });
+    }
+    
+    // Close modal when clicking outside
+    habitModal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeHabitModal();
+        }
+    });
+    
+    // Escape key to close modal
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !habitModal.classList.contains('hidden')) {
+            closeHabitModal();
+        }
+    });
+});
+
+function clearImage() {
+    const habitImage = document.getElementById('habitImage');
+    const uploadPrompt = document.getElementById('uploadPrompt');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    habitImage.value = '';
+    uploadPrompt.classList.remove('hidden');
+    imagePreview.classList.add('hidden');
+}
+
 </script>
 @endpush
