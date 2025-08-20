@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,10 +12,6 @@ class StudentOtp extends Model
         'otp',
         'expires_at',
         'is_used'
-    ];
-
-    protected $dates = [
-        'expires_at'
     ];
 
     protected $casts = [

@@ -24,7 +24,7 @@
                 <div id="userAvatar" class="w-9 h-9 bg-gradient-to-br from-primary to-primary-dark rounded-full overflow-hidden flex items-center justify-center shadow-card border-2 border-white cursor-pointer">
                     <!-- User avatar with initials or profile picture -->
                     @if(isset($student['profile_picture']) && $student['profile_picture'])
-                        <img src="{{ asset('storage/' . $student['profile_picture']) }}" alt="{{ $student['full_name'] ?? 'Profile' }}" class="w-full h-full object-cover">
+                        <img src="{{ asset('storage/profile_pictures/' . $student['profile_picture']) }}" alt="{{ $student['full_name'] ?? 'Profile' }}" class="w-full h-full object-cover">
                     @else
                         @php
                             $fullName = $student['full_name'] ?? $student['name'] ?? 'User';
@@ -48,16 +48,14 @@
                         <p class="text-xs text-gray-500">{{ $student['email'] ?? $student['phone'] ?? '' }}</p>
                     </div>
                     
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                    <a href="{{route('mobile.profile')}}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
                         <i class="fas fa-user mr-2 text-primary"></i> My Profile
                     </a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
-                        <i class="fas fa-trophy mr-2 text-primary"></i> Achievements
+                    <a href="{{route('mobile.support')}}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                        <i class="fas fa-trophy mr-2 text-primary"></i> Support
                     </a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
-                        <i class="fas fa-history mr-2 text-primary"></i> My Progress
-                    </a>
-                    
+
+              
                     <div class="border-t border-gray-100"></div>
                     
                     <form method="POST" action="{{ route('mobile.logout') }}" class="block">

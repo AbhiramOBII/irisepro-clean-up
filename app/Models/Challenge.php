@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -41,5 +41,10 @@ class Challenge extends Model
     public function batches()
     {
         return $this->hasMany(Batch::class);
+    }
+
+    public function getAmountAttribute()
+    {
+        return $this->special_price ?? $this->selling_price;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
@@ -34,12 +34,6 @@ class YashodarshiEvaluationResult extends Model
         'execution_score' => 'decimal:2',
         'total_score' => 'decimal:2',
         'evaluated_at' => 'datetime'
-    ];
-
-    protected $dates = [
-        'evaluated_at',
-        'created_at',
-        'updated_at'
     ];
 
     // Relationships

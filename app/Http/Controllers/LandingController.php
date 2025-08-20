@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Challenge;
-use App\Batch;
+use App\Models\Challenge;
+use App\Models\Batch;
 use Carbon\Carbon;
 
 class LandingController extends Controller

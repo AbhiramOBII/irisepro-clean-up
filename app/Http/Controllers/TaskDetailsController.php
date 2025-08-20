@@ -6,11 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
-use App\Task;
-use App\Challenge;
-use App\Batch;
-use App\Student;
-use App\StudentTaskResponse;
+use App\Models\Task;
+use App\Models\Challenge;
+use App\Models\Batch;
+use App\Models\Student;
+use App\Models\StudentTaskResponse;
 
 class TaskDetailsController extends Controller
 {

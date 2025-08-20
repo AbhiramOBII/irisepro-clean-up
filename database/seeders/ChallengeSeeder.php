@@ -2,7 +2,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Challenge;
+use App\Models\Challenge;
 
 class ChallengeSeeder extends Seeder
 {

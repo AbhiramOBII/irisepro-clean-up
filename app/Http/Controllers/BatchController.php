@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Batch;
-use App\Challenge;
-use App\User;
-use App\Yashodarshi;
-use App\Student;
+use App\Models\Batch;
+use App\Models\Challenge;
+use App\Models\User;
+use App\Models\Yashodarshi;
+use App\Models\Student;
+use App\Models\Enrollment;
+use Illuminate\Support\Facades\Mail;
+use Razorpay\Api\Api;
+use Carbon\Carbon;
 
 class BatchController extends Controller
 {
@@ -61,8 +65,9 @@ class BatchController extends Controller
             'start_date', 'time', 'status'
         ]));
 
+        $challenge = Challenge::findOrFail($request->challenge_id);
+
         if ($request->has('students')) {
-            $challenge = Challenge::findOrFail($request->challenge_id);
             $studentData = [];
             foreach ($request->students as $studentId) {
                 $studentData[$studentId] = [
@@ -74,6 +79,14 @@ class BatchController extends Controller
                 ];
             }
             $batch->students()->attach($studentData);
+
+            // Send welcome email with payment link
+            foreach ($request->students as $studentId) {
+                $student = Student::find($studentId);
+                if ($student) {
+                    $this->sendWelcomeEmail($student, $batch, $challenge);
+                }
+            }
         }
 
         return redirect()->route('batches.index')->with('success', 'Batch created successfully.');
@@ -176,6 +189,14 @@ class BatchController extends Controller
             
             if (!empty($studentData)) {
                 $batch->students()->attach($studentData);
+
+                // send email to these newly added unpaid students
+                foreach (array_keys($studentData) as $studentId) {
+                    $student = Student::find($studentId);
+                    if ($student) {
+                        $this->sendWelcomeEmail($student, $batch, $challenge);
+                    }
+                }
             }
         } else {
             // Only detach unpaid students, keep paid ones
@@ -210,6 +231,54 @@ class BatchController extends Controller
      * @param  int  $studentId
      * @return \Illuminate\Http\Response
      */
+    private function sendWelcomeEmail(Student $student, Batch $batch, Challenge $challenge)
+    {
+        // Skip if already paid
+        if ($batch->students()->where('students.id', $student->id)->wherePivot('payment_status', 'paid')->exists()) {
+            return;
+        }
+
+        // Create or fetch enrollment draft
+        $enrollment = Enrollment::firstOrCreate([
+            'email_id'      => $student->email,
+            'challenge_id'  => $challenge->id,
+            'batch_selected'=> $batch->id,
+        ], [
+            'full_name'        => $student->full_name,
+            'phone_number'     => $student->phone_number,
+            'date_of_birth'    => $student->date_of_birth,
+            'gender'           => $student->gender === 'other' ? 'prefer_not_to_say' : $student->gender,
+            'payment_status'   => 'pending',
+        ]);
+
+        // Ensure Razorpay order exists
+        if (!$enrollment->razorpay_order_id) {
+            $api = new Api(config('services.razorpay.key'), config('services.razorpay.secret'));
+            $order = $api->order->create([
+                'receipt'         => 'enroll_'.$enrollment->id,
+                'amount'          => $challenge->amount * 100,
+                'currency'        => 'INR',
+                'payment_capture' => 1,
+            ]);
+            $enrollment->update(['razorpay_order_id' => $order['id']]);
+        }
+
+        $url = route('enrollment.pay.page', $enrollment);
+
+        Mail::send('emails.payment.welcome', [
+            'student'          => $student,
+            'batch'            => $batch,
+            'challenge'        => $challenge,
+            'url'              => $url,
+            'amount'           => $challenge->amount,
+            'payment_deadline' => $batch->start_date->format('d M Y'),
+            'duration'         => $challenge->tasks->count().' days',
+        ], function ($message) use ($student, $challenge) {
+            $message->to($student->email)
+                    ->subject('Complete your enrollment payment for '.$challenge->title);
+        });
+    }
+
     public function updatePayment(Request $request, $batchId, $studentId)
     {
         $request->validate([

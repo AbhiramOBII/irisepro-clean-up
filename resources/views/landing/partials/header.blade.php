@@ -93,7 +93,7 @@
             <div class="container mx-auto px-4 sm:px-6 flex flex-col items-center relative z-10">
                 <div class="flex justify-center">
                     <a href="#" class="transition-transform duration-300 hover:scale-105">
-                        <img src="images/irisepro-logo.png" alt="iRisePro Logo" class="h-[100px] sm:h-[110px]">
+                        <img src="{{ asset('images/irisepro-logo.png') }}" alt="iRisePro Logo" class="h-[100px] sm:h-[110px]">
                     </a>
                 </div>
             </div>
@@ -156,7 +156,7 @@
                 
                 <!-- Menu Logo -->
                 <div class="flex justify-center mb-8">
-                    <img src="images/irisepro-logo.png" alt="iRisePro Logo" class="h-[60px]">
+                    <img src="{{ asset('images/irisepro-logo.png') }}" alt="iRisePro Logo" class="h-[60px]">
                 </div>
                 
                 <div class="flex flex-col space-y-4">

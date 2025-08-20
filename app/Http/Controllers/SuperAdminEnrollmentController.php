@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Enrollment;
-use App\Challenge;
-use App\Batch;
-use App\Student;
+use App\Models\Enrollment;
+use App\Models\Challenge;
+use App\Models\Batch;
+use App\Models\Student;
 
 class SuperAdminEnrollmentController extends Controller
 {
@@ -44,6 +44,11 @@ class SuperAdminEnrollmentController extends Controller
         }
 
         $enrollments = $query->orderBy('created_at', 'desc')->paginate(20);
+        
+        // Check which enrollments have corresponding students
+        foreach ($enrollments as $enrollment) {
+            $enrollment->student_exists = Student::where('email', $enrollment->email_id)->exists();
+        }
         
         // Get all challenges and batches for filter dropdowns
         $challenges = Challenge::orderBy('title')->get();

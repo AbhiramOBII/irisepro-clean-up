@@ -7,15 +7,16 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use App\Student;
-use App\StudentOtp;
-use App\Habit;
-use App\Task;
-use App\Challenge;
-use App\YashodarshiEvaluationResult;
-use App\StudentTaskResponse;
-use App\Batch;
-use App\TaskScore;
+use App\Models\Student;
+use App\Models\StudentOtp;
+use App\Models\Habit;
+use App\Models\Task;
+use App\Models\Challenge;
+use App\Models\YashodarshiEvaluationResult;
+use App\Models\HelpRequest;
+use App\Models\StudentTaskResponse;
+use App\Models\Batch;
+use App\Models\TaskScore;
 
 class MobileStudentController extends Controller
 {
@@ -255,6 +256,7 @@ class MobileStudentController extends Controller
         DB::table('habit_student')->insert([
             'student_id' => $student->id,
             'habit_id' => $request->habit_id,
+            'datestamp' => now(), // Add the required datestamp field
             'created_at' => now(),
             'updated_at' => now()
         ]);
@@ -289,16 +291,72 @@ class MobileStudentController extends Controller
 
         $student = Student::find(Session::get('student_id'));
         
+        if ($request->hasFile('profile_picture')) {
+            $request->validate([
+                'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            ]);
+            
+            // Delete old profile picture if exists
+            if ($student->profile_picture && file_exists(storage_path('app/public/profile_pictures/' . $student->profile_picture))) {
+                unlink(storage_path('app/public/profile_pictures/' . $student->profile_picture));
+            }
+            
+            // Store new profile picture
+            $fileName = time() . '_' . $request->file('profile_picture')->getClientOriginalName();
+            $request->file('profile_picture')->storeAs('public/profile_pictures', $fileName);
+            
+            $student->update(['profile_picture' => $fileName]);
+            
+            return response()->json(['success' => true, 'message' => 'Profile picture updated successfully']);
+        }
+        
+        return response()->json(['success' => false, 'message' => 'No file uploaded']);
+    }
+
+    /**
+     * Show support page.
+     */
+    public function support()
+    {
+        if (!Session::get('student_logged_in')) {
+            return redirect()->route('mobile.login');
+        }
+
+        $student = Student::find(Session::get('student_id'));
+        
+        return view('frontendapp.support', compact('student'));
+    }
+
+    /**
+     * Submit support request.
+     */
+    public function submitSupport(Request $request)
+    {
+        if (!Session::get('student_logged_in')) {
+            return redirect()->route('mobile.login');
+        }
+
         $request->validate([
-            'full_name' => 'required|string|max:255',
-            'phone_number' => 'required|string|max:20',
-            'date_of_birth' => 'required|date',
-            'gender' => 'required|in:male,female,other'
+            'issue_type' => 'required|in:technical_issue,content_issue,evaluator_issue,other',
+            'description' => 'required|string|max:500'
         ]);
 
-        $student->update($request->only(['full_name', 'phone_number', 'date_of_birth', 'gender']));
+        $helpRequest = HelpRequest::create([
+            'student_id' => Session::get('student_id'),
+            'issue_type' => $request->issue_type,
+            'description' => $request->description,
+            'status' => 'pending'
+        ]);
 
-        return redirect()->route('mobile.profile')->with('success', 'Profile updated successfully');
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Support request submitted successfully',
+                'request_id' => $helpRequest->id
+            ]);
+        }
+
+        return redirect()->route('mobile.support')->with('success', 'Support request submitted successfully');
     }
 
     /**

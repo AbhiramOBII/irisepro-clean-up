@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,10 +14,6 @@ class Batch extends Model
         'start_date',
         'time',
         'status'
-    ];
-
-    protected $dates = [
-        'start_date'
     ];
 
     protected $casts = [

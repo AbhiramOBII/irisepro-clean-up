@@ -523,11 +523,23 @@
                                 </div>
                             </div>
                             
-                            <!-- Button centered for better visual balance -->
+                            <!-- Buttons centered for better visual balance -->
                             <div class="flex justify-center">
-                               
-                                <a href="#" onclick="handleTaskClick(event, '{{ route('mobile.task.details', [$studentStatus['batch']['id'], $task->id]) }}')" id="startTimerBtn" data-action="start-timer" data-url="{{ route('mobile.task.details', [$studentStatus['batch']['id'], $task->id]) }}" style="background: linear-gradient(93.75deg, #F6821F 2.31%, rgba(246, 130, 31, 0.9) 43.6%, #F9A949 99.5%); box-shadow: 0px 4px 8px rgba(246, 130, 31, 0.25);" class="text-white px-8 py-3 rounded-lg text-sm font-semibold hover:opacity-90 transition-all duration-200 flex items-center">
-                                    View Task
+                                <!-- Start Timer Button - Shows initially, disappears after timer starts -->
+                                <button onclick="startTaskTimer('{{ route('mobile.task.details', [$studentStatus['batch']['id'], $task->id]) }}')" 
+                                        id="startTimerBtn" 
+                                        style="background: linear-gradient(93.75deg, #F6821F 2.31%, rgba(246, 130, 31, 0.9) 43.6%, #F9A949 99.5%); box-shadow: 0px 4px 8px rgba(246, 130, 31, 0.25);" 
+                                        class="text-white px-8 py-3 rounded-lg text-sm font-semibold hover:opacity-90 transition-all duration-200 flex items-center">
+                                    <i class="fas fa-play mr-2"></i>
+                                    Start Timer
+                                </button>
+                                
+                                <!-- Task Details Button - Hidden initially, shows after timer starts -->
+                                <a href="{{ route('mobile.task.details', [$studentStatus['batch']['id'], $task->id]) }}" 
+                                   id="taskDetailsBtn" 
+                                   style="background: linear-gradient(93.75deg, #F6821F 2.31%, rgba(246, 130, 31, 0.9) 43.6%, #F9A949 99.5%); box-shadow: 0px 4px 8px rgba(246, 130, 31, 0.25); display: none;" 
+                                   class="text-white px-8 py-3 rounded-lg text-sm font-semibold hover:opacity-90 transition-all duration-200 flex items-center">
+                                    Task Details
                                     <i class="fas fa-arrow-right ml-2"></i>
                                 </a>
                             </div>
@@ -1001,19 +1013,50 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize timer on page load
     initTimer();
+    
+    // Check timer state and show appropriate buttons
+    checkTimerState();
 });
 
-// Handle task click event
-function handleTaskClick(event, url) {
-    event.preventDefault(); // Prevent default link behavior
+// Handle task timer start
+function startTaskTimer(url) {
+    console.log('Starting 24-hour timer for task');
     
-    // You can add any custom logic here before navigation
-    console.log('Task button clicked, navigating to:', url);
+    // Set timer start time in localStorage
+    const startTime = new Date().getTime();
+    localStorage.setItem('timer_start_time', startTime);
     
-    // Add any processing you need here (e.g., analytics, validation, etc.)
+    // Hide Start Timer button and show Task Details button
+    document.getElementById('startTimerBtn').style.display = 'none';
+    document.getElementById('taskDetailsBtn').style.display = 'flex';
     
-    // Navigate to the task details page
-    window.location.href = url;
+    console.log('24-hour timer started at:', new Date(startTime));
+    console.log('Buttons toggled - Start Timer hidden, Task Details shown');
+}
+
+// Check timer state on page load and show appropriate button
+function checkTimerState() {
+    const timerStartTime = localStorage.getItem('timer_start_time');
+    
+    if (timerStartTime) {
+        // Timer already started, show Task Details button
+        const startBtn = document.getElementById('startTimerBtn');
+        const detailsBtn = document.getElementById('taskDetailsBtn');
+        
+        if (startBtn) startBtn.style.display = 'none';
+        if (detailsBtn) detailsBtn.style.display = 'flex';
+        
+        console.log('Timer already active, showing Task Details button');
+    } else {
+        // Timer not started, show Start Timer button
+        const startBtn = document.getElementById('startTimerBtn');
+        const detailsBtn = document.getElementById('taskDetailsBtn');
+        
+        if (startBtn) startBtn.style.display = 'flex';
+        if (detailsBtn) detailsBtn.style.display = 'none';
+        
+        console.log('No active timer, showing Start Timer button');
+    }
 }
 </script>
 @endpush

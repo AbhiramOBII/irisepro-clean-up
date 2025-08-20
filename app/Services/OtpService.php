@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Yashodarshi;
-use App\YashodarshiOtp;
+use App\Models\Yashodarshi;
+use App\Models\YashodarshiOtp;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
@@ -20,8 +20,8 @@ class OtpService
         try {
             // Find yashodarshi by email
             $yashodarshi = Yashodarshi::where('email', $email)
-                                     ->where('status', 'active')
-                                     ->first();
+                ->where('status', 'active')
+                ->first();
 
             if (!$yashodarshi) {
                 return [
@@ -32,15 +32,15 @@ class OtpService
 
             // Invalidate any existing unused OTPs
             YashodarshiOtp::where('yashodarshi_id', $yashodarshi->id)
-                          ->where('is_used', false)
-                          ->update(['is_used' => true]);
+                ->where('is_used', false)
+                ->update(['is_used' => true]);
 
             // Create new OTP
             $otpRecord = YashodarshiOtp::createForYashodarshi($yashodarshi->id, 10);
 
-            // Send OTP via email - COMMENTED OUT FOR TESTING
-            // $this->sendOtpEmail($yashodarshi, $otpRecord->otp);
-            
+            // Send OTP via email
+            $this->sendOtpEmail($yashodarshi, $otpRecord->otp);
+
             // For testing: Log the OTP instead of sending email
             Log::info('OTP Generated for Yashodarshi', [
                 'email' => $yashodarshi->email,
@@ -54,7 +54,6 @@ class OtpService
                 'message' => 'OTP sent successfully to your email',
                 'yashodarshi_id' => $yashodarshi->id
             ];
-
         } catch (\Exception $e) {
             Log::error('OTP Send Error: ' . $e->getMessage());
             return [
@@ -75,9 +74,9 @@ class OtpService
     {
         try {
             $otpRecord = YashodarshiOtp::where('yashodarshi_id', $yashodarshiId)
-                                      ->where('otp', $otp)
-                                      ->where('is_used', false)
-                                      ->first();
+                ->where('otp', $otp)
+                ->where('is_used', false)
+                ->first();
 
             if (!$otpRecord) {
                 return [
@@ -104,7 +103,6 @@ class OtpService
                 'message' => 'OTP verified successfully',
                 'yashodarshi' => $yashodarshi
             ];
-
         } catch (\Exception $e) {
             Log::error('OTP Verify Error: ' . $e->getMessage());
             return [
@@ -129,9 +127,9 @@ class OtpService
             'expires_in' => '10 minutes'
         ];
 
-        Mail::send('emails.yashodarshi-otp', $data, function($message) use ($yashodarshi) {
+        Mail::send('emails.yashodarshi-otp', $data, function ($message) use ($yashodarshi) {
             $message->to($yashodarshi->email, $yashodarshi->name)
-                    ->subject('Your Yashodarshi Login OTP - IrisePro');
+                ->subject('Your Yashodarshi Login OTP - IrisePro');
         });
     }
 
@@ -143,7 +141,7 @@ class OtpService
     public function cleanupExpiredOtps()
     {
         return YashodarshiOtp::where('expires_at', '<', now())
-                             ->orWhere('is_used', true)
-                             ->delete();
+            ->orWhere('is_used', true)
+            ->delete();
     }
 }

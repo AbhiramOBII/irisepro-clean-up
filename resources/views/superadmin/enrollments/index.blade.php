@@ -162,7 +162,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Enrollments</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Enrollment::count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Enrollment::count() }}</p>
             </div>
         </div>
     </div>
@@ -177,7 +177,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Paid Enrollments</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Enrollment::where('payment_status', 'paid')->count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Enrollment::where('payment_status', 'paid')->count() }}</p>
             </div>
         </div>
     </div>
@@ -192,7 +192,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Unpaid Enrollments</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Enrollment::where('payment_status', 'unpaid')->count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Enrollment::where('payment_status', 'unpaid')->count() }}</p>
             </div>
         </div>
     </div>
@@ -207,7 +207,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Today's Enrollments</p>
-                <p class="text-2xl font-bold text-gray-900">{{ \App\Enrollment::whereDate('created_at', today())->count() }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ \App\Models\Enrollment::whereDate('created_at', today())->count() }}</p>
             </div>
         </div>
     </div>
@@ -301,15 +301,23 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <form action="{{ route('superadmin.enrollments.payment', $enrollment->id) }}" method="POST" class="inline">
-                                @csrf
-                                @method('PUT')
-                                <select name="payment_status" onchange="this.form.submit()" 
-                                    class="text-xs rounded-full px-3 py-1 font-semibold {{ $enrollment->payment_status == 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                    <option value="unpaid" {{ $enrollment->payment_status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
-                                    <option value="paid" {{ $enrollment->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
-                                </select>
-                            </form>
+                            <div class="space-y-1">
+                                <form action="{{ route('superadmin.enrollments.payment', $enrollment->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('PUT')
+                                    <select name="payment_status" onchange="this.form.submit()" 
+                                        class="text-xs rounded-full px-3 py-1 font-semibold {{ $enrollment->payment_status == 'paid' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                        <option value="unpaid" {{ $enrollment->payment_status == 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+                                        <option value="paid" {{ $enrollment->payment_status == 'paid' ? 'selected' : '' }}>Paid</option>
+                                    </select>
+                                </form>
+                                @if($enrollment->student_exists)
+                                    <div class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-center font-medium">
+                                        <i class="fas fa-user-check mr-1"></i>
+                                        Student Active
+                                    </div>
+                                @endif
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $enrollment->created_at->format('M d, Y') }}

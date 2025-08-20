@@ -1,22 +1,24 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Batch;
 
 class Student extends Model
 {
     protected $fillable = [
         'full_name',
         'email',
+        'phone_number',
         'date_of_birth',
         'gender',
-        'phone_number',
         'partner_institution',
         'status',
         'email_verified_at',
         'has_seen_welcome',
-        'B2C'
+        'B2C',
+        'profile_picture'
     ];
 
     protected $casts = [
@@ -35,6 +37,14 @@ class Student extends Model
     }
 
     /**
+     * The help requests that belong to the student.
+     */
+    public function helpRequests()
+    {
+        return $this->hasMany(HelpRequest::class);
+    }
+
+    /**
      * The achievements that belong to the student.
      */
     public function achievements()
@@ -45,7 +55,7 @@ class Student extends Model
     }
 
     /**
-     * The batches that belong to the student.
+     * Get the batches that the student belongs to.
      */
     public function batches()
     {
