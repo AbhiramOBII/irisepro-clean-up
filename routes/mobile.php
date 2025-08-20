@@ -48,3 +48,4 @@ Route::get('/task/{batch_id}/{task_id}', [TaskDetailsController::class, 'show'])
 Route::get('/task/submission/{task_id}/{batch_id}/', [TaskDetailsController::class, 'showSubmission'])->name('mobile.task.submission');
 Route::get('/task/confirmation/{task_id}/{batch_id}/', [TaskDetailsController::class, 'showConfirmation'])->name('mobile.task.confirmation');
 Route::get('/task/success/{taskId}/{batch_id}/', [TaskDetailsController::class, 'showSuccess'])->name('mobile.task.success');
+Route::post('/task/submit/{task_id}/{batch_id}/', [TaskDetailsController::class, 'submitTask'])->name('mobile.task.submit');

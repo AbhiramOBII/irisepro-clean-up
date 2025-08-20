@@ -285,6 +285,7 @@ class TaskDetailsController extends Controller
     
         $batch = Batch::find($batchId);
         $challenge = $batch->challenge;
+        $challengeId = $challenge->id;
 
         
         // Get task details with related data
