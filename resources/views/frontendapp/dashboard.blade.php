@@ -446,9 +446,11 @@
     <div class="mb-8">
         <div class="flex justify-between items-center mb-2 p-2">
             <h2 class="text-xl font-bold text-[#F58321]">Today's Task</h2>
+            @if(!(isset($studentStatus['current_task']) && isset($studentStatus['current_task']['progress']['all_completed']) && $studentStatus['current_task']['progress']['all_completed']))
             <div class="hourglass-container">
                 <img src="{{ asset('images/hour-glass.gif') }}" alt="Hourglass" class="w-12 h-12 object-contain">
             </div>
+            @endif
         </div>
         <p class="text-sm text-gray-700 mb-4 pl-2">Complete these tasks to earn points and build your daily streak</p>
         
@@ -598,6 +600,7 @@
             </div> <!-- End of Task Cards Container -->
 
             <!-- Single Timer Card - This will start when the user clicks on the start now button -->
+            @if(!(isset($studentStatus['current_task']) && isset($studentStatus['current_task']['progress']['all_completed']) && $studentStatus['current_task']['progress']['all_completed']))
             <div class="bg-white rounded-3xl p-4 mt-4 shadow-md hover:shadow-lg transition-all duration-300 border border-[#FFF1E6]">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
@@ -612,6 +615,7 @@
                     
                 </div>
             </div>
+            @endif
         </div> <!-- End of Background Card -->
     </div>
 
