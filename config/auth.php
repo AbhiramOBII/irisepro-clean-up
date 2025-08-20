@@ -87,7 +87,7 @@ return [
         ],
         'superadmin' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Superadmin::class,
+            'model' => App\Models\SuperAdmin::class,
         ],
         'student' => [
             'driver' => 'eloquent',
