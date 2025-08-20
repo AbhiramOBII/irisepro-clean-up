@@ -141,8 +141,8 @@
                 <label class="block text-sm font-medium text-gray-700">Your Response</label>
                 <span class="text-xs text-green-600 font-medium">{{ strlen($taskSubmission->submission_response) }} characters</span>
             </div>
-            <div class="bg-white rounded-lg p-4 border border-gray-200">
-                <p class="text-sm text-gray-700 whitespace-pre-line">{{ $taskSubmission->submission_response }}</p>
+            <div class="bg-white rounded-lg p-4 border border-gray-200" style="min-height: 120px;">
+                <p class="text-sm text-gray-700" style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%; overflow-x: hidden; line-height: 1.5;">{{ $taskSubmission->submission_response }}</p>
             </div>
         </div>
         

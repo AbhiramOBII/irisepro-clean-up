@@ -80,8 +80,8 @@
                 <label class="block text-sm font-medium text-gray-700">Your Response</label>
                 <span class="text-xs text-green-600 font-medium" id="charCountDisplay">0 characters</span>
             </div>
-            <div class="bg-white rounded-lg p-4 border border-gray-200">
-                <p class="text-sm text-gray-700 whitespace-pre-line" id="responsePreview">Loading your response...</p>
+            <div class="bg-white rounded-lg p-4 border border-gray-200" style="min-height: 120px;">
+                <p class="text-sm text-gray-700" id="responsePreview" style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%; overflow-x: hidden; line-height: 1.5;">Loading your response...</p>
             </div>
         </div>
         

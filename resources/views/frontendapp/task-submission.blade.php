@@ -179,6 +179,67 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Function to show Tailwind popup
+    window.showTailwindPopup = function(message) {
+        // Create popup container
+        const popup = document.createElement('div');
+        popup.className = 'fixed inset-0 flex items-center justify-center z-50';
+        
+        // Create backdrop
+        const backdrop = document.createElement('div');
+        backdrop.className = 'absolute inset-0 bg-black bg-opacity-50 transition-opacity';
+        popup.appendChild(backdrop);
+        
+        // Create popup content
+        const content = document.createElement('div');
+        content.className = 'relative bg-white rounded-lg shadow-xl transform transition-all max-w-md w-full mx-4 p-6 scale-95 opacity-0';
+        content.innerHTML = `
+            <div class="flex items-start justify-between">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                        <i class="fas fa-exclamation-circle text-[#FF8A3D] text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">Attention Required</h3>
+                </div>
+                <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none" id="close-popup">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mt-3">
+                <p class="text-sm text-gray-500">${message}</p>
+            </div>
+            <div class="mt-5 sm:mt-4 flex justify-end">
+                <button type="button" class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#FF8A3D] text-base font-medium text-white hover:bg-[#F9A949] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF8A3D] sm:text-sm" id="confirm-popup">
+                    OK
+                </button>
+            </div>
+        `;
+        popup.appendChild(content);
+        
+        // Add to DOM
+        document.body.appendChild(popup);
+        
+        // Add event listeners
+        document.getElementById('close-popup').addEventListener('click', () => {
+            document.body.removeChild(popup);
+        });
+        
+        document.getElementById('confirm-popup').addEventListener('click', () => {
+            document.body.removeChild(popup);
+        });
+        
+        // Close on backdrop click
+        backdrop.addEventListener('click', () => {
+            document.body.removeChild(popup);
+        });
+        
+        // Add animation
+        setTimeout(() => {
+            content.classList.add('scale-100');
+            content.classList.remove('scale-95', 'opacity-0');
+        }, 10);
+    };
+    
     // IndexedDB setup for temporary storage
     let db;
     const taskId = {{ $task->id }};
@@ -583,7 +644,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Validate minimum character requirement
             const textLength = responseText ? responseText.value.length : 0;
             if (textLength < 100) {
-                alert('Please write at least 100 characters in your response.');
+                // Show Tailwind popup instead of alert
+                showTailwindPopup('Please write at least 100 characters in your response.');
                 return;
             }
             
