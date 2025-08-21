@@ -4,6 +4,138 @@
 <div class="min-h-screen bg-gradient-to-b from-white to-[#EFCAA6]">
     
     <div class="px-4 pb-20">
+     
+        @if($performanceData['student_total_score'] == 0 && $performanceData['completed_tasks'] == 0 && !isset($performanceData['has_submitted_responses']))
+            <!-- No Evaluation Started Experience -->
+
+            @if($hasSubmittedResponses)
+                 <!-- Review Pending Experience -->
+                 <div class="flex flex-col items-center justify-center min-h-[70vh] text-center">
+                <!-- Review Pending Card -->
+                <div class="bg-gradient-to-br from-[#E8F5E8] to-[#C8E6C9] rounded-3xl p-8 mb-6 shadow-xl relative overflow-hidden max-w-md w-full">
+                    <!-- Decorative elements -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full -mr-16 -mt-16"></div>
+                    <div class="absolute bottom-0 left-0 w-24 h-24 bg-green-500/10 rounded-full -ml-12 -mb-12"></div>
+                    
+                    <div class="relative z-10">
+                        <!-- Icon with animation -->
+                        <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                            <i class="fas fa-clock text-white text-3xl"></i>
+                        </div>
+                        
+                        <!-- Review Message -->
+                        <h2 class="text-2xl font-bold text-gray-800 mb-3">Review in Progress</h2>
+                        <p class="text-gray-600 mb-6">Our Yashodarshi's are on it. Your performance will be reviewed shortly.</p>
+                        
+                        <!-- Student Info -->
+                        <div class="bg-white rounded-xl p-4 mb-6">
+                            <div class="text-sm text-gray-500 mb-1">Student</div>
+                            <div class="text-lg font-semibold text-gray-800">{{ $performanceData['student_name'] }}</div>
+                        </div>
+                        
+                        <!-- What's Happening -->
+                        <div class="text-left">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">What's happening:</h3>
+                            <div class="space-y-2">
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                    Your task responses have been submitted
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-eye text-green-600 mr-2"></i>
+                                    Yashodarshi's are reviewing your work
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-chart-line text-green-600 mr-2"></i>
+                                    AACE scores will be calculated soon
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-bell text-green-600 mr-2"></i>
+                                    You'll be notified when results are ready
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Status Info -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg max-w-md w-full">
+                    <div class="text-center">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">What to do next?</h3>
+                        <p class="text-gray-600 mb-4">While you wait, you can continue with other tasks or check your habit completion progress.</p>
+                        <a href="{{ route('mobile.dashboard') }}" class="inline-flex items-center px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors duration-200 font-medium">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @else
+            <div class="flex flex-col items-center justify-center min-h-[70vh] text-center">
+                <!-- Welcome Card -->
+                <div class="bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] rounded-3xl p-8 mb-6 shadow-xl relative overflow-hidden max-w-md w-full">
+                    <!-- Decorative elements -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-[#F58321]/5 rounded-full -mr-16 -mt-16"></div>
+                    <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#F58321]/5 rounded-full -ml-12 -mb-12"></div>
+                    
+                    <div class="relative z-10">
+                        <!-- Icon -->
+                        <div class="w-20 h-20 bg-[#F58321] rounded-full flex items-center justify-center mx-auto mb-6">
+                            <i class="fas fa-chart-line text-white text-3xl"></i>
+                        </div>
+                        
+                        <!-- Welcome Message -->
+                        <h2 class="text-2xl font-bold text-gray-800 mb-3">Welcome to Performance!</h2>
+                        <p class="text-gray-600 mb-6">Your performance journey hasn't started yet. Complete your first task to see your progress and AACE scores here.</p>
+                        
+                        <!-- Student Info -->
+                        <div class="bg-white rounded-xl p-4 mb-6">
+                            <div class="text-sm text-gray-500 mb-1">Student</div>
+                            <div class="text-lg font-semibold text-gray-800">{{ $performanceData['student_name'] }}</div>
+                        </div>
+                        
+                        <!-- What to Expect -->
+                        <div class="text-left">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">What you'll see here:</h3>
+                            <div class="space-y-2">
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-check-circle text-[#F58321] mr-2"></i>
+                                    Your overall performance scores
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-chart-bar text-[#F58321] mr-2"></i>
+                                    AACE breakdown (Aptitude, Attitude, Communication, Execution)
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-trophy text-[#F58321] mr-2"></i>
+                                    Leaderboard position and rankings
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <i class="fas fa-history text-[#F58321] mr-2"></i>
+                                    Task completion history and detailed scores
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Call to Action -->
+                <div class="bg-white rounded-2xl p-6 shadow-lg max-w-md w-full">
+                    <div class="text-center">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Ready to get started?</h3>
+                        <p class="text-gray-600 mb-4">Head back to your dashboard and complete your first task to unlock your performance insights.</p>
+                        <a href="{{ route('mobile.dashboard') }}" class="inline-flex items-center px-6 py-3 bg-[#F58321] text-white rounded-xl hover:bg-[#E5751E] transition-colors duration-200 font-medium">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endif
+        
+       
+        @else
+            <!-- Regular Performance Dashboard -->
         <!-- Performance Header Card -->
         <div class="bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] rounded-xl p-5 mb-4 shadow-md relative overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 cursor-pointer group">
             <!-- Decorative circle elements -->
@@ -21,7 +153,7 @@
                                 <i class="fas fa-tasks mr-1"></i> {{ $performanceData['completed_tasks'] }} Tasks Done
                             </div>
                             <div class="bg-[#FFC107]/10 rounded-full px-3 py-1 text-xs text-[#FFC107] font-medium flex items-center ml-2">
-                                <i class="fas fa-chart-line mr-1"></i> {{ round(($performanceData['student_total_score']/$performanceData['total_score'])*100,0)}}%
+                                <i class="fas fa-chart-line mr-1"></i> @if($performanceData['total_score'] > 0){{ round(($performanceData['student_total_score']/$performanceData['total_score'])*100,0)}}@else 0 @endif%
                             </div>
                         </div>
                     </div>
@@ -44,7 +176,7 @@
                     <div class="bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] p-3 rounded-xl">
                         <div class="text-sm text-gray-600 mb-1">Total Score</div>
                         <div class="flex items-end">
-                            <span class="text-2xl font-bold text-[#F58321]">{{ round(($performanceData['student_total_score']/$performanceData['total_score'])*100,0) }}%</span>
+                            <span class="text-2xl font-bold text-[#F58321]">@if($performanceData['total_score'] > 0){{ round(($performanceData['student_total_score']/$performanceData['total_score'])*100,0) }}@else 0 @endif%</span>
                             <span class="text-xs text-green-600 ml-2 mb-1 flex items-center">
                                 <i class="fas fa-arrow-up mr-1"></i>3.2%
                             </span>
@@ -111,10 +243,10 @@
                         <div class="absolute top-0 left-0 w-full bg-gray-200 rounded-full h-4"></div>
                         
                         <!-- Bar 2: Total Score of the Tasks Attended by the Student So far -->
-                        <div class="absolute top-0 left-0 bg-[#fa0b0b] h-4 rounded-full" style="width: {{ ($performanceData['total_score']/$performanceData['total_possible_score'])*100 }}%"></div>
+                        <div class="absolute top-0 left-0 bg-[#fa0b0b] h-4 rounded-full" style="width: @if($performanceData['total_possible_score'] > 0){{ ($performanceData['total_score']/$performanceData['total_possible_score'])*100 }}@else 0 @endif%"></div>
                         
                         <!-- Bar 1: Total Student's Score -->
-                        <div class="absolute top-0 left-0 bg-gradient-to-r from-[#FF8A3D] to-[#FFC107] h-4 rounded-full" style="width: {{ ($performanceData['student_total_score']/$performanceData['total_possible_score'])*100 }}%"></div>
+                        <div class="absolute top-0 left-0 bg-gradient-to-r from-[#FF8A3D] to-[#FFC107] h-4 rounded-full" style="width: @if($performanceData['total_possible_score'] > 0){{ ($performanceData['student_total_score']/$performanceData['total_possible_score'])*100 }}@else 0 @endif%"></div>
                     </div>
                    
                     <div class="flex justify-between text-xs mt-3">
@@ -136,7 +268,7 @@
                     </div>
                     <div class="bg-[#FF8A3D]/10 rounded-lg px-3 py-2">
                         <div class="text-xs text-gray-600">Overall Avg AACE</div>
-                        <div class="text-sm font-bold text-[#FF8A3D]">{{ round(($performanceData['student_total_score']/$performanceData['total_score'])*100,0) }}%</div>
+                        <div class="text-sm font-bold text-[#FF8A3D]">@if($performanceData['total_score'] > 0){{ round(($performanceData['student_total_score']/$performanceData['total_score'])*100,0) }}@else 0 @endif%</div>
                     </div>
                 </div>
             </div>
@@ -173,10 +305,10 @@
                                             <div class="w-3 h-3 rounded-full bg-[#FF8A3D] mr-2"></div>
                                             <span class="text-sm font-medium">Aptitude</span>
                                         </div>
-                                        <span class="text-sm font-bold"> @if($performanceData['total_attitude_score'] > 0){{ round(($performanceData['student_aptitude_total']/$performanceData['total_aptitude_score'])*100,0) }} @endif %</span>
+                                        <span class="text-sm font-bold"> @if($performanceData['total_aptitude_score'] > 0){{ round(($performanceData['student_aptitude_total']/$performanceData['total_aptitude_score'])*100,0) }}@else 0 @endif %</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-[#FF8A3D] h-2 rounded-full" style="width: {{ round(($performanceData['student_aptitude_total']/$performanceData['total_aptitude_score'])*100,0) }}%"></div>
+                                        <div class="bg-[#FF8A3D] h-2 rounded-full" style="width: @if($performanceData['total_aptitude_score'] > 0){{ round(($performanceData['student_aptitude_total']/$performanceData['total_aptitude_score'])*100,0) }}@else 0 @endif%"></div>
                                     </div>
                                 </div>
                                 
@@ -215,10 +347,10 @@
                                             <div class="w-3 h-3 rounded-full bg-[#F58321] mr-2"></div>
                                             <span class="text-sm font-medium">Execution</span>
                                         </div>
-                                        <span class="text-sm font-bold">@if($performanceData['total_execution_score'] > 0){{ round(($performanceData['student_execution_total']/$performanceData['total_communication_score'])*100,0) }}@else 0 @endif %</span>
+                                        <span class="text-sm font-bold">@if($performanceData['total_execution_score'] > 0){{ round(($performanceData['student_execution_total']/$performanceData['total_execution_score'])*100,0) }}@else 0 @endif %</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-[#F58321] h-2 rounded-full" style="width: @if($performanceData['total_execution_score'] > 0){{ round(($performanceData['student_execution_total']/$performanceData['total_communication_score'])*100,0) }}@else 0 @endif%"></div>
+                                        <div class="bg-[#F58321] h-2 rounded-full" style="width: @if($performanceData['total_execution_score'] > 0){{ round(($performanceData['student_execution_total']/$performanceData['total_execution_score'])*100,0) }}@else 0 @endif%"></div>
                                     </div>
                                 </div>
                             </div>
@@ -274,5 +406,7 @@
             </div>
         </div>
         </div>
+        @endif
+    </div>
 </div>
 @endsection

@@ -536,8 +536,15 @@ class MobileStudentController extends Controller
         
         // Get student data for header
         $studentData = $this->getStudentData();
+
+        //check if student has submitted task responses
+        $hasSubmittedResponses = StudentTaskResponse::where('student_id', $student->id)
+            ->where('status', 'submitted')
+            ->exists();
+
+           
         
-        return view('frontendapp.performance', compact('student', 'performanceData', 'studentData','allTasks'));
+        return view('frontendapp.performance', compact('student', 'performanceData', 'studentData','allTasks','hasSubmittedResponses'));
     }
 
     /**
