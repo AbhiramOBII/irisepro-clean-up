@@ -45,6 +45,6 @@ class Challenge extends Model
 
     public function getAmountAttribute()
     {
-        return $this->special_price ?? $this->selling_price;
+        return $this->special_price ?? $this->selling_price ?? $this->cost_price;
     }
 }
