@@ -46,7 +46,7 @@
                                     <h3 class="font-bold text-gray-800 text-lg">{{ $challenge->challenge_title ?? $challenge->title ?? 'Challenge' }}</h3>
                                     <p class="text-sm text-gray-500">60-Day Challenge</p>
                                 </div>
-                                <div class="text-[#F58321] font-bold text-lg">₹{{ number_format($challenge->selling_cost ?? $challenge->cost ?? $challenge->fee ?? 99) }}</div>
+                                <div class="text-[#F58321] font-bold text-lg">₹{{ number_format($challenge->amount) }}</div>
                             </div>
                             
                             <p class="text-gray-600 text-sm mb-4">{{ Str::limit($challenge->challenge_description ?? $challenge->description ?? 'Transform your life with this amazing challenge.', 80) }}</p>
@@ -182,7 +182,7 @@
                         <p class="text-sm text-gray-500">{{ $studentStatus['batch']->duration ?? 21 }}-Day Challenge</p>
                     </div>
                     <div class="text-right">
-                        <div class="text-2xl font-bold text-[#F58321]">₹{{ number_format($studentStatus['payment_details']['amount'] ?? $studentStatus['batch']->fee ?? 999) }}</div>
+                        <div class="text-2xl font-bold text-[#F58321]">₹{{ number_format($studentStatus['payment_details']['amount']) }}</div>
                         <div class="text-xs text-gray-500">One-time payment</div>
                     </div>
                 </div>
@@ -358,7 +358,7 @@
                     </div>
                     <div>
                         <h4 class="font-semibold text-green-800">Payment Confirmed</h4>
-                        <p class="text-green-600 text-sm">Amount: ₹{{ number_format($studentStatus['payment']->amount ?? $studentStatus['batch']->fee ?? 999) }}</p>
+                        <p class="text-green-600 text-sm">Amount: ₹{{ number_format($studentStatus['payment_details']['amount'] ?? 0) }}</p>
                     </div>
                 </div>
             </div>
