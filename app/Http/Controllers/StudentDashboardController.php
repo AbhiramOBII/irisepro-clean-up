@@ -139,7 +139,7 @@ class StudentDashboardController extends Controller
             'message' => 'Batch has started but no tasks assigned yet',
             'student' => $student,
             'batch' => $batch,
-            'payment' => $payment
+            'payment' => $batchStudent->amount
         ];
     }
 
