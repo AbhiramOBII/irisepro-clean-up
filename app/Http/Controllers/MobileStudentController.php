@@ -3,21 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Student;
 use App\Models\StudentOtp;
 use App\Models\Habit;
 use App\Models\Task;
-use App\Models\Challenge;
 use App\Models\YashodarshiEvaluationResult;
 use App\Models\HelpRequest;
 use App\Models\StudentTaskResponse;
-use App\Models\Batch;
 use App\Models\TaskScore;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 
 class MobileStudentController extends Controller
 {
@@ -39,10 +36,10 @@ class MobileStudentController extends Controller
         ]);
 
         $email = $request->email;
-        
+
         // Check if student exists
         $student = Student::where('email', $email)->where('status', 'active')->first();
-        
+
         if (!$student) {
             return response()->json([
                 'success' => false,
@@ -52,10 +49,10 @@ class MobileStudentController extends Controller
 
         // Generate 6-digit OTP
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
+
         // Delete any existing OTP for this student
         StudentOtp::where('student_id', $student->id)->delete();
-        
+
         // Create new OTP record
         StudentOtp::create([
             'student_id' => $student->id,
@@ -69,7 +66,7 @@ class MobileStudentController extends Controller
             'otp' => $otp,
             'name' => $student->full_name,
             'expires_in' => '10 minutes'
-        ], function($message) use ($email) {
+        ], function ($message) use ($email) {
             $message->to($email)->subject('iRisePro - Your Login OTP');
         });
 
@@ -114,10 +111,7 @@ class MobileStudentController extends Controller
         $student = Student::find($otpRecord->student_id);
 
         // Create session
-        Session::put('student_logged_in', true);
-        Session::put('student_id', $student->id);
-        Session::put('student_email', $student->email);
-        Session::put('student_name', $student->full_name);
+        Auth::guard('student')->login($student);
 
         return response()->json([
             'success' => true,
@@ -132,16 +126,16 @@ class MobileStudentController extends Controller
     public function showOtpVerification(Request $request)
     {
         $email = $request->get('email');
-        
+
         // Get the latest OTP record for this email to calculate remaining time
         $otpRecord = StudentOtp::where('email', $email)
             ->where('is_used', false)
             ->where('expires_at', '>', Carbon::now())
             ->orderBy('created_at', 'desc')
             ->first();
-        
+
         $expiresAt = $otpRecord ? $otpRecord->expires_at : null;
-        
+
         return view('frontendapp.otp-verification', compact('email', 'expiresAt'));
     }
 
@@ -150,30 +144,26 @@ class MobileStudentController extends Controller
      */
     public function dashboard()
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
-        $student = Student::find(Session::get('student_id'));
-        
         // Check if student has seen welcome screen
         if (!$student->has_seen_welcome) {
             return redirect()->route('mobile.welcome');
         }
-        
+
         // Check if student has selected a habit
         $hasHabit = DB::table('habit_student')->where('student_id', $student->id)->exists();
         if (!$hasHabit) {
             return redirect()->route('mobile.select-habit');
         }
-        
+
         // Get student status using StudentDashboardController
         $dashboardController = new StudentDashboardController();
         $studentStatus = $dashboardController->getDashboardData($student->id);
-        
+
         // Get student data for header
         $studentData = $this->getStudentData();
-        
+
         return view('frontendapp.dashboard', compact('student', 'studentStatus', 'studentData'));
     }
 
@@ -182,17 +172,13 @@ class MobileStudentController extends Controller
      */
     public function showWelcome()
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
-        $student = Student::find(Session::get('student_id'));
-        
         // If already seen welcome, redirect to dashboard
         if ($student->has_seen_welcome) {
             return redirect()->route('mobile.dashboard');
         }
-        
+
         return view('frontendapp.welcome-screen', compact('student'));
     }
 
@@ -201,11 +187,7 @@ class MobileStudentController extends Controller
      */
     public function markWelcomeSeen()
     {
-        if (!Session::get('student_logged_in')) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
-        }
-
-        $student = Student::find(Session::get('student_id'));
+        $student = Auth::guard('student')->user();
         $student->update(['has_seen_welcome' => true]);
 
         return response()->json(['success' => true]);
@@ -216,21 +198,17 @@ class MobileStudentController extends Controller
      */
     public function selectHabit()
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
-        $student = Student::find(Session::get('student_id'));
-        
         // Check if student already has a habit selected
         $hasHabit = DB::table('habit_student')->where('student_id', $student->id)->exists();
         if ($hasHabit) {
             return redirect()->route('mobile.dashboard');
         }
-        
+
         // Get all available habits
         $habits = Habit::where('status', 'active')->orderBy('title')->get();
-        
+
         return view('frontendapp.select-habit', compact('student', 'habits'));
     }
 
@@ -239,22 +217,18 @@ class MobileStudentController extends Controller
      */
     public function saveHabit(Request $request)
     {
-        if (!Session::get('student_logged_in')) {
-            return response()->json(['success' => false, 'message' => 'Not authenticated'], 401);
-        }
-
         $request->validate([
             'habit_id' => 'required|exists:habits,id'
         ]);
 
-        $student = Student::find(Session::get('student_id'));
-        
+        $student = Auth::guard('student')->user();
+
         // Check if student already has a habit selected
         $hasHabit = DB::table('habit_student')->where('student_id', $student->id)->exists();
         if ($hasHabit) {
             return response()->json(['success' => false, 'message' => 'You have already selected a habit']);
         }
-        
+
         // Save the habit selection
         DB::table('habit_student')->insert([
             'student_id' => $student->id,
@@ -265,7 +239,7 @@ class MobileStudentController extends Controller
         ]);
 
         return response()->json([
-            'success' => true, 
+            'success' => true,
             'message' => 'Habit selected successfully! Welcome to your journey.'
         ]);
     }
@@ -275,11 +249,7 @@ class MobileStudentController extends Controller
      */
     public function profile()
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
-
-        $student = Student::find(Session::get('student_id'));
+        $student = Auth::guard('student')->user();
         return view('frontendapp.profile', compact('student'));
     }
 
@@ -288,31 +258,27 @@ class MobileStudentController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
-        $student = Student::find(Session::get('student_id'));
-        
         if ($request->hasFile('profile_picture')) {
             $request->validate([
                 'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
             ]);
-            
+
             // Delete old profile picture if exists
             if ($student->profile_picture && file_exists(storage_path('app/public/profile_pictures/' . $student->profile_picture))) {
                 unlink(storage_path('app/public/profile_pictures/' . $student->profile_picture));
             }
-            
+
             // Store new profile picture
             $fileName = time() . '_' . $request->file('profile_picture')->getClientOriginalName();
             $request->file('profile_picture')->storeAs('public/profile_pictures', $fileName);
-            
+
             $student->update(['profile_picture' => $fileName]);
-            
+
             return response()->json(['success' => true, 'message' => 'Profile picture updated successfully']);
         }
-        
+
         return response()->json(['success' => false, 'message' => 'No file uploaded']);
     }
 
@@ -321,12 +287,8 @@ class MobileStudentController extends Controller
      */
     public function support()
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
-        $student = Student::find(Session::get('student_id'));
-        
         return view('frontendapp.support', compact('student'));
     }
 
@@ -335,9 +297,7 @@ class MobileStudentController extends Controller
      */
     public function submitSupport(Request $request)
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
         $request->validate([
             'issue_type' => 'required|in:technical_issue,content_issue,evaluator_issue,other',
@@ -345,7 +305,7 @@ class MobileStudentController extends Controller
         ]);
 
         $helpRequest = HelpRequest::create([
-            'student_id' => Session::get('student_id'),
+            'student_id' => $student->id,
             'issue_type' => $request->issue_type,
             'description' => $request->description,
             'status' => 'pending'
@@ -367,9 +327,7 @@ class MobileStudentController extends Controller
      */
     public function tasks()
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
         return view('frontendapp.tasks');
     }
@@ -379,9 +337,7 @@ class MobileStudentController extends Controller
      */
     public function challenges()
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
         return view('frontendapp.challenges');
     }
@@ -391,9 +347,7 @@ class MobileStudentController extends Controller
      */
     public function habits()
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
         return view('frontendapp.habits');
     }
@@ -403,9 +357,7 @@ class MobileStudentController extends Controller
      */
     public function achievements()
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
         return view('frontendapp.achievements');
     }
@@ -415,14 +367,8 @@ class MobileStudentController extends Controller
      */
     public function getStudentData()
     {
-        $studentId = Session::get('student_id');
-        
-        if (!$studentId) {
-            return null;
-        }
+        $student = Auth::guard('student')->user();
 
-        $student = Student::find($studentId);
-        
         if (!$student) {
             return null;
         }
@@ -435,7 +381,7 @@ class MobileStudentController extends Controller
                 $initials .= strtoupper(substr($part, 0, 1));
             }
         }
-        
+
         return [
             'id' => $student->id,
             'name' => $student->full_name,
@@ -451,9 +397,7 @@ class MobileStudentController extends Controller
      */
     public function submitHabit(Request $request)
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
         $request->validate([
             'habit_id' => 'required|exists:habits,id',
@@ -461,8 +405,6 @@ class MobileStudentController extends Controller
             'datestamp' => 'required'
         ]);
 
-        $student = Student::find(Session::get('student_id'));
-        
         // Handle file upload
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -489,21 +431,14 @@ class MobileStudentController extends Controller
      */
     public function performance()
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
-
-        $student = Student::find(Session::get('student_id'));
-        
-
-        
+        $student = Auth::guard('student')->user();
         // Get student's reviewed task responses
         $reviewedResponses = StudentTaskResponse::where('student_id', $student->id)
             ->where('status', 'reviewed')
             ->with(['task', 'challenge', 'batch'])
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         // Get corresponding evaluation results from yashodarshi_evaluation_results
         $evaluationResults = collect();
         foreach ($reviewedResponses as $response) {
@@ -513,27 +448,27 @@ class MobileStudentController extends Controller
                 ->where('challenge_id', $response->challenge_id)
                 ->with(['task', 'challenge'])
                 ->first();
-            
+
             if ($evaluation) {
                 $evaluationResults->push($evaluation);
             }
         }
-        
+
         // Get all tasks for the student's challenge/batch
         $allTasks = collect();
         if ($reviewedResponses->isNotEmpty()) {
             $challengeIds = $reviewedResponses->pluck('challenge_id')->unique();
             $allTasks = Task::with(['challenges'])
-                ->whereHas('challenges', function($query) use ($challengeIds) {
+                ->whereHas('challenges', function ($query) use ($challengeIds) {
                     $query->whereIn('challenges.id', $challengeIds);
                 })
                 ->orderBy('id')
                 ->get();
         }
-        
+
         // Calculate performance metrics
         $performanceData = $this->calculatePerformanceMetrics($student, $evaluationResults, $allTasks, $reviewedResponses);
-        
+
         // Get student data for header
         $studentData = $this->getStudentData();
 
@@ -542,9 +477,9 @@ class MobileStudentController extends Controller
             ->where('status', 'submitted')
             ->exists();
 
-           
-        
-        return view('frontendapp.performance', compact('student', 'performanceData', 'studentData','allTasks','hasSubmittedResponses'));
+
+
+        return view('frontendapp.performance', compact('student', 'performanceData', 'studentData', 'allTasks', 'hasSubmittedResponses'));
     }
 
     /**
@@ -552,15 +487,15 @@ class MobileStudentController extends Controller
      */
     private function calculatePerformanceMetrics($student, $evaluationResults, $allTasks, $reviewedResponses)
     {
-      $submitstatus = StudentTaskResponse::where('student_id', $student->id)
-        ->where('status', 'submitted')
-        ->get();
-       
+        $submitstatus = StudentTaskResponse::where('student_id', $student->id)
+            ->where('status', 'submitted')
+            ->get();
+
         // Get task scores for all tasks
         $taskScores = [];
-        foreach($allTasks as $task){
+        foreach ($allTasks as $task) {
 
-            if($task->taskScore) {
+            if ($task->taskScore) {
                 $taskScores[] = [
                     'task_id' => $task->id,
                     'task_title' => $task->task_title,
@@ -570,121 +505,120 @@ class MobileStudentController extends Controller
                     'execution_score' => $task->taskScore->execution_score ?? 0,
                     'total_score' => $task->taskScore->total_score ?? 0
                 ];
-
             }
         }
-     
-        $alltasktotalscore=[];
-        foreach($allTasks as $task){
-            if($evaluationResults->where('task_id', $task->id)->first())
-            {$alltasktotalscore[$task->id]=[
-            'Student_total_score'=>$evaluationResults->where('task_id', $task->id)->first()->total_score ?? 0
-                ];    
+
+        $alltasktotalscore = [];
+        foreach ($allTasks as $task) {
+            if ($evaluationResults->where('task_id', $task->id)->first()) {
+                $alltasktotalscore[$task->id] = [
+                    'Student_total_score' => $evaluationResults->where('task_id', $task->id)->first()->total_score ?? 0
+                ];
             }
         }
-       
-
-        
 
 
-     // Get task scores for all completed tasks
-     $completedTaskScores = [];
-     $totalAptitudeScore = 0;
-     $totalAttitudeScore = 0;
-     $totalCommunicationScore = 0;
-     $totalExecutionScore = 0;  
-     $totalScore = 0;
-     $studentAptitudeTotal = 0;
-     $studentAttitudeTotal = 0;
-     $studentCommunicationTotal = 0;
-     $studentExecutionTotal = 0;
-     $studentTotalScore = 0;    
 
-     foreach($evaluationResults as $evaluation) {
-    
-         $taskScore = collect($taskScores)->where('task_id', $evaluation->task_id)->first();
 
-         if($taskScore) {
-            $totalAptitudeScore += $taskScore['aptitude_score'];
-            $totalAttitudeScore += $taskScore['attitude_score'];
-            $totalCommunicationScore += $taskScore['communication_score'];
-            $totalExecutionScore += $taskScore['execution_score'];
-            $totalScore += $taskScore['total_score'];
-            $studentAptitudeTotal += $evaluation->aptitude_score;
-            $studentAttitudeTotal += $evaluation->attitude_score;
-            $studentCommunicationTotal += $evaluation->communication_score;
-            $studentExecutionTotal += $evaluation->execution_score;
-            $studentTotalScore += $evaluation->total_score; 
 
-             $completedTaskScores[] = [
-                 'task_id' => $evaluation->task_id,
-                 'task_title' => $taskScore['task_title'],
-                 'student_aptitude_score' => $evaluation->aptitude_score,
-                 'student_attitude_score' => $evaluation->attitude_score,
-                 'student_communication_score' => $evaluation->communication_score,
-                 'student_execution_score' => $evaluation->execution_score,
-                 'student_total_score' => $evaluation->total_score,
-                 'max_aptitude_score' => $taskScore['aptitude_score'],
-                 'max_attitude_score' => $taskScore['attitude_score'],
-                 'max_communication_score' => $taskScore['communication_score'],
-                 'max_execution_score' => $taskScore['execution_score'],
-                 'max_total_score' => $taskScore['total_score']
-             ];
-         }
-     }
+        // Get task scores for all completed tasks
+        $completedTaskScores = [];
+        $totalAptitudeScore = 0;
+        $totalAttitudeScore = 0;
+        $totalCommunicationScore = 0;
+        $totalExecutionScore = 0;
+        $totalScore = 0;
+        $studentAptitudeTotal = 0;
+        $studentAttitudeTotal = 0;
+        $studentCommunicationTotal = 0;
+        $studentExecutionTotal = 0;
+        $studentTotalScore = 0;
 
-    
-  
+        foreach ($evaluationResults as $evaluation) {
+
+            $taskScore = collect($taskScores)->where('task_id', $evaluation->task_id)->first();
+
+            if ($taskScore) {
+                $totalAptitudeScore += $taskScore['aptitude_score'];
+                $totalAttitudeScore += $taskScore['attitude_score'];
+                $totalCommunicationScore += $taskScore['communication_score'];
+                $totalExecutionScore += $taskScore['execution_score'];
+                $totalScore += $taskScore['total_score'];
+                $studentAptitudeTotal += $evaluation->aptitude_score;
+                $studentAttitudeTotal += $evaluation->attitude_score;
+                $studentCommunicationTotal += $evaluation->communication_score;
+                $studentExecutionTotal += $evaluation->execution_score;
+                $studentTotalScore += $evaluation->total_score;
+
+                $completedTaskScores[] = [
+                    'task_id' => $evaluation->task_id,
+                    'task_title' => $taskScore['task_title'],
+                    'student_aptitude_score' => $evaluation->aptitude_score,
+                    'student_attitude_score' => $evaluation->attitude_score,
+                    'student_communication_score' => $evaluation->communication_score,
+                    'student_execution_score' => $evaluation->execution_score,
+                    'student_total_score' => $evaluation->total_score,
+                    'max_aptitude_score' => $taskScore['aptitude_score'],
+                    'max_attitude_score' => $taskScore['attitude_score'],
+                    'max_communication_score' => $taskScore['communication_score'],
+                    'max_execution_score' => $taskScore['execution_score'],
+                    'max_total_score' => $taskScore['total_score']
+                ];
+            }
+        }
+
+
+
 
         $completedTasks = $evaluationResults->count();
         $totalTasks = $allTasks->count();
         $remainingTasks = $totalTasks - $completedTasks;
-        
+
         // Calculate total scores and percentages
         $studentTotalScore = $evaluationResults->sum('total_score');
         $taskTotalScore = $completedTasks * 100; // Assuming each task is out of 100
         $avgTotal = $taskTotalScore > 0 ? ($studentTotalScore / $taskTotalScore) * 100 : 0;
-        
+
         // Calculate AACE percentages
         $studentAptitudeTotal = $evaluationResults->sum('aptitude_score');
         $studentAttitudeTotal = $evaluationResults->sum('attitude_score');
         $studentCommunicationTotal = $evaluationResults->sum('communication_score');
         $studentExecutionTotal = $evaluationResults->sum('execution_score');
-        
+
         $maxAACEPerTask = 25; // Assuming each AACE component is out of 25
         $maxAACETotal = $completedTasks * $maxAACEPerTask;
-        
+
         $avgAptitude = $maxAACETotal > 0 ? ($studentAptitudeTotal / $maxAACETotal) * 100 : 0;
         $avgAttitude = $maxAACETotal > 0 ? ($studentAttitudeTotal / $maxAACETotal) * 100 : 0;
         $avgCommunication = $maxAACETotal > 0 ? ($studentCommunicationTotal / $maxAACETotal) * 100 : 0;
         $avgExecution = $maxAACETotal > 0 ? ($studentExecutionTotal / $maxAACETotal) * 100 : 0;
-        
+
         // Calculate total possible score and current score
         $maxScorePerTask = 100; // Assuming max score is 100 per task
         $totalPossibleScore = $totalTasks * $maxScorePerTask;
         $currentScore = $evaluationResults->sum('total_score');
         $maxPossibleForCompleted = $completedTasks * $maxScorePerTask;
-        
+
         // Get highest task score and convert to percentage
         $highestScore = $evaluationResults->max('total_score') ?? 0;
         $highestScoreTask = $evaluationResults->where('total_score', $highestScore)->first();
-        
+
         // Find the corresponding task score for the highest scoring task
         $highestTaskScore = collect($taskScores)->where('task_id', $highestScoreTask->task_id ?? 0)->first();
         $highestTaskTotalScore = $highestTaskScore['total_score'] ?? 100;
-        
+
         $highestScorePercentage = round($highestTaskTotalScore > 0 ? ($highestScore / $highestTaskTotalScore) * 100 : 0, 0);
-       
+
         // Calculate leaderboard position (mock data for now)
         $leaderboardPosition = 3; // This would need actual leaderboard calculation
-        
+
 
 
         // Add completed tasks
         foreach ($evaluationResults as $result) {
             $taskScorePercentage = ($result->total_score / 100) * 100; // Convert to percentage
             $taskHistory[] = [
-                'task_id'=>$result->task_id,
+                'task_id' => $result->task_id,
                 'task_number' => $this->getTaskNumber($result->task_id, $allTasks),
                 'task_title' => $result->task->task_title ?? 'Unknown Task',
                 'task_description' => $result->task->task_description ?? '',
@@ -692,10 +626,10 @@ class MobileStudentController extends Controller
                 'score' => round($taskScorePercentage, 0),
                 'submitted_at' => $result->evaluated_at->format('F j, Y \a\t H:i'),
                 'border_color' => $this->getScoreBorderColor($taskScorePercentage),
-                'total_score'=>$result->task->taskScore->total_score ?? 0
+                'total_score' => $result->task->taskScore->total_score ?? 0
             ];
         }
-        
+
         // Add submitted tasks (pending evaluation)
         foreach ($submitstatus as $submittedTask) {
             // Check if this task is not already in completed tasks
@@ -708,18 +642,18 @@ class MobileStudentController extends Controller
                     'score' => null,
                     'submitted_at' => $submittedTask->submitted_at ? $submittedTask->submitted_at->format('F j, Y \a\t H:i') : 'Recently',
                     'border_color' => null,
-                    'total_score'=>$submittedTask->task->taskScore->total_score ?? 0
+                    'total_score' => $submittedTask->task->taskScore->total_score ?? 0
                 ];
             }
         }
-        
+
         // Remove upcoming tasks section - only show attended tasks
-        
+
         // Sort task history by task number
-        usort($taskHistory, function($a, $b) {
+        usort($taskHistory, function ($a, $b) {
             return $b['task_number'] - $a['task_number']; // Reverse order (latest first)
         });
-        
+
         return [
             'student_name' => strtoupper($student->full_name ?? 'STUDENT'),
             'completed_tasks' => $completedTasks,
@@ -754,10 +688,10 @@ class MobileStudentController extends Controller
             'student_communication_total' => $studentCommunicationTotal,
             'student_execution_total' => $studentExecutionTotal,
             'student_total_score' => $studentTotalScore,
-           'alltasktotalscore'=>$alltasktotalscore
+            'alltasktotalscore' => $alltasktotalscore
         ];
     }
-    
+
     /**
      * Get task number based on task ID and all tasks.
      */
@@ -765,7 +699,7 @@ class MobileStudentController extends Controller
     {
         $task = $allTasks->where('id', $taskId)->first();
         if (!$task) return 0;
-        
+
         // Find the position of this task in the ordered list
         $orderedTasks = $allTasks->sortBy('id');
         $position = 1;
@@ -777,7 +711,7 @@ class MobileStudentController extends Controller
         }
         return 0;
     }
-    
+
     /**
      * Get border color based on score.
      */
@@ -797,40 +731,36 @@ class MobileStudentController extends Controller
      */
     public function performanceDetail($taskId)
     {
-        if (!Session::get('student_logged_in')) {
-            return redirect()->route('mobile.login');
-        }
+        $student = Auth::guard('student')->user();
 
-        $student = Student::find(Session::get('student_id'));
-        
         // Get the specific evaluation result for this task
         $evaluationResult = YashodarshiEvaluationResult::where('student_id', $student->id)
             ->where('task_id', $taskId)
             ->with(['task', 'challenge'])
             ->first();
-            
-      
+
+
         if (!$evaluationResult) {
             return redirect()->route('mobile.performance')->with('error', 'Task performance not found');
         }
-        
+
         // Get task score for maximum scores
         $taskScore = TaskScore::where('task_id', $taskId)->first();
-        
+
         // Get all tasks to determine task number
         $allTasks = Task::with(['challenges'])
-            ->whereHas('challenges', function($query) use ($evaluationResult) {
+            ->whereHas('challenges', function ($query) use ($evaluationResult) {
                 $query->where('challenges.id', $evaluationResult->challenge_id);
             })
             ->orderBy('id')
             ->get();
-        
+
         // Calculate task number
         $taskNumber = $this->getTaskNumber($taskId, $allTasks);
-        
+
         // Get student data for header
         $studentData = $this->getStudentData();
-        
+
         // Prepare performance detail data
         $performanceDetail = [
             'task_id' => $taskId,
@@ -860,12 +790,12 @@ class MobileStudentController extends Controller
                 'total' => $taskScore && $taskScore->total_score > 0 ? round(($evaluationResult->total_score / $taskScore->total_score) * 100, 1) : 0
             ],
             'evaluator_comment' => $evaluationResult->evaluator_comment ?? 'No comment available',
-            'audio_feedback_url' => $evaluationResult->audio_feedback_url ?? null, 
-            'feedback'=>$evaluationResult->feedback,
+            'audio_feedback_url' => $evaluationResult->audio_feedback_url ?? null,
+            'feedback' => $evaluationResult->feedback,
             'attribute_scores' => $evaluationResult->attribute_scores
-           
+
         ];
-        
+
         return view('frontendapp.performance-detail', compact('student', 'performanceDetail', 'studentData'));
     }
 
@@ -874,7 +804,7 @@ class MobileStudentController extends Controller
      */
     public function logout()
     {
-        Session::forget(['student_logged_in', 'student_id', 'student_email', 'student_name']);
+        Auth::guard('student')->logout();
         return redirect()->route('mobile.splash')->with('message', 'Logged out successfully');
     }
 }

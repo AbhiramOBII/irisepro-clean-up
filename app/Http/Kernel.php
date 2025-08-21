@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'yashodarshi.auth' => \App\Http\Middleware\YashodarshiAuth::class,
         'superadmin.auth' => \App\Http\Middleware\SuperAdminAuth::class,
+        'student.auth' => \App\Http\Middleware\StudentAuth::class,
     ];
 }

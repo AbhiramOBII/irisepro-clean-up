@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // IndexedDB setup
     let db;
     const taskId = {{ $task->id }};
-    const studentId = {{ Session::get('student_id') }};
+    const studentId = {{ Auth::guard('student')->user()->id }};
     
     // Initialize IndexedDB
     function initDB() {

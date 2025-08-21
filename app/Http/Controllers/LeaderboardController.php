@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use App\Models\Student;
@@ -19,11 +20,11 @@ class LeaderboardController extends Controller
      */
     public function index(Request $request)
     {
-        if (!Session::get('student_logged_in')) {
+        if (!Auth::guard('student')->check()) {
             return redirect()->route('mobile.login');
         }
 
-        $student = Student::find(Session::get('student_id'));
+        $student = Auth::guard('student')->user();
 
         // Get time period filter (default to 14 days)
         $timePeriod = $request->get('period', '14days');
@@ -373,7 +374,7 @@ class LeaderboardController extends Controller
     public function getLeaderboardDataApi(Request $request, $period = '14days')
     {
         // Check if request has student_id parameter or get from session
-        $studentId = $request->get('student_id', Session::get('student_id'));
+        $studentId = $request->get('student_id', Auth::guard('student')->user()->id);
 
         if (!$studentId) {
             return response()->json([

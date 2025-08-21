@@ -11,6 +11,7 @@ use App\Models\Challenge;
 use App\Models\Batch;
 use App\Models\Student;
 use App\Models\StudentTaskResponse;
+use Illuminate\Support\Facades\Auth;
 
 class TaskDetailsController extends Controller
 {
@@ -19,37 +20,34 @@ class TaskDetailsController extends Controller
      */
     public function show($batch_id, $task_id)
     {
-        
+
         // Get student ID from session
-        $studentId = Session::get('student_id');
-     
+        $student = Auth::guard('student')->user();
+
         // Get student's batch information
         $batch = Batch::find($batch_id);
-       
+
 
         if (!$batch) {
             abort(404, 'Batch not found or student not enrolled');
         }
 
-        // Get student data
-        $student = Student::find($studentId);
-        
         // Get challenge details
         $challenge = $batch->challenge;
 
-       
+
         // Get task progress information
         $completedTaskIds = DB::table('student_task_responses')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->where('batch_id', $batch_id)
             ->where('status', 'submitted')
             ->pluck('task_id')
             ->toArray();
-      
+
         // Get the current task (first incomplete task or first task if none completed)
         $currentTask = null;
         $taskPosition = 1;
-        
+
         foreach ($challenge->tasks as $index => $challengeTask) {
             if (!in_array($challengeTask->id, $completedTaskIds)) {
                 $currentTask = $challengeTask;
@@ -57,7 +55,7 @@ class TaskDetailsController extends Controller
                 break;
             }
         }
-        
+
         // If all tasks completed, show the last task
         if (!$currentTask && $challenge->tasks->count() > 0) {
             $currentTask = $challenge->tasks->last();
@@ -70,16 +68,16 @@ class TaskDetailsController extends Controller
 
         // Load task with related data
         $task = Task::with(['taskScore', 'challenge'])->find($currentTask->id);
-       
+
         // Check if this task is available (previous tasks completed)
-        $isTaskAvailable = $this->isTaskAvailable($task->id, $studentId, $challenge);
-        
+        $isTaskAvailable = $this->isTaskAvailable($task->id, $student->id, $challenge);
+
         // Check if task is already completed
         $isTaskCompleted = in_array($task->id, $completedTaskIds);
-        
+
         // Get task submission if exists
         $taskSubmission = DB::table('student_task_responses')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->where('task_id', $task->id)
             ->where('batch_id', $batch_id)
             ->first();
@@ -128,7 +126,7 @@ class TaskDetailsController extends Controller
             if ($task->id == $taskId) {
                 return true; // Found the task, all previous are completed
             }
-            
+
             if (!in_array($task->id, $completedTaskIds)) {
                 return false; // Previous task not completed
             }
@@ -142,8 +140,8 @@ class TaskDetailsController extends Controller
      */
     public function startTask(Request $request, $taskId)
     {
-        $studentId = Session::get('student_id');
-        
+        $studentId = Auth::guard('student')->user()->id;
+
         if (!$studentId) {
             return response()->json(['error' => 'Not authenticated'], 401);
         }
@@ -208,32 +206,32 @@ class TaskDetailsController extends Controller
      */
     public function showSubmission($taskId, $batchId)
     {
-        
-      $batch = batch::find($batchId);
+
+        $batch = batch::find($batchId);
         // Get student ID from session
-        $studentId = Session::get('student_id');
-        
-        
-     
+        $student = Auth::guard('student')->user();
+
+
+
         // Get task details with related data
         $task = Task::with(['taskScore', 'challenge'])->find($taskId);
 
         // Get student's batch information
         $batchStudent = DB::table('batch_student')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->where('batch_id', $batchId)
             ->first();
 
         // Get student data
-        $student = Student::find($studentId);
-        
+        $student = Student::find($student->id);
+
         // Get challenge details
         $challenge =  $batch->challenge;
         $challengeId = $challenge->id;
 
         // Get task progress information
         $completedTaskIds = DB::table('student_task_responses')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->where('batch_id', $batchId)
             ->where('status', 'submitted')
             ->pluck('task_id')
@@ -249,14 +247,14 @@ class TaskDetailsController extends Controller
         }
 
         // Check if this task is available (previous tasks completed)
-        $isTaskAvailable = $this->isTaskAvailable($taskId, $studentId, $challenge);
-        
+        $isTaskAvailable = $this->isTaskAvailable($taskId, $student->id, $challenge);
+
         // Check if task is already completed
         $isTaskCompleted = in_array($taskId, $completedTaskIds);
-        
+
         // Get task submission if exists
         $taskSubmission = DB::table('student_task_responses')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->where('task_id', $taskId)
             ->where('batch_id', $batchStudent->batch_id)
             ->first();
@@ -279,39 +277,39 @@ class TaskDetailsController extends Controller
      */
     public function showConfirmation($taskId, $batchId)
     {
-   
+
         // Get student ID from session
-        $studentId = Session::get('student_id');
-    
+        $student = Auth::guard('student')->user();
+
         $batch = Batch::find($batchId);
         $challenge = $batch->challenge;
         $challengeId = $challenge->id;
 
-        
+
         // Get task details with related data
         $task = Task::find($taskId);
-       
+
 
         // Get student's batch information
         $batchStudent = DB::table('batch_student')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->where('batch_id', $batchId)
             ->first();
 
         // Get student data
-        $student = Student::find($studentId);
-        
-  
-       
+        $student = Student::find($student->id);
+
+
+
         // Get task progress information
         $completedTaskIds = DB::table('student_task_responses')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->where('batch_id', $batchStudent->batch_id)
             ->where('status', 'submitted')
             ->pluck('task_id')
             ->toArray();
 
-           
+
 
         // Calculate task position in challenge
         $taskPosition = 1;
@@ -323,14 +321,14 @@ class TaskDetailsController extends Controller
         }
 
         // Check if this task is available (previous tasks completed)
-        $isTaskAvailable = $this->isTaskAvailable($taskId, $studentId, $challenge);
-        
+        $isTaskAvailable = $this->isTaskAvailable($taskId, $student->id, $challenge);
+
         // Check if task is already completed
         $isTaskCompleted = in_array($taskId, $completedTaskIds);
-        
+
         // Get task submission if exists
         $taskSubmission = DB::table('student_task_responses')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->where('task_id', $taskId)
             ->where('batch_id', $batchStudent->batch_id)
             ->first();
@@ -354,22 +352,22 @@ class TaskDetailsController extends Controller
     public function showSuccess($taskId, $batchId)
     {
         // Get student ID from session
-        $studentId = Session::get('student_id');
-     
+        $student = Auth::guard('student')->user();
+
         // Get task details with related data
         $task = Task::with(['taskScore', 'challenge'])->find($taskId);
 
         // Get student's batch information
         $batchStudent = DB::table('batch_student')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->first();
 
         // Get student data
-        $student = Student::find($studentId);
-        
+        $student = Student::find($student->id);
+
         // Get task submission
         $taskSubmission = DB::table('student_task_responses')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->where('task_id', $taskId)
             ->where('batch_id', $batchStudent->batch_id)
             ->where('status', 'submitted')
@@ -393,13 +391,13 @@ class TaskDetailsController extends Controller
     public function submitTask(Request $request, $taskId, $batchId)
     {
         $batch = Batch::find($batchId);
-     
-        $studentId = Session::get('student_id');
-        
-        if (!$studentId) {
+
+        $student = Auth::guard('student')->user();
+
+        if (!$student) {
             return response()->json(['error' => 'Not authenticated'], 401);
         }
-      
+
         // Validate request
         $request->validate([
             'submission_response' => 'nullable|string',
@@ -407,9 +405,9 @@ class TaskDetailsController extends Controller
             'started_at' => 'nullable|string',
         ]);
 
-       
 
-      
+
+
 
         // Get task and verify access
         $task = Task::find($taskId);
@@ -419,12 +417,12 @@ class TaskDetailsController extends Controller
 
         // Get challenge_id and batch_id from form
         $challengeId = $batch->challenge_id;
-     
+
         $batchId = $request->batch_id;
 
         // Verify student is enrolled in the specified batch
         $batchStudent = DB::table('batch_student')
-            ->where('student_id', $studentId)
+            ->where('student_id', $student->id)
             ->where('batch_id', $batchId)
             ->first();
 
@@ -436,24 +434,24 @@ class TaskDetailsController extends Controller
         $filePaths = [];
         if ($request->hasFile('submission_multimedia')) {
             foreach ($request->file('submission_multimedia') as $file) {
-                $fileName = time() . '_' . $studentId . '_' . $taskId . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                $fileName = time() . '_' . $student->id . '_' . $taskId . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $filePath = $file->storeAs('task_responses', $fileName, 'public');
                 $filePaths[] = $filePath;
             }
         }
- 
-     //do a simple save using ORM Method--> 
-     $studentTaskResponse = new StudentTaskResponse();
-     $studentTaskResponse->batch_id = $batchId;
-     $studentTaskResponse->student_id = $studentId;
-     $studentTaskResponse->challenge_id = $challengeId;
-     $studentTaskResponse->task_id = $taskId;
-     $studentTaskResponse->submission_response = $request->submission_response;
-     $studentTaskResponse->submission_multimedia = json_encode($filePaths);
-     $studentTaskResponse->started_at = $request->started_at;
-     $studentTaskResponse->submitted_at = Carbon::now();
-     $studentTaskResponse->status = 'submitted';
-     $studentTaskResponse->save();
+
+        //do a simple save using ORM Method--> 
+        $studentTaskResponse = new StudentTaskResponse();
+        $studentTaskResponse->batch_id = $batchId;
+        $studentTaskResponse->student_id = $student->id;
+        $studentTaskResponse->challenge_id = $challengeId;
+        $studentTaskResponse->task_id = $taskId;
+        $studentTaskResponse->submission_response = $request->submission_response;
+        $studentTaskResponse->submission_multimedia = json_encode($filePaths);
+        $studentTaskResponse->started_at = $request->started_at;
+        $studentTaskResponse->submitted_at = Carbon::now();
+        $studentTaskResponse->status = 'submitted';
+        $studentTaskResponse->save();
 
         // For traditional form submission, redirect to success page
         return redirect()->route('mobile.task.success', ['taskId' => $taskId, 'batch_id' => $batchId])->with('success', 'Task submitted successfully!');
