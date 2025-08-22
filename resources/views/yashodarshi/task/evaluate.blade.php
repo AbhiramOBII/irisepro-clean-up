@@ -232,7 +232,7 @@
                                                                     @foreach($multimedia as $file)
                                                                         <div class="inline-block">
                                                                             @if(str_contains($file, '.jpg') || str_contains($file, '.jpeg') || str_contains($file, '.png') || str_contains($file, '.gif'))
-                                                                                <img src="{{ asset('storage/' . $file) }}" alt="Submission" class="max-h-24 rounded-lg shadow-sm">
+                                                                                <img src="{{ asset('storage/' . $file) }}" alt="Submission" class="max-h-24 rounded-lg shadow-sm cursor-pointer hover:opacity-90 transition-opacity" onclick="openImageModal('{{ asset('storage/' . $file) }}')">
                                                                             @else
                                                                                 <a href="{{ asset('storage/' . $file) }}" target="_blank" class="inline-flex items-center px-3 py-1 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-xs transition-colors duration-200">
                                                                                     <i class="fas fa-file mr-1"></i>View File
@@ -263,6 +263,18 @@
         </div>
     </div>
 
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-80 overflow-y-auto h-full w-full hidden z-50 flex items-center justify-center">
+        <div class="relative p-4 w-full max-w-4xl mx-auto">
+            <button type="button" class="absolute top-4 right-4 text-white hover:text-gray-200 z-10" onclick="closeImageModal()">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+            <div class="flex items-center justify-center h-full">
+                <img id="fullSizeImage" src="" alt="Full size image" class="max-w-full max-h-[80vh] object-contain">
+            </div>
+        </div>
+    </div>
+    
     <!-- Evaluation Modal -->
     <div id="evaluationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
         <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-2xl bg-white">
@@ -308,6 +320,24 @@
         </div>
     </div>
     <script>
+        // Image modal functions
+        function openImageModal(imageSrc) {
+            const fullSizeImage = document.getElementById('fullSizeImage');
+            fullSizeImage.src = imageSrc;
+            document.getElementById('imageModal').classList.remove('hidden');
+            
+            // Add click event to close modal when clicking outside the image
+            document.getElementById('imageModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeImageModal();
+                }
+            });
+        }
+        
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+        }
+        
         function openEvaluationModal(submissionId, studentName) {
             document.getElementById('submissionId').value = submissionId;
             document.getElementById('studentName').value = studentName;
