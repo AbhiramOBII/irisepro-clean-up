@@ -413,7 +413,7 @@ class YashodarshiAuthController extends Controller
      */
     public function storeEvaluationResult(Request $request, $submissionId)
     {
-
+        
         // Check yashodarshi authentication
         if (!Auth::guard('yashodarshi')->check()) {
             return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
@@ -444,7 +444,8 @@ class YashodarshiAuthController extends Controller
         $validationRules = [
             'attribute_scores' => 'required|array',
             'feedback' => 'nullable|string|max:2000',
-            'status' => 'required|in:draft,submitted,reviewed'
+            'audio_feedback' => 'nullable|file|mimes:mp3,wav,m4a,ogg|max:10240', // Max 10MB audio file
+        
         ];
 
         // Add specific validation for each attribute with its maximum score
@@ -464,6 +465,14 @@ class YashodarshiAuthController extends Controller
 
         // Validate input
         $request->validate($validationRules);
+
+        // Handle audio file upload
+        $audioFeedbackPath = null;
+        if ($request->hasFile('audio_feedback')) {
+            $audioFile = $request->file('audio_feedback');
+            $audioFileName = time() . '_' . $submission->student_id . '_' . $submission->task_id . '.' . $audioFile->getClientOriginalExtension();
+            $audioFeedbackPath = $audioFile->storeAs('audio_feedback', $audioFileName, 'public');
+        }
 
         // Calculate individual category scores and total
         $attributeScores = $request->attribute_scores;
@@ -520,7 +529,8 @@ class YashodarshiAuthController extends Controller
                 'execution_score' => $executionScore,
                 'total_score' => $totalScore,
                 'feedback' => $request->feedback,
-                'status' => $request->status,
+                'audio_feedback' => $audioFeedbackPath,
+                'status' => 'reviewed',
                 'evaluated_at' => now()
             ]
         );

@@ -70,6 +70,19 @@
                 </div>
 
                 <div>
+                    <label for="task_type" class="block text-sm font-medium text-gray-700 mb-2">Task Type *</label>
+                    <select name="task_type" id="task_type" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 @error('task_type') border-red-500 @enderror">
+                        <option value="">Select Task Type</option>
+                        <option value="CareerRise" {{ old('task_type', 'CareerRise') == 'CareerRise' ? 'selected' : '' }}>CareerRise</option>
+                        <option value="Sankalp" {{ old('task_type') == 'Sankalp' ? 'selected' : '' }}>Sankalp</option>
+                    </select>
+                    @error('task_type')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
                     <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
                     <select name="status" id="status" required 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 @error('status') border-red-500 @enderror">
@@ -131,8 +144,8 @@
                             <input type="number" 
                                    name="{{ $attributeTypeName }}_{{ $subAttribute['name'] }}" 
                                    id="{{ $attributeTypeName }}_{{ $subAttribute['name'] }}"
-                                   min="0" max="50" step="1" 
-                                   value="{{ old($attributeTypeName . '_' . $subAttribute['name'], 8) }}"
+                                   min="0" max="5" step="1" 
+                                   value="{{ old($attributeTypeName . '_' . $subAttribute['name'], 5) }}"
                                    data-category="{{ $attributeTypeName }}"
                                    class="w-20 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 
                                    @if($attributeTypeName == 'attitude') focus:ring-red-500 focus:border-red-500

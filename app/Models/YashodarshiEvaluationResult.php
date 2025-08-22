@@ -22,6 +22,7 @@ class YashodarshiEvaluationResult extends Model
         'execution_score',
         'total_score',
         'feedback',
+        'audio_feedback',
         'status',
         'evaluated_at'
     ];

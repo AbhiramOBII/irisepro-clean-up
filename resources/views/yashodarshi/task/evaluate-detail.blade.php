@@ -59,6 +59,41 @@
 
    
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Error and Success Messages -->
+        @if($errors->any())
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div class="flex items-start">
+                    <i class="fas fa-exclamation-circle text-red-600 mr-3 mt-1"></i>
+                    <div>
+                        <h4 class="text-red-800 font-semibold mb-2">Please correct the following errors:</h4>
+                        <ul class="text-red-700 text-sm space-y-1">
+                            @foreach($errors->all() as $error)
+                                <li>• {{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        @if(session('success'))
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                    <p class="text-green-800 font-medium">{{ session('success') }}</p>
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <i class="fas fa-times-circle text-red-600 mr-3"></i>
+                    <p class="text-red-800 font-medium">{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
+
         <!-- Student & Task Information -->
         <div class="bg-white rounded-2xl card-shadow mb-8">
             <div class="gradient-bg text-white rounded-t-2xl p-6">
@@ -158,7 +193,7 @@
                 </h3>
             </div>
             <div class="p-6">
-                <form id="detailedEvaluationForm" method="POST" action="{{ route('yashodarshi.submission.store-evaluation', $submission->id) }}">
+                <form id="detailedEvaluationForm" method="POST" action="{{ route('yashodarshi.submission.store-evaluation', $submission->id) }}" enctype="multipart/form-data">
                     @csrf
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
@@ -298,20 +333,108 @@
                         <p class="text-gray-500 text-sm mt-1">Provide specific, actionable feedback to help the student improve.</p>
                     </div>
 
-                    <!-- Status Selection -->
+                    <!-- Audio Feedback Upload -->
                     <div class="mt-6">
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
-                            <i class="fas fa-flag mr-2"></i>Evaluation Status
+                        <label for="audio_feedback" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-microphone mr-2"></i>Audio Feedback (Optional)
                         </label>
-                        <select id="status" name="status" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-25 transition-all duration-200" required>
-                            <option value="reviewed" {{ $submission->status == 'reviewed' ? 'selected' : '' }}>
-                                Reviewed & Approved
-                            </option>
-                            <option value="submitted" {{ $submission->status == 'submitted' ? 'selected' : '' }}>
-                                Needs Revision
-                            </option>
-                        </select>
+                        
+                        <!-- Current Audio File Display -->
+                        @if(isset($submission->audio_feedback) && $submission->audio_feedback)
+                            <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-file-audio text-blue-600 mr-2"></i>
+                                        <span class="text-sm font-medium text-blue-800">Current Audio Feedback</span>
+                                    </div>
+                                    <audio controls class="ml-4">
+                                        <source src="{{ asset('storage/audio_feedback/' . $submission->audio_feedback) }}" type="audio/mpeg">
+                                        <source src="{{ asset('storage/audio_feedback/' . $submission->audio_feedback) }}" type="audio/wav">
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                </div>
+                                <p class="text-xs text-blue-600 mt-1">{{ $submission->audio_feedback }}</p>
+                            </div>
+                        @endif
+                        
+                        <!-- File Upload Input -->
+                        <div class="relative">
+                            <input type="file" 
+                                   id="audio_feedback" 
+                                   name="audio_feedback" 
+                                   accept=".mp3,.wav,audio/mpeg,audio/wav"
+                                   class="hidden"
+                                   onchange="handleAudioUpload(this)">
+                            
+                            <label for="audio_feedback" 
+                                   class="flex items-center justify-center w-full px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-primary hover:bg-gray-50 transition-all duration-200">
+                                <div class="text-center">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                    <p class="text-sm font-medium text-gray-600">
+                                        Click to upload audio feedback
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        MP3, WAV files up to 10MB
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <!-- Selected File Display -->
+                        <div id="selectedAudioFile" class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-audio text-green-600 mr-2"></i>
+                                    <span id="fileName" class="text-sm font-medium text-green-800"></span>
+                                </div>
+                                <button type="button" onclick="clearAudioFile()" class="text-red-500 hover:text-red-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div id="fileSize" class="text-xs text-green-600 mt-1"></div>
+                        </div>
+                        
+                        <p class="text-gray-500 text-sm mt-2">
+                            Upload an audio file to provide personalized voice feedback to the student.
+                        </p>
                     </div>
+
+                    <script>
+                        function handleAudioUpload(input) {
+                            const file = input.files[0];
+                            const selectedFileDiv = document.getElementById('selectedAudioFile');
+                            const fileNameSpan = document.getElementById('fileName');
+                            const fileSizeSpan = document.getElementById('fileSize');
+                            
+                            if (file) {
+                                // Validate file type
+                                const allowedTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav'];
+                                if (!allowedTypes.includes(file.type)) {
+                                    alert('Please select a valid audio file (MP3 or WAV)');
+                                    input.value = '';
+                                    return;
+                                }
+                                
+                                // Validate file size (10MB limit)
+                                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                                if (file.size > maxSize) {
+                                    alert('File size must be less than 10MB');
+                                    input.value = '';
+                                    return;
+                                }
+                                
+                                // Display selected file info
+                                fileNameSpan.textContent = file.name;
+                                fileSizeSpan.textContent = `Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                                selectedFileDiv.classList.remove('hidden');
+                            }
+                        }
+                        
+                        function clearAudioFile() {
+                            document.getElementById('audio_feedback').value = '';
+                            document.getElementById('selectedAudioFile').classList.add('hidden');
+                        }
+                    </script>
 
                     <!-- Submit Button -->
                     <div class="mt-8 flex justify-end space-x-4">

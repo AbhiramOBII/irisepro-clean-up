@@ -241,18 +241,44 @@
             </div>
             
             <!-- Audio Comment -->
-            @if($performanceDetail['audio_feedback_url'])
+            @if(isset($performanceDetail['audio_feedback']) && $performanceDetail['audio_feedback'])
             <div class="mt-4">
-                <div class="flex items-center justify-between bg-[#FFF9F5] p-3 rounded-lg border border-[#FF8A3D]/20">
-                    <div class="flex items-center">
-                        <button id="audioPlayBtn" class="w-10 h-10 bg-[#FF8A3D] rounded-full flex items-center justify-center shadow-md hover:bg-[#E67E35] transition-all duration-200">
-                            <i class="fas fa-play text-white"></i>
+                <h4 class="text-sm font-semibold text-gray-700 mb-2">
+                    <i class="fas fa-microphone mr-2 text-[#FF8A3D]"></i>Audio Feedback
+                </h4>
+                <div class="bg-[#FFF9F5] p-4 rounded-lg border border-[#FF8A3D]/20">
+                    <div class="flex items-center space-x-3">
+                        <!-- Play/Pause Button -->
+                        <button id="audioPlayBtn" onclick="toggleAudioPlayPause()" class="w-12 h-12 bg-[#FF8A3D] rounded-full flex items-center justify-center shadow-md hover:bg-[#E67E35] transition-all duration-200">
+                            <i id="audioPlayIcon" class="fas fa-play text-white"></i>
                         </button>
-                        <div class="ml-3">
-                            <div class="text-sm font-medium">Audio Feedback</div>
-                            <div class="text-xs text-gray-500">1:24 • Recorded yesterday</div>
+                        
+                        <!-- Progress Bar Container -->
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between text-xs text-gray-600 mb-1">
+                                <span id="audioCurrentTime">0:00</span>
+                                <span id="audioDuration">0:00</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 cursor-pointer" onclick="seekAudioFeedback(event)">
+                                <div id="audioProgressBar" class="bg-[#FF8A3D] h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Volume Control -->
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-volume-up text-gray-600 text-sm"></i>
+                            <input type="range" id="audioVolumeSlider" min="0" max="100" value="100" 
+                                   class="w-16 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                   onchange="changeAudioVolume(this.value)">
                         </div>
                     </div>
+                    
+                    <!-- Hidden Audio Element -->
+                    <audio id="audioFeedbackPlayer" preload="metadata">
+                        <source src="{{ asset('storage/' . $performanceDetail['audio_feedback']) }}" type="audio/mpeg">
+                        <source src="{{ asset('storage/' . $performanceDetail['audio_feedback']) }}" type="audio/wav">
+                        Your browser does not support the audio element.
+                    </audio>
                 </div>
             </div>
             @endif
@@ -296,21 +322,101 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Audio player functionality
+    const audioPlayer = document.getElementById('audioFeedbackPlayer');
     const audioPlayBtn = document.getElementById('audioPlayBtn');
-    if (audioPlayBtn) {
-        audioPlayBtn.addEventListener('click', function() {
-            const icon = this.querySelector('i');
-            if (icon.classList.contains('fa-play')) {
-                icon.classList.remove('fa-play');
-                icon.classList.add('fa-pause');
-                // Add audio play logic here
-            } else {
-                icon.classList.remove('fa-pause');
-                icon.classList.add('fa-play');
-                // Add audio pause logic here
+    const audioPlayIcon = document.getElementById('audioPlayIcon');
+    const audioProgressBar = document.getElementById('audioProgressBar');
+    const audioCurrentTimeSpan = document.getElementById('audioCurrentTime');
+    const audioDurationSpan = document.getElementById('audioDuration');
+    const audioVolumeSlider = document.getElementById('audioVolumeSlider');
+    
+    if (audioPlayer) {
+        // Set initial volume
+        audioPlayer.volume = 1.0;
+        
+        // Update duration when metadata is loaded
+        audioPlayer.addEventListener('loadedmetadata', function() {
+            audioDurationSpan.textContent = formatAudioTime(audioPlayer.duration);
+        });
+        
+        // Update progress bar and current time during playback
+        audioPlayer.addEventListener('timeupdate', function() {
+            if (audioPlayer.duration) {
+                const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                audioProgressBar.style.width = progress + '%';
+                audioCurrentTimeSpan.textContent = formatAudioTime(audioPlayer.currentTime);
+            }
+        });
+        
+        // Reset play button when audio ends
+        audioPlayer.addEventListener('ended', function() {
+            audioPlayIcon.className = 'fas fa-play text-white';
+            audioProgressBar.style.width = '0%';
+            audioCurrentTimeSpan.textContent = '0:00';
+        });
+        
+        // Handle audio loading errors
+        audioPlayer.addEventListener('error', function() {
+            console.error('Error loading audio file');
+            if (audioPlayBtn) {
+                audioPlayBtn.disabled = true;
+                audioPlayBtn.classList.add('opacity-50', 'cursor-not-allowed');
             }
         });
     }
 });
+
+// Audio player control functions
+function toggleAudioPlayPause() {
+    const audioPlayer = document.getElementById('audioFeedbackPlayer');
+    const audioPlayIcon = document.getElementById('audioPlayIcon');
+    
+    if (audioPlayer.paused) {
+        audioPlayer.play().then(() => {
+            audioPlayIcon.className = 'fas fa-pause text-white';
+        }).catch((error) => {
+            console.error('Error playing audio:', error);
+        });
+    } else {
+        audioPlayer.pause();
+        audioPlayIcon.className = 'fas fa-play text-white';
+    }
+}
+
+function seekAudioFeedback(event) {
+    const audioPlayer = document.getElementById('audioFeedbackPlayer');
+    if (audioPlayer.duration) {
+        const progressContainer = event.currentTarget;
+        const clickX = event.offsetX;
+        const width = progressContainer.offsetWidth;
+        const newTime = (clickX / width) * audioPlayer.duration;
+        audioPlayer.currentTime = newTime;
+    }
+}
+
+function changeAudioVolume(value) {
+    const audioPlayer = document.getElementById('audioFeedbackPlayer');
+    audioPlayer.volume = value / 100;
+    
+    // Update volume icon based on level
+    const volumeIcon = document.querySelector('.fa-volume-up');
+    if (volumeIcon) {
+        if (value == 0) {
+            volumeIcon.className = 'fas fa-volume-mute text-gray-600 text-sm';
+        } else if (value < 50) {
+            volumeIcon.className = 'fas fa-volume-down text-gray-600 text-sm';
+        } else {
+            volumeIcon.className = 'fas fa-volume-up text-gray-600 text-sm';
+        }
+    }
+}
+
+function formatAudioTime(seconds) {
+    if (isNaN(seconds)) return '0:00';
+    
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return minutes + ':' + (remainingSeconds < 10 ? '0' : '') + remainingSeconds;
+}
 </script>
 @endsection
