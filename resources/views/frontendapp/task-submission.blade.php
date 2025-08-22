@@ -505,6 +505,10 @@ document.addEventListener('DOMContentLoaded', function() {
         charCount.textContent = responseText.value.length;
         
         responseText.addEventListener('input', function() {
+            // Limit text to 2000 characters
+            if (this.value.length > 2000) {
+                this.value = this.value.substring(0, 2000);
+            }
             charCount.textContent = this.value.length;
             // Auto-save to IndexedDB
             saveResponseText(this.value);
