@@ -22,5 +22,6 @@ class DatabaseSeeder extends Seeder
         $this->call(BatchSeeder::class);
         $this->call(TaskScoreSeeder::class);
         $this->call(HabitSeeder::class);
+        $this->call(AchievementSeeder::class);
     }
 }

@@ -233,7 +233,6 @@ class TaskDetailsController extends Controller
         $completedTaskIds = DB::table('student_task_responses')
             ->where('student_id', $student->id)
             ->where('batch_id', $batchId)
-            ->where('status', 'submitted')
             ->pluck('task_id')
             ->toArray();
 
@@ -396,6 +395,18 @@ class TaskDetailsController extends Controller
 
         if (!$student) {
             return response()->json(['error' => 'Not authenticated'], 401);
+        }
+
+        //add validation if the student has submitted the task already
+        $taskSubmission = DB::table('student_task_responses')
+            ->where('student_id', $student->id)
+            ->where('task_id', $taskId)
+            ->where('batch_id', $batchId)
+            ->where('status', 'submitted')
+            ->first();
+
+        if ($taskSubmission) {
+            return response()->json(['error' => 'Task already submitted'], 400);
         }
 
         // Validate request

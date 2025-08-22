@@ -72,7 +72,7 @@
                                placeholder="Enter threshold value"
                                min="1"
                                required>
-                        <p class="text-xs text-gray-500 mt-1">Minimum score required to unlock this achievement</p>
+                        <p class="text-xs text-gray-500 mt-1">Minimum percentage score required to unlock this achievement</p>
                     </div>
 
                     <!-- Image Upload -->
@@ -83,9 +83,9 @@
                                 <input type="file" 
                                        id="image" 
                                        name="image" 
-                                       accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml"
+                                       accept="image/jpeg,image/png,image/jpg,image/gif,image/svg+xml,image/webp"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
-                                <p class="text-xs text-gray-500 mt-1">Supported formats: JPEG, PNG, JPG, GIF, SVG. Max size: 2MB</p>
+                                <p class="text-xs text-gray-500 mt-1">Supported formats: JPEG, PNG, JPG, GIF, SVG, WebP. Max size: 2MB</p>
                             </div>
                             <div id="image-preview" class="hidden">
                                 <img id="preview-img" src="" alt="Preview" class="w-20 h-20 object-cover rounded-md border">

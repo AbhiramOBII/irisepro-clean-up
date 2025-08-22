@@ -41,7 +41,7 @@ class AchievementController extends Controller
             'domain' => 'required|in:attitude,aptitude,communication,execution,aace,leadership',
             'title' => 'required|string|max:150',
             'threshold' => 'required|integer|min:1',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048'
         ]);
 
         $achievement = new Achievement();
@@ -102,7 +102,7 @@ class AchievementController extends Controller
             'domain' => 'required|in:attitude,aptitude,communication,execution,aace,leadership',
             'title' => 'required|string|max:150',
             'threshold' => 'required|integer|min:1',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048'
         ]);
 
         $achievement->domain = $request->domain;

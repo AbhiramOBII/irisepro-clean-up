@@ -305,7 +305,7 @@ class StudentDashboardController extends Controller
         }
         
         $challenge = Challenge::with(['tasks.taskScore'])->find($batchStudent->challenge_id);    
-       
+      
         if (!$challenge || $challenge->tasks->isEmpty()) {
             return null;
         }
@@ -314,13 +314,16 @@ class StudentDashboardController extends Controller
         $completedTaskIds = DB::table('student_task_responses')
             ->where('student_id', $batchStudent->student_id)
             ->where('batch_id', $batchStudent->batch_id)
-            ->where('status', 'submitted')
             ->pluck('task_id')
+            ->map(function($id) { return (int) $id; })
             ->toArray();
+        
+         
+       
             
         // Find the next task to be completed
         foreach ($challenge->tasks as $task) {
-            if (!in_array($task->id, $completedTaskIds)) {
+            if (!in_array((int) $task->id, $completedTaskIds)) {
                 // This is the next task to complete
                 $retobject =  [
                     'task' => $task,
@@ -333,8 +336,9 @@ class StudentDashboardController extends Controller
                         'current_position' => count($completedTaskIds) + 1
                     ]
                 ];
-             
+               
                 return $retobject;
+              
             }
         }
         

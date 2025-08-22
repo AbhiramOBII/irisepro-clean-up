@@ -371,7 +371,7 @@
 {{-- Status 4: Running - Active batch experience --}}
 <div class="main py-2 px-4">
 
-
+  
     <!-- User greeting card -->
     <div class="bg-[#FEE4D1] rounded-xl p-5 mb-4 shadow-sm relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:bg-gradient-to-r hover:from-[#FEE4D1] hover:to-[#FFD6B8] transform hover:-translate-y-1 cursor-pointer group">
      
@@ -455,6 +455,239 @@
         <p class="text-sm text-gray-700 mb-4 pl-2">Complete these tasks to earn points and build your daily streak</p>
         
         <style>
+            /* Achievement Celebration Popup Styles */
+            .achievement-popup-scale {
+                animation: popupScale 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            }
+            
+            @keyframes popupScale {
+                0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+                50% { transform: scale(1.1) rotate(5deg); opacity: 0.8; }
+                100% { transform: scale(1) rotate(0deg); opacity: 1; }
+            }
+            
+            /* Particle Animation */
+            .particle {
+                position: absolute;
+                width: 4px;
+                height: 4px;
+                background: radial-gradient(circle, #FFD700, #FFA500);
+                border-radius: 50%;
+                animation: particleFloat 3s infinite ease-in-out;
+            }
+            
+            .particle:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+            .particle:nth-child(2) { top: 20%; right: 15%; animation-delay: 0.3s; }
+            .particle:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 0.6s; }
+            .particle:nth-child(4) { bottom: 20%; right: 10%; animation-delay: 0.9s; }
+            .particle:nth-child(5) { top: 50%; left: 5%; animation-delay: 1.2s; }
+            .particle:nth-child(6) { top: 60%; right: 5%; animation-delay: 1.5s; }
+            .particle:nth-child(7) { bottom: 50%; left: 50%; animation-delay: 1.8s; }
+            .particle:nth-child(8) { top: 30%; right: 50%; animation-delay: 2.1s; }
+            .particle:nth-child(9) { bottom: 60%; right: 30%; animation-delay: 2.4s; }
+            .particle:nth-child(10) { top: 70%; left: 30%; animation-delay: 2.7s; }
+            
+            @keyframes particleFloat {
+                0%, 100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+                50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+            }
+            
+            /* Confetti Animation */
+            .confetti {
+                position: absolute;
+                width: 6px;
+                height: 6px;
+                background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1, #96CEB4, #FECA57);
+                animation: confettiFall 4s infinite linear;
+            }
+            
+            .confetti:nth-child(11) { left: 10%; animation-delay: 0s; background: #FF6B6B; }
+            .confetti:nth-child(12) { left: 20%; animation-delay: 0.4s; background: #4ECDC4; }
+            .confetti:nth-child(13) { left: 30%; animation-delay: 0.8s; background: #45B7D1; }
+            .confetti:nth-child(14) { left: 40%; animation-delay: 1.2s; background: #96CEB4; }
+            .confetti:nth-child(15) { left: 50%; animation-delay: 1.6s; background: #FECA57; }
+            .confetti:nth-child(16) { left: 60%; animation-delay: 2s; background: #FF9FF3; }
+            .confetti:nth-child(17) { left: 70%; animation-delay: 2.4s; background: #54A0FF; }
+            .confetti:nth-child(18) { left: 80%; animation-delay: 2.8s; background: #5F27CD; }
+            .confetti:nth-child(19) { left: 90%; animation-delay: 3.2s; background: #00D2D3; }
+            .confetti:nth-child(20) { left: 15%; animation-delay: 3.6s; background: #FF9F43; }
+            
+            @keyframes confettiFall {
+                0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+                100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            }
+            
+            /* Sparkle Animation */
+            .sparkle {
+                position: absolute;
+                font-size: 12px;
+                animation: sparkleShine 2s infinite ease-in-out;
+            }
+            
+            .sparkle:nth-child(21) { top: 15%; left: 25%; animation-delay: 0s; }
+            .sparkle:nth-child(22) { top: 25%; right: 20%; animation-delay: 0.3s; }
+            .sparkle:nth-child(23) { bottom: 35%; left: 15%; animation-delay: 0.6s; }
+            .sparkle:nth-child(24) { bottom: 25%; right: 25%; animation-delay: 0.9s; }
+            .sparkle:nth-child(25) { top: 45%; left: 10%; animation-delay: 1.2s; }
+            .sparkle:nth-child(26) { top: 55%; right: 15%; animation-delay: 1.5s; }
+            .sparkle:nth-child(27) { bottom: 45%; left: 80%; animation-delay: 1.8s; }
+            .sparkle:nth-child(28) { top: 35%; right: 80%; animation-delay: 2.1s; }
+            
+            @keyframes sparkleShine {
+                0%, 100% { transform: scale(0.5) rotate(0deg); opacity: 0.3; }
+                50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+            }
+            
+            /* Radial Burst Effect */
+            .radial-burst {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 200px;
+                height: 200px;
+                pointer-events: none;
+            }
+            
+            .burst-line {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 2px;
+                height: 40px;
+                background: linear-gradient(to top, transparent, #FFD700, transparent);
+                transform-origin: bottom center;
+                animation: burstExpand 1.5s ease-out;
+            }
+            
+            .burst-line:nth-child(1) { transform: translate(-50%, -100%) rotate(0deg); }
+            .burst-line:nth-child(2) { transform: translate(-50%, -100%) rotate(45deg); }
+            .burst-line:nth-child(3) { transform: translate(-50%, -100%) rotate(90deg); }
+            .burst-line:nth-child(4) { transform: translate(-50%, -100%) rotate(135deg); }
+            .burst-line:nth-child(5) { transform: translate(-50%, -100%) rotate(180deg); }
+            .burst-line:nth-child(6) { transform: translate(-50%, -100%) rotate(225deg); }
+            .burst-line:nth-child(7) { transform: translate(-50%, -100%) rotate(270deg); }
+            .burst-line:nth-child(8) { transform: translate(-50%, -100%) rotate(315deg); }
+            
+            @keyframes burstExpand {
+                0% { height: 0px; opacity: 0; }
+                50% { height: 60px; opacity: 1; }
+                100% { height: 40px; opacity: 0; }
+            }
+            
+            /* Achievement Badge Styles */
+            .achievement-badge-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .achievement-badge {
+                position: relative;
+                animation: badgePulse 2s infinite ease-in-out;
+            }
+            
+            .badge-glow {
+                position: absolute;
+                top: -10px;
+                left: -10px;
+                right: -10px;
+                bottom: -10px;
+                background: radial-gradient(circle, rgba(255, 215, 0, 0.4), transparent 70%);
+                border-radius: 50%;
+                animation: glowPulse 2s infinite ease-in-out;
+            }
+            
+            .achievement-badge-svg {
+                position: relative;
+                z-index: 2;
+                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            }
+            
+            .achievement-badge-image {
+                position: relative;
+                z-index: 2;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(255, 215, 0, 0.2), transparent 70%);
+                padding: 8px;
+            }
+            
+            @keyframes badgePulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+            
+            @keyframes glowPulse {
+                0%, 100% { opacity: 0.6; transform: scale(1); }
+                50% { opacity: 1; transform: scale(1.1); }
+            }
+            
+            /* Text Animations */
+            .achievement-bounce {
+                animation: achievementBounce 1s ease-out;
+            }
+            
+            .achievement-slide-up {
+                animation: slideUp 0.8s ease-out 0.3s both;
+            }
+            
+            .achievement-slide-up-delay {
+                animation: slideUp 0.8s ease-out 0.6s both;
+            }
+            
+            .achievement-fade-in-slow {
+                animation: fadeInSlow 1s ease-out 1s both;
+            }
+            
+            @keyframes achievementBounce {
+                0% { transform: translateY(-50px) scale(0.3); opacity: 0; }
+                50% { transform: translateY(-10px) scale(1.1); opacity: 0.8; }
+                100% { transform: translateY(0) scale(1); opacity: 1; }
+            }
+            
+            @keyframes slideUp {
+                0% { transform: translateY(30px); opacity: 0; }
+                100% { transform: translateY(0); opacity: 1; }
+            }
+            
+            @keyframes fadeInSlow {
+                0% { opacity: 0; }
+                100% { opacity: 1; }
+            }
+            
+            /* Carousel Styles */
+            .carousel-dots .dot {
+                cursor: pointer;
+            }
+            
+            .carousel-dots .dot.active {
+                background: white;
+                transform: scale(1.2);
+            }
+            
+            .carousel-dots .dot:hover {
+                background: rgba(255, 255, 255, 0.8);
+                transform: scale(1.1);
+            }
+            
+            /* Responsive adjustments */
+            @media (max-width: 640px) {
+                .achievement-popup-scale {
+                    margin: 1rem;
+                    padding: 1.5rem;
+                }
+                
+                .achievement-badge-svg {
+                    width: 60px;
+                    height: 60px;
+                }
+                
+                .radial-burst {
+                    width: 150px;
+                    height: 150px;
+                }
+            }
+
             .hourglass-container {
                 width: 48px;
                 height: 48px;
@@ -859,11 +1092,341 @@
 
 @endif 
 
+<!-- Achievement Celebration Modal -->
+<div id="achievementCelebration" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+    <div class="achievement-popup-scale bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-3xl p-8 max-w-sm w-full mx-4 relative overflow-hidden shadow-2xl">
+        <!-- Close Button -->
+        <button id="closeAchievement" class="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 z-20">
+            <i class="fas fa-times text-sm"></i>
+        </button>
+        
+        <!-- Animated Background Effects -->
+        <!-- Particles -->
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        
+        <!-- Confetti -->
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        <div class="confetti"></div>
+        
+        <!-- Sparkles -->
+        <div class="sparkle">✨</div>
+        <div class="sparkle">⭐</div>
+        <div class="sparkle">✨</div>
+        <div class="sparkle">⭐</div>
+        <div class="sparkle">✨</div>
+        <div class="sparkle">⭐</div>
+        <div class="sparkle">✨</div>
+        <div class="sparkle">⭐</div>
+        
+        <!-- Radial Burst Effect -->
+        <div class="radial-burst">
+            <div class="burst-line"></div>
+            <div class="burst-line"></div>
+            <div class="burst-line"></div>
+            <div class="burst-line"></div>
+            <div class="burst-line"></div>
+            <div class="burst-line"></div>
+            <div class="burst-line"></div>
+            <div class="burst-line"></div>
+        </div>
+        
+        <!-- Main Achievement Content -->
+        <div class="relative z-10 text-center p-6">
+            <!-- Achievement Unlocked Header -->
+            <div class="achievement-header mb-4">
+                <div class="text-4xl mb-3 achievement-bounce">🏆</div>
+                <h1 class="text-2xl font-bold text-white mb-1 achievement-slide-up" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                    <span id="achievementCount">1</span> ACHIEVEMENT
+                </h1>
+                <h2 class="text-lg font-bold text-yellow-100 achievement-slide-up-delay" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                    UNLOCKED!
+                </h2>
+            </div>
+            
+            <!-- Achievement Carousel Container -->
+            <div class="achievement-carousel-container mb-6 relative">
+                <!-- Carousel Wrapper -->
+                <div class="achievement-carousel overflow-hidden">
+                    <div class="achievement-slides flex transition-transform duration-500 ease-in-out" id="achievementSlides">
+                        
+                        <!-- Achievement Slide Template (will be populated by JavaScript) -->
+                        <div class="achievement-slide flex-shrink-0 w-full">
+                            <!-- Achievement Badge with Glow Effect -->
+                            <div class="achievement-badge-container mb-4">
+                                <div class="achievement-badge">
+                                    <div class="badge-glow"></div>
+                                    <svg width="80" height="80" viewBox="0 0 120 120" class="achievement-badge-svg">
+                                        <defs>
+                                            <linearGradient id="badgeGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#FFD700"/>
+                                                <stop offset="50%" style="stop-color:#FFA500"/>
+                                                <stop offset="100%" style="stop-color:#FF8A3D"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <circle cx="60" cy="60" r="50" fill="url(#badgeGradient1)" stroke="#FFD700" stroke-width="3"/>
+                                        <circle cx="60" cy="60" r="35" fill="none" stroke="#FFF" stroke-width="2" opacity="0.8"/>
+                                        <text x="60" y="70" text-anchor="middle" font-size="24" fill="white" id="achievementIcon">🌟</text>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <!-- Achievement Details -->
+                            <div class="achievement-details">
+                                <h3 class="text-xl font-bold text-white mb-2" id="achievementName">Achievement Name</h3>
+                                <p class="text-sm text-yellow-100 mb-3" id="achievementDescription">Achievement description</p>
+                                <div class="text-lg font-bold text-yellow-100" id="achievementThreshold">Threshold reached!</div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!-- Navigation Dots -->
+                <div class="carousel-dots flex justify-center mt-4 space-x-2" id="carouselDots">
+                    <button class="dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300 active" data-slide="0"></button>
+                </div>
+                
+                <!-- Navigation Arrows (hidden for single achievement) -->
+                <button class="carousel-prev absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 hidden">
+                    <i class="fas fa-chevron-left text-sm"></i>
+                </button>
+                <button class="carousel-next absolute right-0 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 hidden">
+                    <i class="fas fa-chevron-right text-sm"></i>
+                </button>
+            </div>
+            
+            <!-- Motivational Message -->
+            <div class="motivational-message mb-6 achievement-fade-in-slow">
+                <p class="text-sm text-white/90 italic leading-relaxed">
+                    "Outstanding progress! Keep rising!"
+                </p>
+                <p class="text-xs text-yellow-100 mt-1">
+                    🚀 Achievement unlocked
+                </p>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons space-y-3">
+                <button id="continueJourney" class="w-full bg-white/20 backdrop-blur-sm text-white font-semibold py-2 px-4 rounded-xl border border-white/30 hover:bg-white/30 transition-all duration-300 text-sm">
+                    Continue Journey
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Achievement Celebration Popup Functionality
+    let currentSlide = 0;
+    let totalSlides = 0;
+    let achievementData = [];
+
+    // Initialize achievement popup if recent achievements exist
+    @if(isset($recentAchievements) && count($recentAchievements) > 0)
+        achievementData = @json($recentAchievements);
+        initializeAchievementPopup();
+    @endif
+
+    function initializeAchievementPopup() {
+        if (achievementData.length === 0) return;
+        
+        totalSlides = achievementData.length;
+        currentSlide = 0;
+        
+        // Update achievement count
+        document.getElementById('achievementCount').textContent = totalSlides;
+        if (totalSlides > 1) {
+            document.getElementById('achievementCount').textContent += ' ACHIEVEMENTS';
+        } else {
+            document.getElementById('achievementCount').textContent += ' ACHIEVEMENT';
+        }
+        
+        // Build carousel slides
+        buildCarouselSlides();
+        
+        // Show the popup
+        showAchievementPopup();
+        
+        // Setup event listeners
+        setupAchievementEventListeners();
+    }
+
+    function buildCarouselSlides() {
+        const slidesContainer = document.getElementById('achievementSlides');
+        const dotsContainer = document.getElementById('carouselDots');
+        
+        // Clear existing content
+        slidesContainer.innerHTML = '';
+        dotsContainer.innerHTML = '';
+        
+        // Build slides
+        achievementData.forEach((achievement, index) => {
+            // Create slide
+            const slide = document.createElement('div');
+            slide.className = 'achievement-slide flex-shrink-0 w-full';
+            slide.innerHTML = `
+                <div class="achievement-badge-container mb-4">
+                    <div class="achievement-badge">
+                        <div class="badge-glow"></div>
+                        ${achievement.image ? 
+                            `<img src="{{ asset('') }}${achievement.image}" alt="${achievement.title}" class="achievement-badge-image w-20 h-20 object-contain filter drop-shadow-lg" />` :
+                            `<svg width="80" height="80" viewBox="0 0 120 120" class="achievement-badge-svg">
+                                <defs>
+                                    <linearGradient id="badgeGradient${index}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#FFD700"/>
+                                        <stop offset="50%" style="stop-color:#FFA500"/>
+                                        <stop offset="100%" style="stop-color:#FF8A3D"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="60" cy="60" r="50" fill="url(#badgeGradient${index})" stroke="#FFD700" stroke-width="3"/>
+                                <circle cx="60" cy="60" r="35" fill="none" stroke="#FFF" stroke-width="2" opacity="0.8"/>
+                                <text x="60" y="70" text-anchor="middle" font-size="24" fill="white">${getDomainIcon(achievement.domain)}</text>
+                            </svg>`
+                        }
+                    </div>
+                </div>
+                <div class="achievement-details">
+                    <h3 class="text-xl font-bold text-white mb-2">${achievement.title}</h3>
+                    <p class="text-sm text-yellow-100 mb-3">${achievement.domain.charAt(0).toUpperCase() + achievement.domain.slice(1)} Domain</p>
+                    <div class="text-lg font-bold text-yellow-100">${achievement.threshold}% Threshold Reached!</div>
+                </div>
+            `;
+            slidesContainer.appendChild(slide);
+            
+            // Create dot
+            const dot = document.createElement('button');
+            dot.className = `dot w-2 h-2 rounded-full bg-white/50 transition-all duration-300 ${index === 0 ? 'active' : ''}`;
+            dot.setAttribute('data-slide', index);
+            dot.addEventListener('click', () => goToSlide(index));
+            dotsContainer.appendChild(dot);
+        });
+        
+        // Show/hide navigation arrows
+        const prevBtn = document.querySelector('.carousel-prev');
+        const nextBtn = document.querySelector('.carousel-next');
+        
+        if (totalSlides > 1) {
+            prevBtn.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+            prevBtn.addEventListener('click', previousSlide);
+            nextBtn.addEventListener('click', nextSlide);
+        } else {
+            prevBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+        }
+    }
+
+    function getDomainIcon(domain) {
+        const icons = {
+            'attitude': '💪',
+            'aptitude': '🧠',
+            'communication': '💬',
+            'execution': '⚡',
+            'aace': '🌟',
+            'leadership': '👑'
+        };
+        return icons[domain.toLowerCase()] || '🏆';
+    }
+
+    function showAchievementPopup() {
+        const popup = document.getElementById('achievementCelebration');
+        popup.classList.remove('hidden');
+        
+        // Auto-advance slides if multiple achievements
+        if (totalSlides > 1) {
+            startAutoAdvance();
+        }
+    }
+
+    function hideAchievementPopup() {
+        const popup = document.getElementById('achievementCelebration');
+        popup.classList.add('hidden');
+        stopAutoAdvance();
+    }
+
+    function goToSlide(slideIndex) {
+        if (slideIndex < 0 || slideIndex >= totalSlides) return;
+        
+        currentSlide = slideIndex;
+        const slidesContainer = document.getElementById('achievementSlides');
+        const translateX = -currentSlide * 100;
+        slidesContainer.style.transform = `translateX(${translateX}%)`;
+        
+        // Update dots
+        document.querySelectorAll('.dot').forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentSlide);
+        });
+    }
+
+    function nextSlide() {
+        const nextIndex = (currentSlide + 1) % totalSlides;
+        goToSlide(nextIndex);
+    }
+
+    function previousSlide() {
+        const prevIndex = (currentSlide - 1 + totalSlides) % totalSlides;
+        goToSlide(prevIndex);
+    }
+
+    let autoAdvanceInterval;
+    function startAutoAdvance() {
+        autoAdvanceInterval = setInterval(() => {
+            nextSlide();
+        }, 4000); // Change slide every 4 seconds
+    }
+
+    function stopAutoAdvance() {
+        if (autoAdvanceInterval) {
+            clearInterval(autoAdvanceInterval);
+            autoAdvanceInterval = null;
+        }
+    }
+
+    function setupAchievementEventListeners() {
+        // Close button
+        document.getElementById('closeAchievement').addEventListener('click', hideAchievementPopup);
+        
+        // Continue journey button
+        document.getElementById('continueJourney').addEventListener('click', hideAchievementPopup);
+        
+        // Close on backdrop click
+        document.getElementById('achievementCelebration').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideAchievementPopup();
+            }
+        });
+        
+        // Pause auto-advance on hover
+        const popup = document.querySelector('.achievement-popup-scale');
+        popup.addEventListener('mouseenter', stopAutoAdvance);
+        popup.addEventListener('mouseleave', () => {
+            if (totalSlides > 1) {
+                startAutoAdvance();
+            }
+        });
+    }
+
     // Note: Habit click handling is now done via onclick attributes in the HTML
     // This prevents the double popup issue
     let timerInterval = null;
