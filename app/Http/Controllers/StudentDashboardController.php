@@ -22,7 +22,7 @@ class StudentDashboardController extends Controller
     public function checkStudentStatus($studentId)
     {
         $student = Student::find($studentId);
-        
+
         if (!$student) {
             return [
                 'status' => 0,
@@ -39,10 +39,7 @@ class StudentDashboardController extends Controller
         $batchStudent = DB::table('batch_student')
             ->where('student_id', $studentId)
             ->first();
-
-          
-        
-            // Status 1: Sappe - No batch assigned yet
+        // Status 1: Sappe - No batch assigned yet
         if (!$batchStudent) {
             return [
                 'status' => 1,
@@ -54,7 +51,7 @@ class StudentDashboardController extends Controller
 
         // Get batch details
         $batch = Batch::find($batchStudent->batch_id);
-        
+
         if (!$batch) {
             return [
                 'status' => 1,
@@ -64,20 +61,19 @@ class StudentDashboardController extends Controller
             ];
         }
 
-      
+
         // Status 2: Super - Batch assigned but payment status == unpaid
-        if ($batchStudent->payment_status!== 'paid') {
-         
+        if ($batchStudent->payment_status !== 'paid') {
+
             // Get challenge pricing for payment amount
             $challengePrice = 0;
             if (isset($batch->challenge_id)) {
-                $challenge = DB::table('challenges')
-                    ->where('id', $batch->challenge_id)
-                    ->select('selling_price', 'cost_price')
+                $challenge = Challenge::where('id', $batch->challenge_id)
+                    ->select('selling_price', 'cost_price', 'special_price')
                     ->first();
-                $challengePrice = $challenge->selling_price ?? $challenge->cost_price ?? $batch->fee ?? 0;
+                $challengePrice = $challenge->amount;
             }
-            
+
             return [
                 'status' => 2,
                 'status_name' => 'super',
@@ -98,8 +94,8 @@ class StudentDashboardController extends Controller
 
         // Status 3: Duper - batch assigned, payment made, but batch has not started yet
         if ($currentDate->lt($batchStartDate) && $batchStudent->payment_status === 'paid') {
-       
-        
+
+
             return [
                 'status' => 3,
                 'status_name' => 'duper',
@@ -118,10 +114,10 @@ class StudentDashboardController extends Controller
 
         // Status 4: Running - batch assigned, payment made, batch tasks have started
         if ($challengeTasks) {
-          
+
             $this->getCurrentTask($student->id);
 
-           
+
             return [
                 'status' => 4,
                 'status_name' => 'running',
@@ -149,11 +145,11 @@ class StudentDashboardController extends Controller
     public function getDashboardData($studentId)
     {
         $statusData = $this->checkStudentStatus($studentId);
-        
+
         // Get student data for header
         $mobileController = new MobileStudentController();
         $studentData = $mobileController->getStudentData();
-        
+
         // Add additional data based on status
         switch ($statusData['status']) {
             case 1: // Sappe
@@ -162,37 +158,32 @@ class StudentDashboardController extends Controller
                     ->orderBy('start_date', 'asc')
                     ->get();
                 break;
-
-             
-                
             case 2: // Super
                 // Get challenge pricing for payment amount
                 $challengePrice = 0;
                 if (isset($statusData['batch']->challenge_id)) {
-                    $challenge = DB::table('challenges')
-                        ->where('id', $statusData['batch']->challenge_id)
-                        ->select('selling_price', 'cost_price')
+                    $challenge = Challenge::where('id', $statusData['batch']->challenge_id)
+                        ->select('selling_price', 'cost_price', 'special_price')
                         ->first();
-                    $challengePrice = $challenge->selling_price ?? $challenge->cost_price ?? $statusData['batch']->fee ?? 0;
+                    $challengePrice = $challenge->amount;
                 }
-                
+
                 $statusData['payment_details'] = [
                     'amount' => $challengePrice,
                     'due_date' => $statusData['batch']->payment_due_date ?? null
                 ];
                 break;
-                
+
             case 3: // Duper
                 // Get challenge pricing for payment confirmation
                 $challengePrice = 0;
                 if (isset($statusData['batch']->challenge_id)) {
-                    $challenge = DB::table('challenges')
-                        ->where('id', $statusData['batch']->challenge_id)
-                        ->select('selling_price', 'cost_price')
+                    $challenge = Challenge::where('id', $statusData['batch']->challenge_id)
+                        ->select('selling_price', 'cost_price', 'special_price')
                         ->first();
-                    $challengePrice = $challenge->selling_price ?? $challenge->cost_price ?? $statusData['batch']->fee ?? 0;
+                    $challengePrice = $challenge->amount;
                 }
-                
+
                 $statusData['batch_info'] = [
                     'start_date' => $statusData['batch']->start_date,
                     'duration' => $statusData['batch']->duration ?? null,
@@ -204,30 +195,30 @@ class StudentDashboardController extends Controller
                     'payment_date' => $statusData['payment']->created_at ?? null
                 ];
                 break;
-                
-            case 4: 
-              
+
+            case 4:
+
                 // Running - Get current task using sequential delivery system
                 $currentTaskData = $this->getCurrentTask($studentId);
-              
+
                 $statusData['current_task'] = $currentTaskData;
-                
+
                 // Get student habits
                 $statusData['student_habits'] = $this->getStudentHabits($studentId);
                 break;
         }
-        
+
 
         // Add available batches for all status types (for challenges section)
         $statusData['available_batches'] = $this->getAvailableBatches($studentId);
-        
+
         // Add available challenges (separate from batches)
         return array_merge($statusData, [
             'available_challenges' => $this->getAvailableChallenges($studentId),
             'student_data' => $studentData
         ]);
     }
-    
+
     /**
      * Get available batches for student to join
      */
@@ -238,7 +229,7 @@ class StudentDashboardController extends Controller
             ->where('student_id', $studentId)
             ->pluck('batch_id')
             ->toArray();
-            
+
         return DB::table('batches')
             ->whereNotIn('id', $joinedBatchIds)
             ->where('status', 'open') // Assuming batches have status field
@@ -247,7 +238,7 @@ class StudentDashboardController extends Controller
             ->limit(3) // Show max 3 available challenges
             ->get();
     }
-    
+
     /**
      * Get available challenges for dashboard display
      */
@@ -258,14 +249,14 @@ class StudentDashboardController extends Controller
             ->where('student_id', $studentId)
             ->pluck('batch_id')
             ->toArray();
-           
+
         // Join batches with challenges to get cost from challenges table
         $availableChallenges = DB::table('batches')
             ->join('challenges', 'batches.challenge_id', '=', 'challenges.id')
             ->select(
                 'batches.*',
                 'challenges.title as challenge_title',
-                'challenges.description as challenge_description', 
+                'challenges.description as challenge_description',
                 'challenges.cost_price as cost',
                 'challenges.selling_price as selling_cost'
             )
@@ -275,7 +266,7 @@ class StudentDashboardController extends Controller
             ->orderBy('batches.start_date', 'asc')
             ->limit(3)
             ->get();
-            
+
         // Debug: Log the actual cost values being fetched
         foreach ($availableChallenges as $challenge) {
             \Log::info('Challenge cost debug:', [
@@ -285,10 +276,10 @@ class StudentDashboardController extends Controller
                 'raw_data' => (array) $challenge
             ]);
         }
-        
+
         return $availableChallenges;
     }
-    
+
     /**
      * Get current available task for student based on sequential completion
      * Tasks are delivered one at a time in serial order
@@ -299,17 +290,17 @@ class StudentDashboardController extends Controller
         $batchStudent = DB::table('batch_student')
             ->where('student_id', $studentId)
             ->first();
-                  
+
         if (!$batchStudent) {
             return null;
         }
-        
-        $challenge = Challenge::with(['tasks.taskScore'])->find($batchStudent->challenge_id);    
-       
+
+        $challenge = Challenge::with(['tasks.taskScore'])->find($batchStudent->challenge_id);
+
         if (!$challenge || $challenge->tasks->isEmpty()) {
             return null;
         }
-        
+
         // Get completed tasks for this student in this batch
         $completedTaskIds = DB::table('student_task_responses')
             ->where('student_id', $batchStudent->student_id)
@@ -317,7 +308,7 @@ class StudentDashboardController extends Controller
             ->where('status', 'submitted')
             ->pluck('task_id')
             ->toArray();
-            
+
         // Find the next task to be completed
         foreach ($challenge->tasks as $task) {
             if (!in_array($task->id, $completedTaskIds)) {
@@ -333,11 +324,11 @@ class StudentDashboardController extends Controller
                         'current_position' => count($completedTaskIds) + 1
                     ]
                 ];
-             
+
                 return $retobject;
             }
         }
-        
+
         // All tasks completed
         return [
             'task' => null,
@@ -352,7 +343,7 @@ class StudentDashboardController extends Controller
             ]
         ];
     }
-    
+
     /**
      * Get student's selected habits with completion status
      */

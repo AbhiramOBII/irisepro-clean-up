@@ -72,8 +72,7 @@ class MobileStudentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'OTP sent successfully',
-            'otp' => $otp // Remove this in production
+            'message' => 'OTP sent successfully'
         ]);
     }
 
@@ -790,7 +789,7 @@ class MobileStudentController extends Controller
                 'total' => $taskScore && $taskScore->total_score > 0 ? round(($evaluationResult->total_score / $taskScore->total_score) * 100, 1) : 0
             ],
             'evaluator_comment' => $evaluationResult->evaluator_comment ?? 'No comment available',
-            'audio_feedback_url' => $evaluationResult->audio_feedback_url ?? null,
+            'audio_feedback' => $evaluationResult->audio_feedback ?? null,
             'feedback' => $evaluationResult->feedback,
             'attribute_scores' => $evaluationResult->attribute_scores
 

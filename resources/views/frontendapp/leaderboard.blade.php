@@ -400,7 +400,7 @@
                     <div class="relative float-animation" style="animation-delay: {{ $medalStyles[2]['delay'] }}">
                         <div class="{{ $medalStyles[2]['avatar_size'] }} rounded-full bg-white p-1 border-2 {{ $medalStyles[2]['border'] }} mb-2 {{ $medalStyles[2]['glow'] }}">
                             @if(isset($topThree[1]['profile_picture']) && $topThree[1]['profile_picture'])
-                                <img src="{{ $topThree[1]['profile_picture'] }}" alt="{{ $topThree[1]['name'] ?? 'Top Performer' }}" class="w-full h-full rounded-full object-cover">
+                                <img src="{{ asset('storage/profile_pictures/' . $topThree[1]['profile_picture']) }}" alt="{{ $topThree[1]['name'] ?? 'Top Performer' }}" class="w-full h-full rounded-full object-cover">
                             @else
                                 @php
                                     $initials = isset($topThree[1]['name']) ? 
@@ -436,7 +436,7 @@
                     <div class="relative float-animation">
                         <div class="{{ $medalStyles[1]['avatar_size'] }} rounded-full bg-white p-1 border-2 {{ $medalStyles[1]['border'] }} mb-2 {{ $medalStyles[1]['glow'] }}">
                             @if(isset($topThree[0]['profile_picture']) && $topThree[0]['profile_picture'])
-                                <img src="{{ $topThree[0]['profile_picture'] }}" alt="{{ $topThree[0]['name'] ?? 'Top Performer' }}" class="w-full h-full rounded-full object-cover">
+                                <img src="{{ asset('storage/profile_pictures/' . $topThree[0]['profile_picture']) }}" alt="{{ $topThree[0]['name'] ?? 'Top Performer' }}" class="w-full h-full rounded-full object-cover">
                             @else
                                 @php
                                     $initials = isset($topThree[0]['name']) ? 
@@ -476,7 +476,7 @@
                     <div class="relative float-animation" style="animation-delay: {{ $medalStyles[3]['delay'] }}">
                         <div class="{{ $medalStyles[3]['avatar_size'] }} rounded-full bg-white p-1 border-2 {{ $medalStyles[3]['border'] }} mb-2 {{ $medalStyles[3]['glow'] }}">
                             @if(isset($topThree[2]['profile_picture']) && $topThree[2]['profile_picture'])
-                                <img src="{{ $topThree[2]['profile_picture'] }}" alt="{{ $topThree[2]['name'] ?? 'Top Performer' }}" class="w-full h-full rounded-full object-cover">
+                                <img src="{{ asset('storage/profile_pictures/' . $topThree[2]['profile_picture']) }}" alt="{{ $topThree[2]['name'] ?? 'Top Performer' }}" class="w-full h-full rounded-full object-cover">
                             @else
                                 @php
                                     $initials = isset($topThree[2]['name']) ? 
@@ -521,7 +521,7 @@
             <!-- Participant Rows - Only show participants ranked 4th and below -->
             <div class="divide-y divide-gray-100 participants-list">
                 @foreach ($leaderboardData['entries'] as $entry)
-                    @if ($entry['rank'] > 3)
+                    <!-- removing condition of minimum 3 entries -->
                         <div
                             class="p-4 flex items-center {{ $entry['is_current_user'] ? 'bg-[#FFF9F5] border-l-4 border-[#FF8A3D] rounded-lg shadow-md relative overflow-hidden hover:scale-[1.01] transition-transform duration-300' : 'hover:bg-gray-50' }}">
                             @if ($entry['is_current_user'])
@@ -551,7 +551,7 @@
                             <div
                                 class="w-10 h-10 rounded-full {{ $entry['is_current_user'] ? 'bg-gradient-to-br from-[#FF8A3D] to-[#FFC107] p-0.5 shadow-md' : 'bg-gray-100' }} mx-3">
                                 @if ($entry['profile_picture'])
-                                    <img src="{{ asset('storage/' . $entry['profile_picture']) }}" alt="User"
+                                    <img src="{{ asset('storage/profile_pictures/' . $entry['profile_picture']) }}" alt="User"
                                         class="w-full h-full rounded-full object-cover {{ $entry['is_current_user'] ? 'border-2 border-white' : '' }}">
                                 @else
                                     <div
@@ -592,7 +592,7 @@
                                 @endif
                             </div>
                         </div>
-                    @endif
+                  
                 @endforeach
             </div>
         </div>

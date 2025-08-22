@@ -16,6 +16,7 @@ class Task extends Model
         'task_description',
         'task_instructions',
         'task_multimedia',
+        'task_type',
         'status',
     ];
 

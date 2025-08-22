@@ -20,6 +20,7 @@
             <tr>
                 <th class="w-12 px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200">ID</th>
                 <th class="w-64 px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200">Task Title</th>
+                <th class="w-20 px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200">Task Type</th>
                 <th class="w-24 px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200">Status</th>
                 <th class="w-28 px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200 bg-gray-100">Total Score</th>
                 <th class="w-24 px-4 py-4 text-center text-xs font-bold text-blue-700 uppercase tracking-wider border-r border-gray-200 bg-blue-50">Aptitude</th>
@@ -33,8 +34,8 @@
             @forelse($tasks as $task)
                 <tr class="hover:bg-gray-50 transition-colors duration-200">
                     <td class="px-4 py-5 whitespace-nowrap text-sm font-semibold text-gray-900 border-r border-gray-100">{{ $task->id }}</td>
-                    <td class="px-6 py-5 text-sm font-bold text-gray-900 border-r border-gray-100 break-words">{{ $task->task_title }}</td>
-                  
+                    <td class="px-6 py-5 whitespace-nowrap text-sm font-bold text-gray-900 border-r border-gray-100">{{ $task->task_title }}</td>
+
                     <td class="px-4 py-5 whitespace-nowrap text-center border-r border-gray-100">
                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full shadow-sm {{ $task->status == 'active' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-gray-100 text-gray-800 border border-gray-200' }}">
                             {{ ucfirst($task->status) }}
@@ -55,7 +56,7 @@
                     <td class="px-4 py-5 whitespace-nowrap text-center text-sm font-bold text-purple-700 border-r border-gray-100 bg-purple-25">
                         {{ $task->taskScore ? number_format($task->taskScore->execution_score, 1) : '-' }}
                     </td>
-                  
+
                     <td class="px-6 py-5 whitespace-nowrap text-sm font-medium">
                         <div class="flex space-x-2">
                             <a href="{{ route('superadmin.tasks.edit', $task) }}" class="text-yellow-600 hover:text-yellow-900" title="Edit Task">
@@ -82,7 +83,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="11" class="px-6 py-4 text-center text-gray-500">No tasks found.</td>
+                    <td colspan="10" class="px-6 py-4 text-center text-gray-500">No tasks found.</td>
                 </tr>
             @endforelse
         </tbody>

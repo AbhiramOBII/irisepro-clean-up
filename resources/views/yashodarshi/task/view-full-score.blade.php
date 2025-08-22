@@ -230,9 +230,58 @@
 
                 <!-- Feedback -->
                 @if($evaluationResult->feedback)
-                <div class="bg-yellow-50 rounded-xl p-6 border-l-4 border-yellow-400">
+                <div class="bg-yellow-50 rounded-xl p-6 border-l-4 border-yellow-400 mb-6">
                     <h5 class="text-lg font-semibold mb-3"><i class="fas fa-comment-dots mr-2"></i>Evaluator Feedback</h5>
                     <p class="text-gray-800 leading-relaxed">{{ $evaluationResult->feedback }}</p>
+                </div>
+                @endif
+
+                <!-- Audio Feedback -->
+                @if($evaluationResult->audio_feedback)
+                <div class="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-400 mb-6">
+                    <h5 class="text-lg font-semibold mb-4"><i class="fas fa-microphone mr-2"></i>Audio Feedback</h5>
+                    
+                    <!-- Custom Audio Player -->
+                    <div class="bg-white rounded-lg p-4 shadow-sm">
+                        <div class="flex items-center space-x-4">
+                            <!-- Play/Pause Button -->
+                            <button id="playPauseBtn" onclick="togglePlayPause()" class="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-full flex items-center justify-center transition-colors duration-200">
+                                <i id="playPauseIcon" class="fas fa-play"></i>
+                            </button>
+                            
+                            <!-- Progress Bar Container -->
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between text-sm text-gray-600 mb-1">
+                                    <span id="currentTime">0:00</span>
+                                    <span id="duration">0:00</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2 cursor-pointer" onclick="seekAudio(event)">
+                                    <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-100" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Volume Control -->
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-volume-up text-gray-600"></i>
+                                <input type="range" id="volumeSlider" min="0" max="100" value="100" 
+                                       class="w-20 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                       onchange="changeVolume(this.value)">
+                            </div>
+                            
+                        </div>
+                        
+                        <!-- Hidden Audio Element -->
+                        <audio id="audioPlayer" preload="metadata">
+                            <source src="{{ asset('storage/' . $evaluationResult->audio_feedback) }}" type="audio/mpeg">
+                            <source src="{{ asset('storage/' . $evaluationResult->audio_feedback) }}" type="audio/wav">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 mt-3">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Personal audio feedback from your evaluator
+                    </p>
                 </div>
                 @endif
 
@@ -292,6 +341,116 @@
 .text-primary {
     color: #667eea;
 }
+
+/* Volume Slider Styling */
+#volumeSlider::-webkit-slider-thumb {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+}
+
+#volumeSlider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #667eea;
+    cursor: pointer;
+    border: none;
+}
 </style>
+
+<script>
+let audioPlayer = document.getElementById('audioPlayer');
+let playPauseBtn = document.getElementById('playPauseBtn');
+let playPauseIcon = document.getElementById('playPauseIcon');
+let progressBar = document.getElementById('progressBar');
+let currentTimeSpan = document.getElementById('currentTime');
+let durationSpan = document.getElementById('duration');
+let volumeSlider = document.getElementById('volumeSlider');
+
+// Initialize audio player when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    if (audioPlayer) {
+        // Set initial volume
+        audioPlayer.volume = 1.0;
+        
+        // Update duration when metadata is loaded
+        audioPlayer.addEventListener('loadedmetadata', function() {
+            durationSpan.textContent = formatTime(audioPlayer.duration);
+        });
+        
+        // Update progress bar and current time during playback
+        audioPlayer.addEventListener('timeupdate', function() {
+            if (audioPlayer.duration) {
+                const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                progressBar.style.width = progress + '%';
+                currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
+            }
+        });
+        
+        // Reset play button when audio ends
+        audioPlayer.addEventListener('ended', function() {
+            playPauseIcon.className = 'fas fa-play';
+            progressBar.style.width = '0%';
+            currentTimeSpan.textContent = '0:00';
+        });
+        
+        // Handle audio loading errors
+        audioPlayer.addEventListener('error', function() {
+            console.error('Error loading audio file');
+            playPauseBtn.disabled = true;
+            playPauseBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        });
+    }
+});
+
+function togglePlayPause() {
+    if (audioPlayer.paused) {
+        audioPlayer.play().then(() => {
+            playPauseIcon.className = 'fas fa-pause';
+        }).catch((error) => {
+            console.error('Error playing audio:', error);
+        });
+    } else {
+        audioPlayer.pause();
+        playPauseIcon.className = 'fas fa-play';
+    }
+}
+
+function seekAudio(event) {
+    if (audioPlayer.duration) {
+        const progressContainer = event.currentTarget;
+        const clickX = event.offsetX;
+        const width = progressContainer.offsetWidth;
+        const newTime = (clickX / width) * audioPlayer.duration;
+        audioPlayer.currentTime = newTime;
+    }
+}
+
+function changeVolume(value) {
+    audioPlayer.volume = value / 100;
+    
+    // Update volume icon based on level
+    const volumeIcon = document.querySelector('.fa-volume-up');
+    if (value == 0) {
+        volumeIcon.className = 'fas fa-volume-mute text-gray-600';
+    } else if (value < 50) {
+        volumeIcon.className = 'fas fa-volume-down text-gray-600';
+    } else {
+        volumeIcon.className = 'fas fa-volume-up text-gray-600';
+    }
+}
+
+function formatTime(seconds) {
+    if (isNaN(seconds)) return '0:00';
+    
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return minutes + ':' + (remainingSeconds < 10 ? '0' : '') + remainingSeconds;
+}
+</script>
 </body>
 </html>
