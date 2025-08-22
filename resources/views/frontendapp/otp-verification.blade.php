@@ -84,6 +84,14 @@
                 transition: all 0.2s ease;
             }
             
+            @media (max-width: 380px) {
+                .otp-input {
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    font-size: 1.25rem;
+                }
+            }
+            
             .otp-input:focus {
                 border-color: #FF8A3D;
                 box-shadow: 0 0 0 3px rgba(255, 138, 61, 0.1);
@@ -121,20 +129,20 @@
             </div>
 
             <!-- OTP form section -->
-            <div class="bg-[#FDE6D3] rounded-3xl mx-2.5 px-8 py-10 pb-8 mb-8 animate-slideInLeft">
+            <div class="bg-[#FDE6D3] rounded-3xl mx-2.5 px-4 sm:px-6 md:px-8 py-8 sm:py-10 pb-6 sm:pb-8 mb-8 animate-slideInLeft">
                 <!-- OTP header -->
                 <div class="mb-8">
                     <h1 class="text-2xl font-bold text-[#F58321] mb-2">VERIFY OTP</h1>
-                    <div class="w-full max-w-[150px] h-1 bg-primary rounded-full"></div>
+                    <div class="w-full max-w-[120px] h-1 bg-primary rounded-full"></div>
                 </div>
 
                 <!-- Email info -->
                 <div class="mb-6">
-                    <p class="text-gray-600 text-sm text-center">
-                        If you are a registered user, you will receive a otp to your registered email address. 
+                    <p class="text-gray-600 text-sm text-center px-1">
+                        If you are a registered user, you will receive an OTP to your registered email address.
                         Click on the link to login.
                     </p>
-                    <p class="text-center text-primary font-semibold text-sm mt-2">{{ $email }}</p>
+                    <p class="text-center text-primary font-semibold text-sm mt-2 break-all">{{ $email }}</p>
                 </div>
 
                 <!-- Error/Success messages -->
@@ -143,12 +151,12 @@
                 </div>
 
                 <!-- OTP form -->
-                <form id="otpForm" class="space-y-8">
+                <form id="otpForm" class="space-y-6">
                     @csrf
                     <input type="hidden" name="email" value="{{ $email }}">
                     
                     <!-- OTP input fields -->
-                    <div class="flex justify-center space-x-3">
+                    <div class="flex justify-center space-x-3 sm:space-x-4 md:space-x-3">
                         <input type="text" maxlength="1" class="otp-input" id="otp1" autocomplete="off">
                         <input type="text" maxlength="1" class="otp-input" id="otp2" autocomplete="off">
                         <input type="text" maxlength="1" class="otp-input" id="otp3" autocomplete="off">
@@ -178,7 +186,7 @@
                     </button>
 
                     <!-- Helper text -->
-                    <p class="text-center text-gray-600 text-sm">
+                    <p class="text-center text-gray-600 text-sm whitespace-normal px-1 mt-6">
                         Enter the 6-digit code sent to your email
                     </p>
                 </form>

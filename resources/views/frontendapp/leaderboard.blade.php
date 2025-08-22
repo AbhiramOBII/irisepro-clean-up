@@ -11,7 +11,7 @@
             <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#FF8A3D]/5 rounded-full -ml-12 -mb-12"></div>
 
             <div class="flex relative z-10">
-                <div class="flex-1 pr-16">
+                <div class="flex-1 pr-24 md:pr-32">
                     <div class="text-sm text-gray-800 font-medium mb-1">Leadership Board</div>
                     <div class="text-2xl font-bold text-gray-800 mb-2">{{ strtoupper($student->full_name) }}</div>
                     <div>
@@ -21,12 +21,12 @@
                         </div>
                         <div class="flex items-center mt-2">
                             <div
-                                class="bg-[#FF8A3D]/10 rounded-full px-3 py-1 text-xs text-[#FF8A3D] font-medium flex items-center">
+                                class="bg-[#FF8A3D]/10 rounded-full px-3 py-1 text-xs text-[#FF8A3D] font-medium flex items-center whitespace-nowrap">
                                 <i class="fas fa-fire mr-1"></i> <span
                                     class="user-streak">{{ $leaderboardData['current_user']['streak'] }} &nbsp;</span> Day Streak
                             </div>
                             <div
-                                class="bg-[#FFC107]/10 rounded-full px-3 py-1 text-xs text-[#FFC107] font-medium flex items-center ml-2">
+                                class="bg-[#FFC107]/10 rounded-full px-3 py-1 text-xs text-[#FFC107] font-medium flex items-center ml-2 whitespace-nowrap">
                                 <i class="fas fa-chart-line mr-1"></i> +<span
                                     class="user-improvement">{{ $leaderboardData['current_user']['weekly_improvement'] }} &nbsp;</span>
                                 This Week
@@ -36,7 +36,7 @@
                 </div>
                 <!-- Trophy illustration -->
                 <div
-                    class="absolute right-4 top-1/2 transform -translate-y-1/2 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 bg-[#FF8A3D]/10 rounded-full p-3">
+                    class="absolute right-0 top-1/2 transform -translate-y-1/2 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 bg-[#FF8A3D]/10 rounded-full p-3">
                     <i class="fas fa-trophy text-4xl text-[#FF8A3D]"></i>
                 </div>
             </div>

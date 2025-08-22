@@ -66,6 +66,12 @@
                 border-color: #FF8A3D;
                 box-shadow: 0 0 0 3px rgba(255, 138, 61, 0.1);
             }
+            
+            @media (max-width: 380px) {
+                input[type="email"] {
+                    font-size: 0.95rem;
+                }
+            }
         }
     </style>
 </head>
@@ -93,7 +99,7 @@
             </div>
 
             <!-- Login form section -->
-            <div class="bg-[#FDE6D3] rounded-3xl mx-2.5 px-8 py-10 pb-8 mb-8 animate-slideInLeft">
+            <div class="bg-[#FDE6D3] rounded-3xl mx-2.5 px-4 sm:px-6 md:px-8 py-8 sm:py-10 pb-6 sm:pb-8 mb-8 animate-slideInLeft">
                 <!-- Login header -->
                 <div class="mb-8">
                     <h1 class="text-2xl font-bold text-[#F58321] mb-2">LOGIN</h1>
@@ -130,7 +136,7 @@
                     </button>
 
                     <!-- Helper text -->
-                    <p class="text-center text-gray-600 text-sm mt-6">
+                    <p class="text-center text-gray-600 text-sm mt-6 whitespace-normal px-1">
                         Enter Your Email ID
                     </p>
                 </form>
