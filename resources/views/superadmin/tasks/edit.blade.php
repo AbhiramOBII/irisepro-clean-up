@@ -71,6 +71,19 @@
                 </div>
 
                 <div>
+                    <label for="task_type" class="block text-sm font-medium text-gray-700 mb-2">Task Type *</label>
+                    <select name="task_type" id="task_type" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 @error('task_type') border-red-500 @enderror">
+                        <option value="">Select Task Type</option>
+                        <option value="CareerRise" {{ old('task_type', $task->task_type) == 'CareerRise' ? 'selected' : '' }}>CareerRise</option>
+                        <option value="Sankalp" {{ old('task_type', $task->task_type) == 'Sankalp' ? 'selected' : '' }}>Sankalp</option>
+                    </select>
+                    @error('task_type')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
                     <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
                     <select name="status" id="status" required 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 @error('status') border-red-500 @enderror">
@@ -123,8 +136,8 @@
                             <input type="number" 
                                    name="{{ $attributeTypeName }}_{{ $subAttribute['name'] }}" 
                                    id="{{ $attributeTypeName }}_{{ $subAttribute['name'] }}"
-                                   min="0" max="50" step="1" 
-                                   value="{{ old($attributeTypeName . '_' . $subAttribute['name'], isset($existingScores[$attributeTypeName][$subAttribute['name']]) ? $existingScores[$attributeTypeName][$subAttribute['name']] : 8) }}"
+                                   min="0" max="5" step="1" 
+                                   value="{{ old($attributeTypeName . '_' . $subAttribute['name'], isset($existingScores[$attributeTypeName][$subAttribute['name']]) ? $existingScores[$attributeTypeName][$subAttribute['name']] : 5) }}"
                                    class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 text-center">
                             <span class="text-sm text-gray-500">points</span>
                         </div>

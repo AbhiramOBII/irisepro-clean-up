@@ -57,6 +57,7 @@ class TaskController extends Controller
             'task_description' => 'nullable|string',
             'task_instructions' => 'nullable|string',
             'task_multimedia' => 'nullable|url',
+            'task_type' => 'required|in:CareerRise,Sankalp',
             'status' => 'required|in:active,inactive'
         ]);
 
@@ -66,6 +67,7 @@ class TaskController extends Controller
             'task_description' => $request->task_description,
             'task_instructions' => $request->task_instructions,
             'task_multimedia' => $request->task_multimedia,
+            'task_type' => $request->task_type,
             'status' => $request->status
         ]);
 
@@ -150,13 +152,16 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task)
     {
+        
         $request->validate([
             'task_title' => 'required|string|max:255',
             'task_description' => 'nullable|string',
             'task_instructions' => 'nullable|string',
             'task_multimedia' => 'nullable|url',
+            'task_type' => 'required',
             'status' => 'required|in:active,inactive'
         ]);
+
 
         // Update the task
         $task->update([
@@ -164,8 +169,11 @@ class TaskController extends Controller
             'task_description' => $request->task_description,
             'task_instructions' => $request->task_instructions,
             'task_multimedia' => $request->task_multimedia,
+            'task_type' => $request->task_type,
             'status' => $request->status
         ]);
+
+        
 
         // Update or create task score with new weights
         $attributeScore = [];

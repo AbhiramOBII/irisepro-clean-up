@@ -84,24 +84,68 @@
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                             <div class="px-6 py-4 border-b border-gray-200">
                                 <h5 class="text-md font-semibold text-gray-900">Select Tasks</h5>
+                                <p class="text-sm text-gray-500 mt-1">Select tasks and set their order in the challenge</p>
                             </div>
                             <div class="p-6">
+                                <!-- Task Type Filter -->
+                                <div class="mb-6">
+                                    <label for="task_type_filter" class="block text-sm font-medium text-gray-700 mb-2">Filter by Task Type</label>
+                                    <select id="task_type_filter" class="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" onchange="filterTasksByType()">
+                                        <option value="">All Task Types</option>
+                                        <option value="CareerRise">CareerRise</option>
+                                        <option value="Sankalp">Sankalp</option>
+                                    </select>
+                                </div>
                                 @if($tasks->count() > 0)
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        @foreach($tasks as $task)
-                                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
-                                                <label class="flex items-start space-x-3 cursor-pointer">
+                                    <div class="space-y-4">
+                                        @php
+                                            // Get selected tasks ordered by sorting_order
+                                            $selectedTasks = $challenge->tasks->sortBy('pivot.sorting_order');
+                                            $selectedTaskIds = $selectedTasks->pluck('id')->toArray();
+                                            $unselectedTasks = $tasks->whereNotIn('id', $selectedTaskIds);
+                                            
+                                            // Combine selected tasks first (in order), then unselected tasks
+                                            $orderedTasks = $selectedTasks->concat($unselectedTasks);
+                                        @endphp
+                                        @foreach($orderedTasks as $task)
+                                            @php
+                                                $isSelected = in_array($task->id, old('tasks', $challenge->tasks->pluck('id')->toArray()));
+                                                $currentSortingOrder = old('sorting_order.' . $task->id, 
+                                                    $challenge->tasks->where('id', $task->id)->first()?->pivot?->sorting_order ?? 0
+                                                );
+                                            @endphp
+                                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 task-item" data-task-id="{{ $task->id }}" data-task-type="{{ $task->task_type }}">
+                                                <div class="flex items-start space-x-3">
                                                     <input type="checkbox" 
-                                                           class="mt-1 h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded" 
+                                                           class="mt-1 h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded task-checkbox" 
                                                            id="task_{{ $task->id }}" 
                                                            name="tasks[]" 
                                                            value="{{ $task->id }}" 
-                                                           {{ in_array($task->id, old('tasks', $challenge->tasks->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                                           {{ $isSelected ? 'checked' : '' }}
+                                                           onchange="toggleSortingOrder({{ $task->id }})">
                                                     <div class="flex-1">
-                                                        <div class="font-medium text-gray-900">{{ $task->task_title }}</div>
-                                                        <div class="text-sm text-gray-500 mt-1">{{ Str::limit($task->task_description, 80) }}</div>
+                                                        <label for="task_{{ $task->id }}" class="cursor-pointer">
+                                                            <div class="font-medium text-gray-900">{{ $task->task_title }}</div>
+                                                            <div class="text-sm text-gray-500 mt-1">{{ Str::limit($task->task_description, 80) }}</div>
+                                                        </label>
+                                                        
+                                                        <!-- Sorting Order Input -->
+                                                        <div class="mt-3 sorting-order-input" id="sorting_order_{{ $task->id }}" style="display: {{ $isSelected ? 'block' : 'none' }};">
+                                                            <label for="sorting_order_task_{{ $task->id }}" class="block text-sm font-medium text-gray-600 mb-1">
+                                                                Sorting Order
+                                                            </label>
+                                                            <input type="number" 
+                                                                   class="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary focus:border-transparent" 
+                                                                   id="sorting_order_task_{{ $task->id }}" 
+                                                                   name="sorting_order[{{ $task->id }}]" 
+                                                                   value="{{ $currentSortingOrder }}" 
+                                                                   min="0" 
+                                                                   step="1"
+                                                                   placeholder="0">
+                                                            <span class="text-xs text-gray-500 ml-2">Lower numbers appear first</span>
+                                                        </div>
                                                     </div>
-                                                </label>
+                                                </div>
                                             </div>
                                         @endforeach
                                     </div>
@@ -267,6 +311,69 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsDataURL(file);
         }
     });
+
+    // Auto-assign sorting order based on selection order
+    let sortingOrderCounter = 1;
+    
+    // Initialize sorting order for already selected tasks (for old input)
+    document.querySelectorAll('.task-checkbox:checked').forEach(function(checkbox) {
+        const taskId = checkbox.value;
+        const sortingInput = document.getElementById('sorting_order_task_' + taskId);
+        if (sortingInput && sortingInput.value == '0') {
+            sortingInput.value = sortingOrderCounter++;
+        }
+    });
 });
+
+// Toggle sorting order input visibility and auto-assign order
+function toggleSortingOrder(taskId) {
+    const checkbox = document.getElementById('task_' + taskId);
+    const sortingOrderDiv = document.getElementById('sorting_order_' + taskId);
+    const sortingInput = document.getElementById('sorting_order_task_' + taskId);
+    
+    if (checkbox.checked) {
+        sortingOrderDiv.style.display = 'block';
+        
+        // Auto-assign next available sorting order if not already set
+        if (!sortingInput.value || sortingInput.value == '0') {
+            const existingOrders = Array.from(document.querySelectorAll('input[name^="sorting_order"]'))
+                .map(input => parseInt(input.value) || 0)
+                .filter(val => val > 0);
+            
+            const nextOrder = existingOrders.length > 0 ? Math.max(...existingOrders) + 1 : 1;
+            sortingInput.value = nextOrder;
+        }
+    } else {
+        sortingOrderDiv.style.display = 'none';
+        sortingInput.value = '0';
+    }
+}
+
+// Filter tasks by task type
+function filterTasksByType() {
+    const selectedType = document.getElementById('task_type_filter').value;
+    const taskItems = document.querySelectorAll('.task-item');
+    
+    taskItems.forEach(function(taskItem) {
+        const taskType = taskItem.getAttribute('data-task-type');
+        
+        if (selectedType === '' || taskType === selectedType) {
+            taskItem.style.display = 'block';
+        } else {
+            taskItem.style.display = 'none';
+            
+            // Uncheck hidden tasks and hide their sorting order
+            const checkbox = taskItem.querySelector('.task-checkbox');
+            if (checkbox && checkbox.checked) {
+                checkbox.checked = false;
+                const taskId = checkbox.value;
+                const sortingOrderDiv = document.getElementById('sorting_order_' + taskId);
+                const sortingInput = document.getElementById('sorting_order_task_' + taskId);
+                if (sortingOrderDiv) sortingOrderDiv.style.display = 'none';
+                if (sortingInput) sortingInput.value = '0';
+            }
+        }
+    });
+}
 </script>
 @endsection

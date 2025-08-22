@@ -49,7 +49,9 @@ class ChallengeController extends Controller
             'special_price' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive,draft',
             'tasks' => 'array',
-            'tasks.*' => 'exists:tasks,id'
+            'tasks.*' => 'exists:tasks,id',
+            'sorting_order' => 'array',
+            'sorting_order.*' => 'integer|min:0'
         ]);
 
         $challenge = new Challenge();
@@ -73,9 +75,14 @@ class ChallengeController extends Controller
 
         $challenge->save();
 
-        // Attach selected tasks
+        // Attach selected tasks with sorting order
         if ($request->has('tasks')) {
-            $challenge->tasks()->attach($request->tasks);
+            $taskData = [];
+            foreach ($request->tasks as $taskId) {
+                $sortingOrder = $request->sorting_order[$taskId] ?? 0;
+                $taskData[$taskId] = ['sorting_order' => $sortingOrder];
+            }
+            $challenge->tasks()->attach($taskData);
             $challenge->number_of_tasks = count($request->tasks);
             $challenge->save();
         }
@@ -103,7 +110,9 @@ class ChallengeController extends Controller
      */
     public function edit($id)
     {
-        $challenge = Challenge::with('tasks')->findOrFail($id);
+        $challenge = Challenge::with(['tasks' => function($query) {
+            $query->orderBy('challenge_task.sorting_order', 'asc');
+        }])->findOrFail($id);
         $tasks = Task::all();
         return view('superadmin.challenges.edit', compact('challenge', 'tasks'));
     }
@@ -130,7 +139,9 @@ class ChallengeController extends Controller
             'special_price' => 'nullable|numeric|min:0',
             'status' => 'required|in:active,inactive,draft',
             'tasks' => 'array',
-            'tasks.*' => 'exists:tasks,id'
+            'tasks.*' => 'exists:tasks,id',
+            'sorting_order' => 'array',
+            'sorting_order.*' => 'integer|min:0'
         ]);
 
         $challenge->title = $request->title;
@@ -157,9 +168,14 @@ class ChallengeController extends Controller
 
         $challenge->save();
 
-        // Sync selected tasks
+        // Sync selected tasks with sorting order
         if ($request->has('tasks')) {
-            $challenge->tasks()->sync($request->tasks);
+            $taskData = [];
+            foreach ($request->tasks as $taskId) {
+                $sortingOrder = $request->sorting_order[$taskId] ?? 0;
+                $taskData[$taskId] = ['sorting_order' => $sortingOrder];
+            }
+            $challenge->tasks()->sync($taskData);
             $challenge->number_of_tasks = count($request->tasks);
         } else {
             $challenge->tasks()->detach();
