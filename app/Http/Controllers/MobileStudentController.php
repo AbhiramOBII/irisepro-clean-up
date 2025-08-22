@@ -72,8 +72,7 @@ class MobileStudentController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'OTP sent successfully',
-            'otp' => $otp // Remove this in production
+            'message' => 'OTP sent successfully'
         ]);
     }
 
