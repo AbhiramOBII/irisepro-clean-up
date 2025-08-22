@@ -13,6 +13,8 @@ use App\Models\YashodarshiEvaluationResult;
 use App\Models\HelpRequest;
 use App\Models\StudentTaskResponse;
 use App\Models\TaskScore;
+use App\Models\Achievement;
+use App\Models\Challenge;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 
@@ -159,11 +161,14 @@ class MobileStudentController extends Controller
         // Get student status using StudentDashboardController
         $dashboardController = new StudentDashboardController();
         $studentStatus = $dashboardController->getDashboardData($student->id);
-
+        
         // Get student data for header
         $studentData = $this->getStudentData();
 
-        return view('frontendapp.dashboard', compact('student', 'studentStatus', 'studentData'));
+        // Check for recently unlocked achievements
+        $recentAchievements = $this->getRecentlyUnlockedAchievements($student);
+
+        return view('frontendapp.dashboard', compact('student', 'studentStatus', 'studentData', 'recentAchievements'));
     }
 
     /**
@@ -358,7 +363,157 @@ class MobileStudentController extends Controller
     {
         $student = Auth::guard('student')->user();
 
-        return view('frontendapp.achievements');
+        // Get student's performance data to calculate achievement status
+        $performanceData = $this->getStudentPerformanceForAchievements($student);
+        
+        // Get all achievements grouped by domain
+        $achievements = Achievement::orderBy('domain')->orderBy('threshold')->get();
+        $achievementsByDomain = $achievements->groupBy('domain');
+        
+        // Calculate achievement status for each achievement
+        foreach ($achievementsByDomain as $domain => $domainAchievements) {
+            $domainScore = $performanceData['domain_scores'][$domain] ?? 0;
+            
+            foreach ($domainAchievements as $achievement) {
+                if ($domainScore >= $achievement->threshold) {
+                    $achievement->status = 'unlocked';
+                } elseif ($domainScore >= ($achievement->threshold - 10)) { // Within 10% of threshold
+                    $achievement->status = 'in_progress';
+                } else {
+                    $achievement->status = 'locked';
+                }
+            }
+        }
+        
+        // Calculate overall stats
+        $totalAchievements = $achievements->count();
+        $totalUnlocked = $achievements->filter(function($achievement) {
+            return $achievement->status === 'unlocked';
+        })->count();
+        
+        $completionPercentage = $totalAchievements > 0 ? round(($totalUnlocked / $totalAchievements) * 100) : 0;
+        
+        // Get student data for header
+        $studentData = $this->getStudentData();
+
+        return view('frontendapp.achievements', compact(
+            'student', 
+            'achievementsByDomain', 
+            'totalUnlocked', 
+            'completionPercentage',
+            'studentData'
+        ));
+    }
+    
+    /**
+     * Get recently unlocked achievements for celebration popup.
+     */
+    private function getRecentlyUnlockedAchievements($student)
+    {
+        // Get student's current performance data
+        $performanceData = $this->getStudentPerformanceForAchievements($student);
+        
+        // Get all achievements
+        $achievements = Achievement::orderBy('domain')->orderBy('threshold')->get();
+        
+        // Check which achievements are currently unlocked
+        $currentlyUnlocked = [];
+        foreach ($achievements as $achievement) {
+            $domainScore = $performanceData['domain_scores'][$achievement->domain] ?? 0;
+            
+            if ($domainScore >= $achievement->threshold) {
+                $currentlyUnlocked[] = $achievement;
+            }
+        }
+        
+        // Check if student has a session flag for showing achievements
+        // This prevents showing the same achievements repeatedly
+        $sessionKey = 'shown_achievements_' . $student->id;
+        $shownAchievements = session($sessionKey, []);
+        
+        // Filter out achievements that have already been shown
+        $newAchievements = [];
+        foreach ($currentlyUnlocked as $achievement) {
+            if (!in_array($achievement->id, $shownAchievements)) {
+                $newAchievements[] = $achievement;
+            }
+        }
+        
+        // Mark these achievements as shown in the session
+        if (!empty($newAchievements)) {
+            $newShownIds = array_merge($shownAchievements, array_column($newAchievements, 'id'));
+            session([$sessionKey => $newShownIds]);
+        }
+        
+        return $newAchievements;
+    }
+
+    /**
+     * Get student performance data for achievements calculation.
+     */
+    private function getStudentPerformanceForAchievements($student)
+    {
+        //calculate total score for each domain in the challenge 
+        $challengeIds = StudentTaskResponse::where('student_id', $student->id)
+            ->where('status', 'reviewed')
+            ->pluck('challenge_id')
+            ->unique();
+       
+
+        //Challenge and Tasks are connected from a pivot table by name challenge_tasks. Get all the tasks from the challenge
+        $tasks = Task::whereHas('challenges', function ($query) use ($challengeIds) {
+            $query->whereIn('challenge_id', $challengeIds);
+        })->get();
+        
+       
+
+        //task is related to task_score
+        $taskScores = TaskScore::whereHas('task', function ($query) use ($tasks) {
+            $query->whereIn('task_id', $tasks->pluck('id'));
+        })->get();
+       
+       $challengetotalscore = $taskScores->sum('total_score');
+       $challengeattitudescore = $taskScores->sum('attitude_score');
+       $challengeaptitudescore = $taskScores->sum('aptitude_score');
+       $challengecommunicationscore = $taskScores->sum('communication_score');
+       $challengeexecutionscore = $taskScores->sum('execution_score');
+       
+
+       //let us now get student scores from the yashodarshi_evaluation_result table
+       $studentEvaluationResults = YashodarshiEvaluationResult::where('student_id', $student->id)->get();
+       $studentattitudescore = $studentEvaluationResults->sum('attitude_score');
+       $studentaptitudescore = $studentEvaluationResults->sum('aptitude_score');
+       $studentcommunicationscore = $studentEvaluationResults->sum('communication_score');
+       $studentexecutionscore = $studentEvaluationResults->sum('execution_score');
+       $studenttotalscore =    $studentattitudescore + $studentaptitudescore + $studentcommunicationscore + $studentexecutionscore;
+       
+       //round it to 0 decimal places
+       $studenttotalpercentage = round(($studenttotalscore / $challengetotalscore) * 100, 0);
+       $studentattitudetotalpercentage = round(($studentattitudescore / $challengeattitudescore) * 100, 0);
+       $studentaptitudetotalpercentage = round(($studentaptitudescore / $challengeaptitudescore) * 100, 0);
+       $studentcommunicationtotalpercentage = round(($studentcommunicationscore / $challengecommunicationscore) * 100, 0);
+       $studentexecutiontotalpercentage = round(($studentexecutionscore / $challengeexecutionscore) * 100, 0);
+       
+       // Calculate AACE overall percentage (average of all four domains)
+       $aacePercentage = 0;
+       if ($challengetotalscore > 0) {
+           $aacePercentage = round(($studenttotalscore / $challengetotalscore) * 100, 0);
+       }
+
+       // Based on these percentages, return the achievement status for each domain
+       $domainScores = [
+           'attitude' => $challengeattitudescore > 0 ? $studentattitudetotalpercentage : 0,
+           'aptitude' => $challengeaptitudescore > 0 ? $studentaptitudetotalpercentage : 0,
+           'communication' => $challengecommunicationscore > 0 ? $studentcommunicationtotalpercentage : 0,
+           'execution' => $challengeexecutionscore > 0 ? $studentexecutiontotalpercentage : 0,
+           'aace' => $aacePercentage
+       ];
+
+       
+        
+        return [
+            'domain_scores' => $domainScores
+        ];
     }
 
     /**
