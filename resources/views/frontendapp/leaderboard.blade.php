@@ -220,35 +220,6 @@
                 </div>
             </div>
 
-            <!-- Row 3: Empathy -->
-            <div class="flex justify-center mt-4 relative z-10">
-                <!-- Empathy Rank -->
-                <div
-                    class="bg-white rounded-xl p-4 text-center shadow-md transform transition-transform hover:scale-105 w-1/2">
-                    <div class="w-10 h-10 bg-[#FF8A3D]/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <i class="fas fa-heart text-[#FF8A3D]"></i>
-                    </div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Empathy</p>
-                    <div class="flex items-center justify-center">
-                        @if (isset($leaderboardData['current_user']['aace_ranks']['empathy']['rank']) && $leaderboardData['current_user']['aace_ranks']['empathy']['rank'])
-                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 empathy-rank">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['rank'] }}</span>
-                            @if (isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_value']) && $leaderboardData['current_user']['aace_ranks']['empathy']['change_direction'] == 'up')
-                                <div class="flex items-center text-green-500">
-                                    <i class="fas fa-arrow-up text-xs"></i>
-                                    <span class="text-xs empathy-change">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['change_value'] }}</span>
-                                </div>
-                            @elseif(isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_value']) && $leaderboardData['current_user']['aace_ranks']['empathy']['change_direction'] == 'down')
-                                <div class="flex items-center text-red-500">
-                                    <i class="fas fa-arrow-down text-xs"></i>
-                                    <span class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['change_value'] }}</span>
-                                </div>
-                            @endif
-                        @else
-                            <span class="text-xl font-bold text-[#FF8A3D]">-</span>
-                        @endif
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Top Performers Section -->
