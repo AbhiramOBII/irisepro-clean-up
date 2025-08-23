@@ -973,47 +973,6 @@
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#F58321]/5 rounded-full -ml-12 -mb-12 group-hover:bg-[#F58321]/10 transition-all duration-500"></div>
         
         <div class="relative z-10">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Last 8 Tasks Performance</h3>
-            
-            @php
-                // Get last 8 task performances for the student
-                $lastTaskPerformances = [];
-                if (isset($studentStatus['last_8_tasks'])) {
-                    $lastTaskPerformances = $studentStatus['last_8_tasks'];
-                } 
-                
-                else {
-                    // Default data if no tasks available
-                    $lastTaskPerformances = [
-                        ['task_number' => 1, 'percentage' => 0],
-                        ['task_number' => 2, 'percentage' => 0],
-                        ['task_number' => 3, 'percentage' => 0],
-                        ['task_number' => 4, 'percentage' => 0],
-                        ['task_number' => 5, 'percentage' => 0],
-                        ['task_number' => 6, 'percentage' => 0],
-                        ['task_number' => 7, 'percentage' => 0],
-                        ['task_number' => 8, 'percentage' => 0],
-                    ];
-                }
-             
-                
-                // Ensure we have exactly 8 items
-                while (count($lastTaskPerformances) < 8) {
-                    $lastTaskPerformances[] = ['task_number' => count($lastTaskPerformances) + 1, 'percentage' => 0];
-                }
-                $lastTaskPerformances = array_slice($lastTaskPerformances, -8);
-                
-                // Calculate average and best performance
-                $completedTasks = array_filter($lastTaskPerformances, function($task) {
-                    return $task['percentage'] > 0;
-                });
-                $totalPercentage = array_sum(array_column($completedTasks, 'percentage'));
-                $averagePercentage = count($completedTasks) > 0 ? round($totalPercentage / count($completedTasks), 1) : 0;
-                $bestTask = collect($lastTaskPerformances)->sortByDesc('percentage')->first();
-                $bestPercentage = $bestTask ? $bestTask['percentage'] : 0;
-                $bestTaskNumber = $bestTask ? $bestTask['task_number'] : 1;
-            @endphp
-            
             <!-- SVG Bar Graph -->
             <svg width="100%" height="180" style="margin-bottom: 16px;">
                 <!-- Gradient definition -->
@@ -1024,39 +983,55 @@
                     </linearGradient>
                 </defs>
                 
-                @foreach($lastTaskPerformances as $index => $task)
-                    @php
-                        $xPosition = 4 + ($index * 12); // 12% spacing between bars
-                        $barHeight = $task['percentage']; // Height as percentage
-                        $yPosition = 100 - $barHeight; // Y position (SVG coordinates are inverted)
-                        $textY = $yPosition > 10 ? $yPosition - 5 : $yPosition + 15; // Text position
-                    @endphp
-                    
-                    <!-- Task Bar -->
-                    <rect x="{{ $xPosition }}%" y="{{ $yPosition }}%" width="6%" height="{{ $barHeight }}%" rx="3" fill="url(#barGradient)" />
-                    
-                    @if($task['percentage'] > 0)
-                        <text x="{{ $xPosition + 3 }}%" y="{{ $textY }}%" text-anchor="middle" font-size="11" font-weight="bold" fill="#F58321">{{ $task['percentage'] }}%</text>
-                    @endif
-                @endforeach
+                <!-- Monday Bar -->
+                <rect x="4%" y="40%" width="6%" height="60%" rx="3" fill="url(#barGradient)" />
+                <text x="7%" y="35%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">60%</text>
+                
+                <!-- Tuesday Bar -->
+                <rect x="18%" y="15%" width="6%" height="85%" rx="3" fill="url(#barGradient)" />
+                <text x="21%" y="10%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">85%</text>
+                
+                <!-- Wednesday Bar -->
+                <rect x="32%" y="60%" width="6%" height="40%" rx="3" fill="url(#barGradient)" />
+                <text x="35%" y="55%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">40%</text>
+                
+                <!-- Thursday Bar -->
+                <rect x="46%" y="30%" width="6%" height="70%" rx="3" fill="url(#barGradient)" />
+                <text x="49%" y="25%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">70%</text>
+                
+                <!-- Friday Bar -->
+                <rect x="60%" y="10%" width="6%" height="90%" rx="3" fill="url(#barGradient)" />
+                <text x="63%" y="5%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">90%</text>
+                
+                <!-- Saturday Bar -->
+                <rect x="74%" y="25%" width="6%" height="75%" rx="3" fill="url(#barGradient)" />
+                <text x="77%" y="20%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">75%</text>
+                
+                <!-- Sunday Bar -->
+                <rect x="88%" y="50%" width="6%" height="50%" rx="3" fill="url(#barGradient)" />
+                <text x="91%" y="45%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">50%</text>
             </svg>
             
-            <!-- Task labels -->
+            <!-- Day labels -->
             <div class="flex justify-between mb-4 px-2">
-                @foreach($lastTaskPerformances as $task)
-                    <span class="text-xs font-medium text-gray-500">T{{ $task['task_number'] }}</span>
-                @endforeach
+                <span class="text-xs font-medium text-gray-500">Mon</span>
+                <span class="text-xs font-medium text-gray-500">Tue</span>
+                <span class="text-xs font-medium text-gray-500">Wed</span>
+                <span class="text-xs font-medium text-gray-500">Thu</span>
+                <span class="text-xs font-medium text-gray-500">Fri</span>
+                <span class="text-xs font-medium text-gray-500">Sat</span>
+                <span class="text-xs font-medium text-gray-500">Sun</span>
             </div>
             
             <!-- Score Summary -->
             <div class="flex justify-between items-center border-t border-gray-100 pt-4">
                 <div>
-                    <div class="text-sm text-gray-500">Average Score</div>
-                    <div class="text-xl font-bold text-gray-800">{{ $averagePercentage }}%</div>
+                    <div class="text-sm text-gray-500">Weekly Average</div>
+                    <div class="text-xl font-bold text-gray-800">78%</div>
                 </div>
                 <div>
-                    <div class="text-sm text-gray-500">Best Task</div>
-                    <div class="text-xl font-bold text-[#F58321]">Task {{ $bestTaskNumber }} ({{ $bestPercentage }}%)</div>
+                    <div class="text-sm text-gray-500">Best Day</div>
+                    <div class="text-xl font-bold text-[#F58321]">Friday (90%)</div>
                 </div>
             </div>
         </div>

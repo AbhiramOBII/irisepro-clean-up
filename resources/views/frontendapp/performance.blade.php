@@ -4,10 +4,10 @@
 <div class="min-h-screen bg-gradient-to-b from-white to-[#EFCAA6]">
     
     <div class="px-4 pb-20">
-    
+     
         @if($performanceData['student_total_score'] == 0 && $performanceData['completed_tasks'] == 0 && !isset($performanceData['has_submitted_responses']))
             <!-- No Evaluation Started Experience -->
-        
+
             @if($hasSubmittedResponses)
                  <!-- Review Pending Experience -->
                  <div class="flex flex-col items-center justify-center min-h-[70vh] text-center">
@@ -141,7 +141,7 @@
             <!-- Decorative circle elements -->
             <div class="absolute top-0 right-0 w-32 h-32 bg-[#FF8A3D]/5 rounded-full -mr-16 -mt-16"></div>
             <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#FF8A3D]/5 rounded-full -ml-12 -mb-12"></div>
-           
+            
             <div class="flex relative z-10">
                 <div class="flex-1 pr-16">
                     <div class="text-sm text-gray-800 font-medium mb-1">Performance Dashboard</div>
@@ -232,7 +232,7 @@
                     
                     <div class="text-right">
                         <div class="text-sm text-gray-500">Maximum Possible</div>
-                        <div class="text-lg font-semibold text-gray-700">{{ number_format($performanceData['alltasktotalscore']) }} pts</div>
+                        <div class="text-lg font-semibold text-gray-700">{{ number_format($performanceData['total_possible_score']) }} pts</div>
                     </div>
                 </div>
                 
@@ -243,16 +243,16 @@
                         <div class="absolute top-0 left-0 w-full bg-gray-200 rounded-full h-4"></div>
                         
                         <!-- Bar 2: Total Score of the Tasks Attended by the Student So far -->
-                        <div class="absolute top-0 left-0 bg-[#fa0b0b] h-4 rounded-full" style="width: @if($performanceData['alltasktotalscore'] > 0){{ ($performanceData['total_score']/$performanceData['alltasktotalscore'])*100 }}@else 0 @endif%"></div>
+                        <div class="absolute top-0 left-0 bg-[#fa0b0b] h-4 rounded-full" style="width: @if($performanceData['total_possible_score'] > 0){{ ($performanceData['total_score']/$performanceData['total_possible_score'])*100 }}@else 0 @endif%"></div>
                         
                         <!-- Bar 1: Total Student's Score -->
-                        <div class="absolute top-0 left-0 bg-gradient-to-r from-[#FF8A3D] to-[#FFC107] h-4 rounded-full" style="width: @if($performanceData['alltasktotalscore'] > 0){{ ($performanceData['student_total_score']/$performanceData['alltasktotalscore'])*100 }}@else 0 @endif%"></div>
+                        <div class="absolute top-0 left-0 bg-gradient-to-r from-[#FF8A3D] to-[#FFC107] h-4 rounded-full" style="width: @if($performanceData['total_possible_score'] > 0){{ ($performanceData['student_total_score']/$performanceData['total_possible_score'])*100 }}@else 0 @endif%"></div>
                     </div>
                    
                     <div class="flex justify-between text-xs mt-3">
                         <span class="text-[#FF8A3D] font-medium">Task 1</span>
-                        <span class="text-gray-600">  <span class="text-[#FF8A3D] font-medium text-xs">{{ $performanceData['total_score']}}/{{ $performanceData['alltasktotalscore'] }}</span><br>Task {{ $performanceData['completed_tasks'] }} (Current)</span>
-                        <span class="text-gray-500">Total: {{ number_format($performanceData['alltasktotalscore']) }} pts<br> Task {{ $performanceData['total_tasks'] }} (Final)</span>
+                        <span class="text-gray-600">  <span class="text-[#FF8A3D] font-medium text-xs">{{ $performanceData['total_score']}}/{{ $performanceData['total_possible_score'] }}</span><br>Task {{ $performanceData['completed_tasks'] }} (Current)</span>
+                        <span class="text-gray-500">Total: {{ number_format($performanceData['total_possible_score']) }} pts<br> Task {{ $performanceData['total_tasks'] }} (Final)</span>
                     </div>
                 </div>
                 
@@ -370,12 +370,12 @@
                 <!-- Decorative elements for the background card -->
                 <div class="absolute top-0 right-0 w-40 h-40 bg-[#F58321]/5 rounded-full -mr-10 -mt-10"></div>
                 <div class="absolute bottom-0 left-0 w-40 h-40 bg-[#F58321]/5 rounded-full -ml-10 -mb-10"></div>
-
+                
                 <!-- Task Cards -->
                 <div class="relative z-10 space-y-4">
                     @foreach($performanceData['task_history'] as $task)
                         @if($task['status'] === 'completed')
-
+                      
                             <!-- Completed Task -->
                             <div class="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow" style="border: 1px solid {{ $task['border_color'] }};">
                                
@@ -383,7 +383,7 @@
                                     <div class="bg-[#F58321]/10 rounded-lg px-3 py-1 flex items-center justify-center">
                                         <span class="text-xs font-bold text-[#F58321]">Task {{ $task['task_number'] }}</span>
                                     </div>
-                                    <span class="text-white text-sm font-bold px-3 py-1 rounded-full" style="background-color: {{ $task['border_color'] }};">{{round((($performanceData['completedindividualstudentTasksTotalScore'][$task['task_id']])/($task['total_score']))*100,0)}}%</span>
+                                    <span class="text-white text-sm font-bold px-3 py-1 rounded-full" style="background-color: {{ $task['border_color'] }};">{{round((($performanceData['alltasktotalscore'][$task['task_id']]['Student_total_score'])/($task['total_score']))*100,0)}}%</span>
                                 </div>
                                 
                                 <!-- Row 2: Task Title -->

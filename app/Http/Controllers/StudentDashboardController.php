@@ -6,14 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use App\Http\Controllers\MobileStudentController;
 use App\Models\Student;
 use App\Models\Batch;
 use App\Models\Challenge;
-use App\Models\YashodarshiEvaluationResult;
-use App\Models\StudentTaskResponse;
-use App\Models\TaskScore;
-
 
 class StudentDashboardController extends Controller
 {
@@ -149,23 +144,79 @@ class StudentDashboardController extends Controller
      */
     public function getDashboardData($studentId)
     {
-        $studentStatus = $this->checkStudentStatus($studentId);
-        
-        if ($studentStatus['status'] == 4) {
-            // Status 4: running - get current task and progress
-            $currentTask = $this->getCurrentTask($studentId);
-            $studentStatus['current_task'] = $currentTask;
-            
-            // Get last 8 tasks performance
-            $last8Tasks = $this->getLast8TasksPerformance($studentId);
-           
-            $studentStatus['last_8_tasks'] = $last8Tasks;
+        $statusData = $this->checkStudentStatus($studentId);
+
+        // Get student data for header
+        $mobileController = new MobileStudentController();
+        $studentData = $mobileController->getStudentData();
+
+        // Add additional data based on status
+        switch ($statusData['status']) {
+            case 1: // Sappe
+                $statusData['available_batches'] = Batch::where('status', 'active')
+                    ->where('start_date', '>', Carbon::now())
+                    ->orderBy('start_date', 'asc')
+                    ->get();
+                break;
+            case 2: // Super
+                // Get challenge pricing for payment amount
+                $challengePrice = 0;
+                if (isset($statusData['batch']->challenge_id)) {
+                    $challenge = Challenge::where('id', $statusData['batch']->challenge_id)
+                        ->select('selling_price', 'cost_price', 'special_price')
+                        ->first();
+                    $challengePrice = $challenge->amount;
+                }
+
+                $statusData['payment_details'] = [
+                    'amount' => $challengePrice,
+                    'due_date' => $statusData['batch']->payment_due_date ?? null
+                ];
+                break;
+
+            case 3: // Duper
+                // Get challenge pricing for payment confirmation
+                $challengePrice = 0;
+                if (isset($statusData['batch']->challenge_id)) {
+                    $challenge = Challenge::where('id', $statusData['batch']->challenge_id)
+                        ->select('selling_price', 'cost_price', 'special_price')
+                        ->first();
+                    $challengePrice = $challenge->amount;
+                }
+
+                $statusData['batch_info'] = [
+                    'start_date' => $statusData['batch']->start_date,
+                    'duration' => $statusData['batch']->duration ?? null,
+                    'description' => $statusData['batch']->description ?? null
+                ];
+                $statusData['payment_details'] = [
+                    'amount' => $challengePrice,
+                    'status' => 'paid',
+                    'payment_date' => $statusData['payment']->created_at ?? null
+                ];
+                break;
+
+            case 4:
+
+                // Running - Get current task using sequential delivery system
+                $currentTaskData = $this->getCurrentTask($studentId);
+
+                $statusData['current_task'] = $currentTaskData;
+
+                // Get student habits
+                $statusData['student_habits'] = $this->getStudentHabits($studentId);
+                break;
         }
-        
-        // Add available batches for all status types
-        $studentStatus['available_batches'] = $this->getAvailableBatches($studentId);
-        
-        return $studentStatus;
+
+
+        // Add available batches for all status types (for challenges section)
+        $statusData['available_batches'] = $this->getAvailableBatches($studentId);
+
+        // Add available challenges (separate from batches)
+        return array_merge($statusData, [
+            'available_challenges' => $this->getAvailableChallenges($studentId),
+            'student_data' => $studentData
+        ]);
     }
 
     /**
@@ -250,14 +301,13 @@ class StudentDashboardController extends Controller
             return null;
         }
 
-        // Get completed tasks for this student in this batch - removed status check to fix bug 
+        // Get completed tasks for this student in this batch
         $completedTaskIds = DB::table('student_task_responses')
             ->where('student_id', $batchStudent->student_id)
             ->where('batch_id', $batchStudent->batch_id)
             ->pluck('task_id')
             ->map(function($id) { return (int) $id; })
             ->toArray();
-            
         // Find the next task to be completed
         foreach ($challenge->tasks as $task) {
             if (!in_array((int) $task->id, $completedTaskIds)) {
@@ -365,57 +415,5 @@ class StudentDashboardController extends Controller
 
         $lastSubmissionTime = Carbon::parse($lastSubmission->datestamp);
         return $lastSubmissionTime->addHours(18);
-    }
-
-    /**
-     * Get last 8 tasks performance for the student
-     */
-    private function getLast8TasksPerformance($studentId)
-    {
-        //on performanceDetail function on MobileStudentController.php, we are already calculating percentages of the tasks. Let us get it here 
-        //there may be 
-
-        $student = Student::find($studentId);
-       
-        //get batch id from batch_student table - batch_student is a pivot table
-       
-        $batchStudent = DB::table('batch_student')
-            ->where('student_id', $studentId)
-            ->first();
-
-       
-        
-        //check completed tasks from student_task_responses table
-        $completedTasks = StudentTaskResponse::where('student_id', $studentId)
-            ->where('batch_id', $batchStudent->batch_id)
-            ->where('status', 'reviewed')
-            ->pluck('task_id')
-            ->toArray();
-        
-        //Get total_score of the completed tasks from the task_score table assign it to an array as there will be multiple tasks 
-        $totalScore = TaskScore::whereIn('task_id', $completedTasks)->pluck('total_score')->toArray();
-    
-
-        //Let us get student total_score from yashodarshi_evaluation_result table for the completed tasks 
-        $studentTotalScore = YashodarshiEvaluationResult::where('student_id', $studentId)->pluck('total_score')->toArray();
-       
-
-        //let us get the percentage array based on $totalScore and $studentTotalScore. Round it to 0 decimal
-        $percentages = array_map(function($totalScore, $studentTotalScore) {
-            return round(($studentTotalScore / $totalScore) * 100, 0);
-        }, $totalScore, $studentTotalScore);
-
-        // Format the data to match the expected structure in the view
-        $performanceData = [];
-        foreach ($percentages as $index => $percentage) {
-            $performanceData[] = [
-                'task_number' => $index + 1,
-                'percentage' => $percentage
-            ];
-        }
-
-        // Ensure we have at most 8 items and return in proper format
-        return array_slice($performanceData, -8);
-     
     }
 }

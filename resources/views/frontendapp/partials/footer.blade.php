@@ -2,7 +2,7 @@
 <div class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200 px-6 py-3 z-50 rounded-t-[10px]">
     <div class="flex justify-around items-center">
         <!-- Performance -->
-        <a href="{{route('mobile.performance')}}" class="w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 @if(isset($activeMenu) && $activeMenu == 'performance') bg-primary text-white shadow-button @else text-gray-400 hover:text-primary hover:bg-gray-50 @endif">
+        <a href="#" class="w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 @if(isset($activeMenu) && $activeMenu == 'performance') bg-primary text-white shadow-button @else text-gray-400 hover:text-primary hover:bg-gray-50 @endif">
             <i class="fas fa-chart-line text-xl"></i>
         </a>
         
@@ -25,7 +25,7 @@
         </a>
         
         <!-- Achievements -->
-        <a href="{{route('mobile.achievements')}}" class="w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 @if(isset($activeMenu) && $activeMenu == 'achievements') bg-primary text-white shadow-button @else text-gray-400 hover:text-primary hover:bg-gray-50 @endif">
+        <a href="#" class="w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 @if(isset($activeMenu) && $activeMenu == 'achievements') bg-primary text-white shadow-button @else text-gray-400 hover:text-primary hover:bg-gray-50 @endif">
             <i class="fas fa-medal text-xl"></i>
         </a>
     </div>

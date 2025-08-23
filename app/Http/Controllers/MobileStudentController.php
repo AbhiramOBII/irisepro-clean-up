@@ -641,7 +641,6 @@ class MobileStudentController extends Controller
      */
     private function calculatePerformanceMetrics($student, $evaluationResults, $allTasks, $reviewedResponses)
     {
-        
         $submitstatus = StudentTaskResponse::where('student_id', $student->id)
             ->where('status', 'submitted')
             ->get();
@@ -662,6 +661,17 @@ class MobileStudentController extends Controller
                 ];
             }
         }
+
+        $alltasktotalscore = [];
+        foreach ($allTasks as $task) {
+            if ($evaluationResults->where('task_id', $task->id)->first()) {
+                $alltasktotalscore[$task->id] = [
+                    'Student_total_score' => $evaluationResults->where('task_id', $task->id)->first()->total_score ?? 0
+                ];
+            }
+        }
+
+
 
 
 
@@ -711,33 +721,7 @@ class MobileStudentController extends Controller
             }
         }
 
-        //get completed tasks based on student_id and task_id from the student_task_responses table where status == reviewed
-        $completedTasks = StudentTaskResponse::where('student_id', $student->id)
-            ->where('status', 'reviewed')
-            ->get();
 
-        //based on the completedTasks, let us get total_score from the task_score table
-        $completedTasksTotalScore = TaskScore::whereIn('task_id', $completedTasks->pluck('task_id')->toArray())->pluck('total_score')->toArray();
-
-
-        //let us sum it
-        $completedTasksTotalScore = array_sum($completedTasksTotalScore);
-
-        //build an array of individual task total_scores and index it with taskId 
-        $completedindividualTasksTotalScore = TaskScore::whereIn('task_id', $completedTasks->pluck('task_id')->toArray())->pluck('total_score', 'task_id')->toArray();
-        
-     
-        //build an array to get the total_score of the student based on student_id and task_id from the yashodarshi_evaluation_result table
-        $completedindividualstudentTasksTotalScore = YashodarshiEvaluationResult::whereIn('task_id', $completedTasks->pluck('task_id')->toArray())->pluck('total_score', 'task_id')->toArray();
-        
-        
-       
-        //Let us get total score for allTasks from the task_score table
-        $allTasksTotalScore = TaskScore::pluck('total_score')->toArray();
-     
-        //convert to integer
-        $allTasksTotalScore = (int) array_sum($allTasksTotalScore);
-      
 
 
         $completedTasks = $evaluationResults->count();
@@ -767,8 +751,6 @@ class MobileStudentController extends Controller
         $maxScorePerTask = 100; // Assuming max score is 100 per task
         $totalPossibleScore = $totalTasks * $maxScorePerTask;
         $currentScore = $evaluationResults->sum('total_score');
-
-
         $maxPossibleForCompleted = $completedTasks * $maxScorePerTask;
 
         // Get highest task score and convert to percentage
@@ -860,9 +842,7 @@ class MobileStudentController extends Controller
             'student_communication_total' => $studentCommunicationTotal,
             'student_execution_total' => $studentExecutionTotal,
             'student_total_score' => $studentTotalScore,
-            'alltasktotalscore' => $allTasksTotalScore,
-            'completedindividualstudentTasksTotalScore' => $completedindividualstudentTasksTotalScore,
-            'completedindividualTasksTotalScore' => $completedindividualTasksTotalScore
+            'alltasktotalscore' => $alltasktotalscore
         ];
     }
 
