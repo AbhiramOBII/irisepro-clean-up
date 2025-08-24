@@ -973,65 +973,90 @@
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#F58321]/5 rounded-full -ml-12 -mb-12 group-hover:bg-[#F58321]/10 transition-all duration-500"></div>
         
         <div class="relative z-10">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Last 8 Tasks Performance</h3>
+            
+            @php
+                // Get last 8 task performances for the student
+                $lastTaskPerformances = [];
+                if (isset($studentStatus['last_8_tasks'])) {
+                    $lastTaskPerformances = $studentStatus['last_8_tasks'];
+                } 
+                
+                else {
+                    // Default data if no tasks available
+                    $lastTaskPerformances = [
+                        ['task_number' => 1, 'percentage' => 0],
+                        ['task_number' => 2, 'percentage' => 0],
+                        ['task_number' => 3, 'percentage' => 0],
+                        ['task_number' => 4, 'percentage' => 0],
+                        ['task_number' => 5, 'percentage' => 0],
+                        ['task_number' => 6, 'percentage' => 0],
+                        ['task_number' => 7, 'percentage' => 0],
+                        ['task_number' => 8, 'percentage' => 0],
+                    ];
+                }
+             
+                
+                // Ensure we have exactly 8 items
+                while (count($lastTaskPerformances) < 8) {
+                    $lastTaskPerformances[] = ['task_number' => count($lastTaskPerformances) + 1, 'percentage' => 0];
+                }
+                $lastTaskPerformances = array_slice($lastTaskPerformances, -8);
+                
+                // Calculate average and best performance
+                $completedTasks = array_filter($lastTaskPerformances, function($task) {
+                    return $task['percentage'] > 0;
+                });
+                $totalPercentage = array_sum(array_column($completedTasks, 'percentage'));
+                $averagePercentage = count($completedTasks) > 0 ? round($totalPercentage / count($completedTasks), 1) : 0;
+                $bestTask = collect($lastTaskPerformances)->sortByDesc('percentage')->first();
+                $bestPercentage = $bestTask ? $bestTask['percentage'] : 0;
+                $bestTaskNumber = $bestTask ? $bestTask['task_number'] : 1;
+            @endphp
+            
             <!-- SVG Bar Graph -->
             <svg width="100%" height="180" style="margin-bottom: 16px;">
                 <!-- Gradient definition -->
                 <defs>
-                    <linearGradient id="barGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                        <stop offset="0%" style="stop-color:#F58321" />
-                        <stop offset="100%" style="stop-color:#F9A949" />
+                    <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#F58321;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#FF6B35;stop-opacity:1" />
                     </linearGradient>
                 </defs>
                 
-                <!-- Monday Bar -->
-                <rect x="4%" y="40%" width="6%" height="60%" rx="3" fill="url(#barGradient)" />
-                <text x="7%" y="35%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">60%</text>
-                
-                <!-- Tuesday Bar -->
-                <rect x="18%" y="15%" width="6%" height="85%" rx="3" fill="url(#barGradient)" />
-                <text x="21%" y="10%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">85%</text>
-                
-                <!-- Wednesday Bar -->
-                <rect x="32%" y="60%" width="6%" height="40%" rx="3" fill="url(#barGradient)" />
-                <text x="35%" y="55%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">40%</text>
-                
-                <!-- Thursday Bar -->
-                <rect x="46%" y="30%" width="6%" height="70%" rx="3" fill="url(#barGradient)" />
-                <text x="49%" y="25%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">70%</text>
-                
-                <!-- Friday Bar -->
-                <rect x="60%" y="10%" width="6%" height="90%" rx="3" fill="url(#barGradient)" />
-                <text x="63%" y="5%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">90%</text>
-                
-                <!-- Saturday Bar -->
-                <rect x="74%" y="25%" width="6%" height="75%" rx="3" fill="url(#barGradient)" />
-                <text x="77%" y="20%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">75%</text>
-                
-                <!-- Sunday Bar -->
-                <rect x="88%" y="50%" width="6%" height="50%" rx="3" fill="url(#barGradient)" />
-                <text x="91%" y="45%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">50%</text>
+                @foreach($lastTaskPerformances as $index => $task)
+                    @php
+                        $xPosition = 4 + ($index * 12); // 12% spacing between bars
+                        $barHeight = $task['percentage']; // Height as percentage
+                        $yPosition = 100 - $barHeight; // Y position (SVG coordinates are inverted)
+                        $textY = $yPosition > 10 ? $yPosition - 5 : $yPosition + 15; // Text position
+                    @endphp
+                    
+                    <!-- Task Bar -->
+                    <rect x="{{ $xPosition }}%" y="{{ $yPosition }}%" width="6%" height="{{ $barHeight }}%" rx="3" fill="url(#barGradient)" />
+                    
+                    @if($task['percentage'] > 0)
+                        <text x="{{ $xPosition + 3 }}%" y="{{ $textY }}%" text-anchor="middle" font-size="11" font-weight="bold" fill="#F58321">{{ $task['percentage'] }}%</text>
+                    @endif
+                @endforeach
             </svg>
             
-            <!-- Day labels -->
+            <!-- Task labels -->
             <div class="flex justify-between mb-4 px-2">
-                <span class="text-xs font-medium text-gray-500">Mon</span>
-                <span class="text-xs font-medium text-gray-500">Tue</span>
-                <span class="text-xs font-medium text-gray-500">Wed</span>
-                <span class="text-xs font-medium text-gray-500">Thu</span>
-                <span class="text-xs font-medium text-gray-500">Fri</span>
-                <span class="text-xs font-medium text-gray-500">Sat</span>
-                <span class="text-xs font-medium text-gray-500">Sun</span>
+                @foreach($lastTaskPerformances as $task)
+                    <span class="text-xs font-medium text-gray-500">T{{ $task['task_number'] }}</span>
+                @endforeach
             </div>
             
             <!-- Score Summary -->
             <div class="flex justify-between items-center border-t border-gray-100 pt-4">
                 <div>
-                    <div class="text-sm text-gray-500">Weekly Average</div>
-                    <div class="text-xl font-bold text-gray-800">78%</div>
+                    <div class="text-sm text-gray-500">Average Score</div>
+                    <div class="text-xl font-bold text-gray-800">{{ $averagePercentage }}%</div>
                 </div>
                 <div>
-                    <div class="text-sm text-gray-500">Best Day</div>
-                    <div class="text-xl font-bold text-[#F58321]">Friday (90%)</div>
+                    <div class="text-sm text-gray-500">Best Task</div>
+                    <div class="text-xl font-bold text-[#F58321]">Task {{ $bestTaskNumber }} ({{ $bestPercentage }}%)</div>
                 </div>
             </div>
         </div>
@@ -1093,10 +1118,10 @@
 @endif 
 
 <!-- Achievement Celebration Modal -->
-<div id="achievementCelebration" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+<div id="achievementCelebration" onclick="if(event.target === this) hideAchievementPopup()" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
     <div class="achievement-popup-scale bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 rounded-3xl p-8 max-w-sm w-full mx-4 relative overflow-hidden shadow-2xl">
         <!-- Close Button -->
-        <button id="closeAchievement" class="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 z-20">
+        <button id="closeAchievement" onclick="hideAchievementPopup()" class="absolute top-4 right-4 w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 z-20">
             <i class="fas fa-times text-sm"></i>
         </button>
         
@@ -1224,7 +1249,7 @@
             
             <!-- Action Buttons -->
             <div class="action-buttons space-y-3">
-                <button id="continueJourney" class="w-full bg-white/20 backdrop-blur-sm text-white font-semibold py-2 px-4 rounded-xl border border-white/30 hover:bg-white/30 transition-all duration-300 text-sm">
+                <button id="continueJourney" onclick="hideAchievementPopup()" class="w-full bg-white/20 backdrop-blur-sm text-white font-semibold py-2 px-4 rounded-xl border border-white/30 hover:bg-white/30 transition-all duration-300 text-sm">
                     Continue Journey
                 </button>
             </div>
@@ -1236,11 +1261,31 @@
 
 @push('scripts')
 <script>
+// Global variables and functions for achievement popup
+let currentSlide = 0;
+let totalSlides = 0;
+let achievementData = [];
+let autoAdvanceInterval = null;
+
+// Global function to hide achievement popup
+function hideAchievementPopup() {
+    const popup = document.getElementById('achievementCelebration');
+    if (popup) {
+        popup.classList.add('hidden');
+        stopAutoAdvance();
+    }
+}
+
+// Global function to stop auto advance
+function stopAutoAdvance() {
+    if (autoAdvanceInterval) {
+        clearInterval(autoAdvanceInterval);
+        autoAdvanceInterval = null;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Achievement Celebration Popup Functionality
-    let currentSlide = 0;
-    let totalSlides = 0;
-    let achievementData = [];
 
     // Initialize achievement popup if recent achievements exist
     @if(isset($recentAchievements) && count($recentAchievements) > 0)
@@ -1359,11 +1404,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function hideAchievementPopup() {
-        const popup = document.getElementById('achievementCelebration');
-        popup.classList.add('hidden');
-        stopAutoAdvance();
-    }
+    // Remove duplicate function - using global one now
 
     function goToSlide(slideIndex) {
         if (slideIndex < 0 || slideIndex >= totalSlides) return;
@@ -1389,42 +1430,47 @@ document.addEventListener('DOMContentLoaded', function() {
         goToSlide(prevIndex);
     }
 
-    let autoAdvanceInterval;
     function startAutoAdvance() {
         autoAdvanceInterval = setInterval(() => {
             nextSlide();
         }, 4000); // Change slide every 4 seconds
     }
 
-    function stopAutoAdvance() {
-        if (autoAdvanceInterval) {
-            clearInterval(autoAdvanceInterval);
-            autoAdvanceInterval = null;
-        }
-    }
+    // Remove duplicate function - using global one now
 
     function setupAchievementEventListeners() {
         // Close button
-        document.getElementById('closeAchievement').addEventListener('click', hideAchievementPopup);
+        const closeBtn = document.getElementById('closeAchievement');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', hideAchievementPopup);
+        }
         
         // Continue journey button
-        document.getElementById('continueJourney').addEventListener('click', hideAchievementPopup);
+        const continueBtn = document.getElementById('continueJourney');
+        if (continueBtn) {
+            continueBtn.addEventListener('click', hideAchievementPopup);
+        }
         
         // Close on backdrop click
-        document.getElementById('achievementCelebration').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideAchievementPopup();
-            }
-        });
+        const modal = document.getElementById('achievementCelebration');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideAchievementPopup();
+                }
+            });
+        }
         
         // Pause auto-advance on hover
         const popup = document.querySelector('.achievement-popup-scale');
-        popup.addEventListener('mouseenter', stopAutoAdvance);
-        popup.addEventListener('mouseleave', () => {
-            if (totalSlides > 1) {
-                startAutoAdvance();
-            }
-        });
+        if (popup) {
+            popup.addEventListener('mouseenter', stopAutoAdvance);
+            popup.addEventListener('mouseleave', () => {
+                if (totalSlides > 1) {
+                    startAutoAdvance();
+                }
+            });
+        }
     }
 
     // Note: Habit click handling is now done via onclick attributes in the HTML

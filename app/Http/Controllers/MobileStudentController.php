@@ -808,6 +808,28 @@ class MobileStudentController extends Controller
             return $b['task_number'] - $a['task_number']; // Reverse order (latest first)
         });
 
+        // Get last 8 tasks performance for progress bar
+        $last8Tasks = [];
+        $sortedTaskHistory = collect($taskHistory)->sortBy('task_number')->values();
+        
+        // Take the last 8 completed tasks
+        $completedTasks = $sortedTaskHistory->where('status', 'completed')->take(-8);
+        
+        foreach ($completedTasks as $index => $task) {
+            $last8Tasks[] = [
+                'task_number' => $task['task_number'],
+                'percentage' => $task['score'] ?? 0
+            ];
+        }
+        
+        // Fill remaining slots with empty tasks if less than 8
+        while (count($last8Tasks) < 8) {
+            $last8Tasks[] = [
+                'task_number' => count($last8Tasks) + 1,
+                'percentage' => 0
+            ];
+        }
+
         return [
             'student_name' => strtoupper($student->full_name ?? 'STUDENT'),
             'completed_tasks' => $completedTasks,
@@ -832,6 +854,7 @@ class MobileStudentController extends Controller
                 'execution' => round($avgExecution, 0)
             ],
             'task_history' => $taskHistory,
+            'last_8_tasks' => $last8Tasks,
             'total_aptitude_score' => $totalAptitudeScore,
             'total_attitude_score' => $totalAttitudeScore,
             'total_communication_score' => $totalCommunicationScore,
