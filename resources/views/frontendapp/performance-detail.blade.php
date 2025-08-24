@@ -26,7 +26,7 @@
         <!-- Task Details Card -->
         <div class="bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] rounded-xl shadow-md p-5 mb-6">
             <h3 class="font-bold text-lg text-gray-800 mb-2">{{ $performanceDetail['task_title'] }}</h3>
-            <p class="text-gray-600 mb-4">{{ $performanceDetail['task_description'] }}</p>
+            <div class="text-gray-600 mb-4 prose prose-sm max-w-none">{!! $performanceDetail['task_description'] !!}</div>
         </div>
         
         <!-- AACE Scores Card -->
@@ -130,10 +130,10 @@
                                 <div class="py-1 border-b border-gray-100">
                                     <div class="flex justify-between items-center mb-1">
                                         <span class="text-sm font-medium">{{ ucwords(str_replace('_', ' ', $attributeName)) }}</span>
-                                        <span class="text-xs font-bold text-[#FF8A3D]">{{ $score }}/10</span>
+                                        <span class="text-xs font-bold text-[#FF8A3D]">{{ $score }}/5</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                        <div class="bg-[#FFC107] h-1.5 rounded-full" style="width: {{ $score*10 }}%"></div>
+                                        <div class="bg-[#FFC107] h-1.5 rounded-full" style="width: {{ $score*20 }}%"></div>
                                     </div>
                                 </div>
                                 @endforeach
@@ -159,10 +159,10 @@
                                 <div class="py-1 border-b border-gray-100">
                                     <div class="flex justify-between items-center mb-1">
                                         <span class="text-sm font-medium">{{ ucwords(str_replace('_', ' ', $attributeName)) }}</span>
-                                        <span class="text-xs font-bold text-[#FF8A3D]">{{ $score }}/10</span>
+                                        <span class="text-xs font-bold text-[#FF8A3D]">{{ $score }}/5</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                        <div class="bg-[#FF8A3D] h-1.5 rounded-full" style="width: {{ $score*10 }}%"></div>
+                                        <div class="bg-[#FF8A3D] h-1.5 rounded-full" style="width: {{ $score*20 }}%"></div>
                                     </div>
                                 </div>
                                 @endforeach
@@ -188,10 +188,10 @@
                                 <div class="py-1 border-b border-gray-100">
                                     <div class="flex justify-between items-center mb-1">
                                         <span class="text-sm font-medium">{{ ucwords(str_replace('_', ' ', $attributeName)) }}</span>
-                                        <span class="text-xs font-bold text-[#FF8A3D]">{{ $score }}/10</span>
+                                        <span class="text-xs font-bold text-[#FF8A3D]">{{ $score }}/5</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                        <div class="bg-[#FF8A3D] h-1.5 rounded-full" style="width: {{ $score*10 }}%"></div>
+                                        <div class="bg-[#FF8A3D] h-1.5 rounded-full" style="width: {{ $score*20 }}%"></div>
                                     </div>
                                 </div>
                                 @endforeach
@@ -217,10 +217,10 @@
                                 <div class="py-1 border-b border-gray-100">
                                     <div class="flex justify-between items-center mb-1">
                                         <span class="text-sm font-medium">{{ ucwords(str_replace('_', ' ', $attributeName)) }}</span>
-                                        <span class="text-xs font-bold text-[#FF8A3D]">{{ $score }}/100</span>
+                                        <span class="text-xs font-bold text-[#FF8A3D]">{{ $score }}/5</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                        <div class="bg-[#FF8A3D] h-1.5 rounded-full" style="width: {{ $score }}%"></div>
+                                        <div class="bg-[#FF8A3D] h-1.5 rounded-full" style="width: {{ $score*20 }}%"></div>
                                     </div>
                                 </div>
                                 @endforeach

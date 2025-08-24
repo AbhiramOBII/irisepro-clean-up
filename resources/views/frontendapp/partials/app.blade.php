@@ -56,6 +56,350 @@
                 display: none;  /* Safari and Chrome */
             }
         }
+        
+        /* Global Mobile Optimizations for screens < 400px */
+        @media (max-width: 399px) {
+            /* Container adjustments */
+            .max-w-md {
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+            
+            /* Global padding and margin reductions */
+            .p-4 {
+                padding: 0.5rem !important;
+            }
+            
+            .p-5 {
+                padding: 0.75rem !important;
+            }
+            
+            .p-6 {
+                padding: 1rem !important;
+            }
+            
+            .px-4 {
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+            }
+            
+            .py-4 {
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+            
+            .m-4 {
+                margin: 0.5rem !important;
+            }
+            
+            .mb-4 {
+                margin-bottom: 0.5rem !important;
+            }
+            
+            .mb-6 {
+                margin-bottom: 1rem !important;
+            }
+            
+            /* Typography adjustments */
+            .text-2xl {
+                font-size: 1.25rem !important;
+                line-height: 1.75rem !important;
+            }
+            
+            .text-xl {
+                font-size: 1.125rem !important;
+                line-height: 1.5rem !important;
+            }
+            
+            .text-lg {
+                font-size: 1rem !important;
+                line-height: 1.25rem !important;
+            }
+            
+            .text-base {
+                font-size: 0.875rem !important;
+                line-height: 1.25rem !important;
+            }
+            
+            .text-sm {
+                font-size: 0.75rem !important;
+                line-height: 1rem !important;
+            }
+            
+            /* Button and interactive element adjustments */
+            .btn, button, .button {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.875rem !important;
+            }
+            
+            /* Card and container adjustments */
+            .rounded-xl {
+                border-radius: 0.5rem !important;
+            }
+            
+            .rounded-3xl {
+                border-radius: 1rem !important;
+            }
+            
+            /* Grid and flex adjustments */
+            .gap-4 {
+                gap: 0.5rem !important;
+            }
+            
+            .gap-6 {
+                gap: 0.75rem !important;
+            }
+            
+            .space-x-4 > * + * {
+                margin-left: 0.5rem !important;
+            }
+            
+            .space-y-4 > * + * {
+                margin-top: 0.5rem !important;
+            }
+            
+            /* Avatar and image adjustments */
+            .w-10 {
+                width: 2rem !important;
+            }
+            
+            .h-10 {
+                height: 2rem !important;
+            }
+            
+            .w-12 {
+                width: 2.5rem !important;
+            }
+            
+            .h-12 {
+                height: 2.5rem !important;
+            }
+            
+            .w-16 {
+                width: 3rem !important;
+            }
+            
+            .h-16 {
+                height: 3rem !important;
+            }
+            
+            .w-20 {
+                width: 3.5rem !important;
+            }
+            
+            .h-20 {
+                height: 3.5rem !important;
+            }
+            
+            /* Header specific adjustments */
+            .header-container {
+                padding: 0.5rem !important;
+            }
+            
+            .header-title {
+                font-size: 1rem !important;
+            }
+            
+            /* Dashboard specific adjustments */
+            .dashboard-card {
+                padding: 0.75rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .dashboard-stat {
+                font-size: 1rem !important;
+            }
+            
+            .dashboard-label {
+                font-size: 0.75rem !important;
+            }
+            
+            /* Performance chart adjustments */
+            .chart-container {
+                height: 150px !important;
+                padding: 0.5rem !important;
+            }
+            
+            /* Task card adjustments */
+            .task-card {
+                padding: 0.75rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            
+            .task-title {
+                font-size: 0.875rem !important;
+                line-height: 1.25rem !important;
+            }
+            
+            .task-description {
+                font-size: 0.75rem !important;
+                line-height: 1rem !important;
+            }
+            
+            /* Badge and tag adjustments */
+            .badge {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            /* Form element adjustments */
+            .form-input, input, textarea, select {
+                padding: 0.5rem !important;
+                font-size: 0.875rem !important;
+            }
+            
+            /* Modal and popup adjustments */
+            .modal-content {
+                margin: 0.5rem !important;
+                padding: 1rem !important;
+            }
+            
+            /* Navigation adjustments */
+            .nav-item {
+                padding: 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            /* Progress bar adjustments */
+            .progress-container {
+                height: 0.5rem !important;
+            }
+            
+            /* Icon adjustments */
+            .icon-sm {
+                font-size: 0.875rem !important;
+            }
+            
+            .icon-md {
+                font-size: 1rem !important;
+            }
+            
+            .icon-lg {
+                font-size: 1.25rem !important;
+            }
+            
+            /* Table adjustments */
+            .table-cell {
+                padding: 0.5rem 0.25rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            /* Loading and overlay adjustments */
+            .loading-spinner {
+                width: 1.5rem !important;
+                height: 1.5rem !important;
+            }
+            
+            /* Toast notification adjustments */
+            .toast {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.875rem !important;
+                margin: 0.25rem !important;
+            }
+            
+            /* Footer adjustments */
+            .footer-nav {
+                padding: 0.5rem !important;
+            }
+            
+            .footer-icon {
+                font-size: 1rem !important;
+            }
+            
+            .footer-label {
+                font-size: 0.75rem !important;
+            }
+            
+            /* Specific component adjustments */
+            .achievement-card {
+                padding: 0.5rem !important;
+            }
+            
+            .leaderboard-entry {
+                padding: 0.5rem !important;
+            }
+            
+            .performance-metric {
+                font-size: 0.875rem !important;
+            }
+            
+            /* Utility classes for ultra-small screens */
+            .xs-hidden {
+                display: none !important;
+            }
+            
+            .xs-text-xs {
+                font-size: 0.625rem !important;
+                line-height: 0.875rem !important;
+            }
+            
+            .xs-p-1 {
+                padding: 0.25rem !important;
+            }
+            
+            .xs-m-1 {
+                margin: 0.25rem !important;
+            }
+            
+            .xs-gap-1 {
+                gap: 0.25rem !important;
+            }
+            
+            /* Responsive grid adjustments */
+            .grid-cols-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+            
+            .grid-cols-3 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+            
+            .grid-cols-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+            
+            /* Flex adjustments */
+            .flex-wrap {
+                flex-wrap: wrap !important;
+            }
+            
+            .flex-col {
+                flex-direction: column !important;
+            }
+            
+            /* Width and height constraints */
+            .max-w-xs {
+                max-width: 100% !important;
+            }
+            
+            .max-w-sm {
+                max-width: 100% !important;
+            }
+            
+            .w-full {
+                width: 100% !important;
+            }
+            
+            /* Overflow handling */
+            .overflow-x-auto {
+                overflow-x: scroll !important;
+            }
+            
+            .text-ellipsis {
+                text-overflow: ellipsis !important;
+                overflow: hidden !important;
+                white-space: nowrap !important;
+            }
+            
+            /* Shadow adjustments */
+            .shadow-lg {
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+            }
+            
+            .shadow-xl {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+            }
+        }
     </style>
     
     <!-- Additional head content -->

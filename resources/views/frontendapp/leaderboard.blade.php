@@ -3,30 +3,30 @@
 @section('content')
 
     <!-- Main Content -->
-    <div class="p-4 bg-gradient-to-b from-white to-[#EFCAA6] min-h-screen">
+    <div class="p-2 sm:p-4 bg-gradient-to-b from-white to-[#EFCAA6] min-h-screen">
         <div
-            class="bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] rounded-xl p-5 mb-4 shadow-md relative overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 cursor-pointer group">
+            class="bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] rounded-xl p-3 sm:p-5 mb-4 shadow-md relative overflow-hidden transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 cursor-pointer group">
             <!-- Decorative circle elements -->
             <div class="absolute top-0 right-0 w-32 h-32 bg-[#FF8A3D]/5 rounded-full -mr-16 -mt-16"></div>
             <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#FF8A3D]/5 rounded-full -ml-12 -mb-12"></div>
 
             <div class="flex relative z-10">
-                <div class="flex-1 pr-24 md:pr-32">
-                    <div class="text-sm text-gray-800 font-medium mb-1">Leadership Board</div>
-                    <div class="text-2xl font-bold text-gray-800 mb-2">{{ strtoupper($student->full_name) }}</div>
+                <div class="flex-1 pr-16 sm:pr-24 md:pr-32">
+                    <div class="text-xs sm:text-sm text-gray-800 font-medium mb-1">Leadership Board</div>
+                    <div class="text-lg sm:text-2xl font-bold text-gray-800 mb-2 leading-tight">{{ strtoupper($student->full_name) }}</div>
                     <div>
-                        <div class="text-sm text-gray-600">Your performance is improving!</div>
-                        <div class="text-sm text-gray-600 batch-info">Batch:
+                        <div class="text-xs sm:text-sm text-gray-600">Your performance is improving!</div>
+                        <div class="text-xs sm:text-sm text-gray-600 batch-info">Batch:
                             {{ isset($leaderboardData['current_user']['batch_name']) ? $leaderboardData['current_user']['batch_name'] : 'Ongoing' }}
                         </div>
-                        <div class="flex items-center mt-2">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center mt-2 space-y-1 sm:space-y-0 sm:space-x-2">
                             <div
-                                class="bg-[#FF8A3D]/10 rounded-full px-3 py-1 text-xs text-[#FF8A3D] font-medium flex items-center whitespace-nowrap">
+                                class="bg-[#FF8A3D]/10 rounded-full px-2 sm:px-3 py-1 text-xs text-[#FF8A3D] font-medium flex items-center whitespace-nowrap">
                                 <i class="fas fa-fire mr-1"></i> <span
                                     class="user-streak">{{ $leaderboardData['current_user']['streak'] }} &nbsp;</span> Day Streak
                             </div>
                             <div
-                                class="bg-[#FFC107]/10 rounded-full px-3 py-1 text-xs text-[#FFC107] font-medium flex items-center ml-2 whitespace-nowrap">
+                                class="bg-[#FFC107]/10 rounded-full px-2 sm:px-3 py-1 text-xs text-[#FFC107] font-medium flex items-center whitespace-nowrap">
                                 <i class="fas fa-chart-line mr-1"></i> +<span
                                     class="user-improvement">{{ $leaderboardData['current_user']['weekly_improvement'] }} &nbsp;</span>
                                 This Week
@@ -36,91 +36,96 @@
                 </div>
                 <!-- Trophy illustration -->
                 <div
-                    class="absolute right-0 top-1/2 transform -translate-y-1/2 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 bg-[#FF8A3D]/10 rounded-full p-3">
-                    <i class="fas fa-trophy text-4xl text-[#FF8A3D]"></i>
+                    class="absolute right-0 top-1/2 transform -translate-y-1/2 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6 bg-[#FF8A3D]/10 rounded-full p-2 sm:p-3">
+                    <i class="fas fa-trophy text-2xl sm:text-4xl text-[#FF8A3D]"></i>
                 </div>
             </div>
         </div>
 
         <!-- Filter and Time Period Selection -->
-        <div class="flex justify-around items-center mb-4">
-            <div class="flex space-x-2">
+        <div class="flex justify-center items-center mb-4 px-2">
+            <div class="flex space-x-1 sm:space-x-2">
                 <a href="{{ route('mobile.leaderboard', ['period' => '7days']) }}" data-period="7days"
-                    class="border text-xs px-3 py-1 rounded-full hover:bg-gray-50
+                    class="border text-xs px-2 sm:px-3 py-1 rounded-full hover:bg-gray-50
    {{ $timePeriod == '7days' ? 'bg-[#FF8A3D] border-[#FF8A3D] text-white' : 'bg-white border-gray-300 text-black' }}">
-                    Last 7 Days
+                    7 Days
                 </a>
 
                 <a href="{{ route('mobile.leaderboard', ['period' => '14days']) }}" data-period="14days"
-                    class="border text-xs px-3 py-1 rounded-full hover:bg-gray-50
+                    class="border text-xs px-2 sm:px-3 py-1 rounded-full hover:bg-gray-50
    {{ $timePeriod == '14days' ? 'bg-[#FF8A3D] border-[#FF8A3D] text-white' : 'bg-white border-gray-300 text-black' }}">
                     14 Days
                 </a>
 
                 <a href="{{ route('mobile.leaderboard', ['period' => 'alltime']) }}" data-period="alltime"
-                    class="border text-xs px-3 py-1 rounded-full hover:bg-gray-50
+                    class="border text-xs px-2 sm:px-3 py-1 rounded-full hover:bg-gray-50
    {{ $timePeriod == 'alltime' ? 'bg-[#FF8A3D] border-[#FF8A3D] text-white' : 'bg-white border-gray-300 text-black' }}">
-                    Since Beginning
+                    All Time
                 </a>
 
             </div>
         </div>
 
         <!-- User Rank Summary Strip - Enhanced Version -->
-        <div class="relative bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] p-6 rounded-3xl shadow-lg mb-6 overflow-hidden">
+        <div class="relative bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] p-3 sm:p-6 rounded-3xl shadow-lg mb-4 sm:mb-6 overflow-hidden">
             <!-- Decorative elements -->
             <div class="absolute top-0 right-0 w-32 h-32 bg-[#F58321]/5 rounded-full -mr-10 -mt-10"></div>
             <div class="absolute bottom-0 left-0 w-32 h-32 bg-[#F58321]/5 rounded-full -ml-10 -mb-10"></div>
 
             <!-- User Profile Section -->
-            <div class="flex items-center justify-between mb-4 relative z-10">
+            <div class="flex items-center justify-between mb-3 sm:mb-4 relative z-10">
                 <div class="flex items-center">
-                    <div class="ml-3">
-                        <h3 class="font-bold text-gray-800 text-lg">Your Performance</h3>
-                        <p class="text-sm text-gray-600">Leaderboard stats are as <br>of Day
+                    <div class="ml-0 sm:ml-3">
+                        <h3 class="font-bold text-gray-800 text-base sm:text-lg">Your Performance</h3>
+                        <p class="text-xs sm:text-sm text-gray-600">Stats as of Day
                             {{ isset($leaderboardData['current_user']['day']) ? $leaderboardData['current_user']['day'] : '4' }}
                         </p>
                     </div>
                 </div>
-                <div class="flex flex-col items-center justify-center bg-white rounded-xl px-4 py-2 shadow-md stat-card">
+                <div class="flex flex-col items-center justify-center bg-white rounded-xl px-2 sm:px-4 py-2 shadow-md stat-card">
                     <span class="text-xs text-gray-500">Overall Rank</span>
                     <div class="flex items-center">
                         <span
-                            class="text-2xl font-bold text-[#FF8A3D] user-rank">{{ isset($leaderboardData['current_user']['rank']) && $leaderboardData['current_user']['rank'] ? $leaderboardData['current_user']['rank'] : '-' }}</span>
+                            class="text-xl sm:text-2xl font-bold text-[#FF8A3D] user-rank">{{ isset($leaderboardData['current_user']['rank']) && $leaderboardData['current_user']['rank'] ? $leaderboardData['current_user']['rank'] : '-' }}</span>
                         @if (isset($leaderboardData['current_user']['data']) &&
-                                isset($leaderboardData['current_user']['data']['change_direction']) &&
-                                $leaderboardData['current_user']['data']['change_direction'] == 'up')
+                                isset($leaderboardData['current_user']['data']['rank_change_direction']) &&
+                                $leaderboardData['current_user']['data']['rank_change_direction'] == 'up')
                             <div class="flex items-center ml-1 text-green-500">
                                 <i class="fas fa-arrow-up text-xs mr-1"></i>
                                 <span
-                                    class="text-xs user-rank-change">{{ $leaderboardData['current_user']['data']['change_percentage'] ?? '-' }}</span>
+                                    class="text-xs user-rank-change">{{ $leaderboardData['current_user']['data']['rank_change_value'] ?? '-' }}</span>
                             </div>
                         @elseif(isset($leaderboardData['current_user']['data']) &&
-                                isset($leaderboardData['current_user']['data']['change_direction']) &&
-                                $leaderboardData['current_user']['data']['change_direction'] == 'down')
+                                isset($leaderboardData['current_user']['data']['rank_change_direction']) &&
+                                $leaderboardData['current_user']['data']['rank_change_direction'] == 'down')
                             <div class="flex items-center ml-1 text-red-500">
                                 <i class="fas fa-arrow-down text-xs mr-1"></i>
                                 <span
-                                    class="text-xs">{{ $leaderboardData['current_user']['data']['change_percentage'] ?? '-' }}</span>
+                                    class="text-xs user-rank-change">{{ $leaderboardData['current_user']['data']['rank_change_value'] ?? '-' }}</span>
                             </div>
-                        @else
-                            <!-- No change data available -->
+                        @elseif(isset($leaderboardData['current_user']['data']) &&
+                                isset($leaderboardData['current_user']['data']['rank_change_direction']) &&
+                                $leaderboardData['current_user']['data']['rank_change_direction'] == 'new')
+                            <div class="flex items-center ml-1 text-blue-500">
+                                <i class="fas fa-star text-xs mr-1"></i>
+                                <span class="text-xs">NEW</span>
+                            </div>
                         @endif
                     </div>
                 </div>
             </div>
 
             <!-- Row 1: Aptitude and Attitude -->
-            <div class="grid grid-cols-2 gap-4 mb-4 relative z-10">
+            <div class="grid grid-cols-2 gap-2 sm:gap-4 mb-3 sm:mb-4 relative z-10">
                 <!-- Aptitude Rank -->
-                <div class="bg-white rounded-xl p-4 text-center shadow-md transform transition-transform hover:scale-105">
-                    <div class="w-10 h-10 bg-[#FF8A3D]/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <i class="fas fa-brain text-[#FF8A3D]"></i>
+                <div class="bg-white rounded-xl p-2 sm:p-4 text-center shadow-md transform transition-transform hover:scale-105">
+                    <div class="w-6 h-6 sm:w-10 sm:h-10 bg-[#FF8A3D]/10 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                        <i class="fas fa-brain text-[#FF8A3D] text-xs sm:text-base"></i>
                     </div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Aptitude</p>
+                    <p class="text-xs sm:text-sm font-medium text-gray-700 mb-1">Aptitude</p>
                     <div class="flex items-center justify-center">
                         @if (isset($leaderboardData['current_user']['aace_ranks']['aptitude']['rank']) && $leaderboardData['current_user']['aace_ranks']['aptitude']['rank'])
-                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 aptitude-rank">{{ $leaderboardData['current_user']['aace_ranks']['aptitude']['rank'] }}</span>
+                            <span class="text-lg sm:text-xl font-bold text-[#FF8A3D] mr-1 aptitude-rank">{{ $leaderboardData['current_user']['aace_ranks']['aptitude']['rank'] }}</span>
                             @if (isset($leaderboardData['current_user']['aace_ranks']['aptitude']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['aptitude']['change_value']) && $leaderboardData['current_user']['aace_ranks']['aptitude']['change_direction'] == 'up')
                                 <div class="flex items-center text-green-500">
                                     <i class="fas fa-arrow-up text-xs"></i>
@@ -133,20 +138,20 @@
                                 </div>
                             @endif
                         @else
-                            <span class="text-xl font-bold text-[#FF8A3D]">-</span>
+                            <span class="text-lg sm:text-xl font-bold text-[#FF8A3D]">-</span>
                         @endif
                     </div>
                 </div>
 
                 <!-- Attitude Rank -->
-                <div class="bg-white rounded-xl p-4 text-center shadow-md transform transition-transform hover:scale-105">
-                    <div class="w-10 h-10 bg-[#FF8A3D]/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <i class="fas fa-smile text-[#FF8A3D]"></i>
+                <div class="bg-white rounded-xl p-2 sm:p-4 text-center shadow-md transform transition-transform hover:scale-105">
+                    <div class="w-6 h-6 sm:w-10 sm:h-10 bg-[#FF8A3D]/10 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                        <i class="fas fa-smile text-[#FF8A3D] text-xs sm:text-base"></i>
                     </div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Attitude</p>
+                    <p class="text-xs sm:text-sm font-medium text-gray-700 mb-1">Attitude</p>
                     <div class="flex items-center justify-center">
                         @if (isset($leaderboardData['current_user']['aace_ranks']['attitude']['rank']) && $leaderboardData['current_user']['aace_ranks']['attitude']['rank'])
-                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 attitude-rank">{{ $leaderboardData['current_user']['aace_ranks']['attitude']['rank'] }}</span>
+                            <span class="text-lg sm:text-xl font-bold text-[#FF8A3D] mr-1 attitude-rank">{{ $leaderboardData['current_user']['aace_ranks']['attitude']['rank'] }}</span>
                             @if (isset($leaderboardData['current_user']['aace_ranks']['attitude']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['attitude']['change_value']) && $leaderboardData['current_user']['aace_ranks']['attitude']['change_direction'] == 'up')
                                 <div class="flex items-center text-green-500">
                                     <i class="fas fa-arrow-up text-xs"></i>
@@ -166,16 +171,16 @@
             </div>
 
             <!-- Row 2: Communication and Execution -->
-            <div class="grid grid-cols-2 gap-4 mb-4 relative z-10">
+            <div class="grid grid-cols-2 gap-2 sm:gap-4 mb-3 sm:mb-4 relative z-10">
                 <!-- Communication Rank -->
-                <div class="bg-white rounded-xl p-4 text-center shadow-md transform transition-transform hover:scale-105">
-                    <div class="w-10 h-10 bg-[#FF8A3D]/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <i class="fas fa-comments text-[#FF8A3D]"></i>
+                <div class="bg-white rounded-xl p-2 sm:p-4 text-center shadow-md transform transition-transform hover:scale-105">
+                    <div class="w-6 h-6 sm:w-10 sm:h-10 bg-[#FF8A3D]/10 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                        <i class="fas fa-comments text-[#FF8A3D] text-xs sm:text-base"></i>
                     </div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Communication</p>
+                    <p class="text-xs sm:text-sm font-medium text-gray-700 mb-1">Communication</p>
                     <div class="flex items-center justify-center">
                         @if (isset($leaderboardData['current_user']['aace_ranks']['communication']['rank']) && $leaderboardData['current_user']['aace_ranks']['communication']['rank'])
-                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 communication-rank">{{ $leaderboardData['current_user']['aace_ranks']['communication']['rank'] }}</span>
+                            <span class="text-lg sm:text-xl font-bold text-[#FF8A3D] mr-1 communication-rank">{{ $leaderboardData['current_user']['aace_ranks']['communication']['rank'] }}</span>
                             @if (isset($leaderboardData['current_user']['aace_ranks']['communication']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['communication']['change_value']) && $leaderboardData['current_user']['aace_ranks']['communication']['change_direction'] == 'up')
                                 <div class="flex items-center text-green-500">
                                     <i class="fas fa-arrow-up text-xs"></i>
@@ -188,20 +193,20 @@
                                 </div>
                             @endif
                         @else
-                            <span class="text-xl font-bold text-[#FF8A3D]">-</span>
+                            <span class="text-lg sm:text-xl font-bold text-[#FF8A3D]">-</span>
                         @endif
                     </div>
                 </div>
 
                 <!-- Execution Rank -->
-                <div class="bg-white rounded-xl p-4 text-center shadow-md transform transition-transform hover:scale-105">
-                    <div class="w-10 h-10 bg-[#FF8A3D]/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <i class="fas fa-tasks text-[#FF8A3D]"></i>
+                <div class="bg-white rounded-xl p-2 sm:p-4 text-center shadow-md transform transition-transform hover:scale-105">
+                    <div class="w-6 h-6 sm:w-10 sm:h-10 bg-[#FF8A3D]/10 rounded-full flex items-center justify-center mx-auto mb-1 sm:mb-2">
+                        <i class="fas fa-tasks text-[#FF8A3D] text-xs sm:text-base"></i>
                     </div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Execution</p>
+                    <p class="text-xs sm:text-sm font-medium text-gray-700 mb-1">Execution</p>
                     <div class="flex items-center justify-center">
                         @if (isset($leaderboardData['current_user']['aace_ranks']['execution']['rank']) && $leaderboardData['current_user']['aace_ranks']['execution']['rank'])
-                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 execution-rank">{{ $leaderboardData['current_user']['aace_ranks']['execution']['rank'] }}</span>
+                            <span class="text-lg sm:text-xl font-bold text-[#FF8A3D] mr-1 execution-rank">{{ $leaderboardData['current_user']['aace_ranks']['execution']['rank'] }}</span>
                             @if (isset($leaderboardData['current_user']['aace_ranks']['execution']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['execution']['change_value']) && $leaderboardData['current_user']['aace_ranks']['execution']['change_direction'] == 'up')
                                 <div class="flex items-center text-green-500">
                                     <i class="fas fa-arrow-up text-xs"></i>
@@ -220,45 +225,16 @@
                 </div>
             </div>
 
-            <!-- Row 3: Empathy -->
-            <div class="flex justify-center mt-4 relative z-10">
-                <!-- Empathy Rank -->
-                <div
-                    class="bg-white rounded-xl p-4 text-center shadow-md transform transition-transform hover:scale-105 w-1/2">
-                    <div class="w-10 h-10 bg-[#FF8A3D]/10 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <i class="fas fa-heart text-[#FF8A3D]"></i>
-                    </div>
-                    <p class="text-sm font-medium text-gray-700 mb-1">Empathy</p>
-                    <div class="flex items-center justify-center">
-                        @if (isset($leaderboardData['current_user']['aace_ranks']['empathy']['rank']) && $leaderboardData['current_user']['aace_ranks']['empathy']['rank'])
-                            <span class="text-xl font-bold text-[#FF8A3D] mr-1 empathy-rank">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['rank'] }}</span>
-                            @if (isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_value']) && $leaderboardData['current_user']['aace_ranks']['empathy']['change_direction'] == 'up')
-                                <div class="flex items-center text-green-500">
-                                    <i class="fas fa-arrow-up text-xs"></i>
-                                    <span class="text-xs empathy-change">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['change_value'] }}</span>
-                                </div>
-                            @elseif(isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_direction']) && isset($leaderboardData['current_user']['aace_ranks']['empathy']['change_value']) && $leaderboardData['current_user']['aace_ranks']['empathy']['change_direction'] == 'down')
-                                <div class="flex items-center text-red-500">
-                                    <i class="fas fa-arrow-down text-xs"></i>
-                                    <span class="text-xs">{{ $leaderboardData['current_user']['aace_ranks']['empathy']['change_value'] }}</span>
-                                </div>
-                            @endif
-                        @else
-                            <span class="text-xl font-bold text-[#FF8A3D]">-</span>
-                        @endif
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Top Performers Section -->
         @if(isset($leaderboardData['top_performers']) && count($leaderboardData['top_performers']) > 0)
-        <div class="relative bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] p-6 rounded-3xl shadow-lg mb-4 overflow-hidden top-performers-container">
+        <div class="relative bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] p-3 sm:p-6 rounded-3xl shadow-lg mb-4 overflow-hidden top-performers-container">
             <!-- Decorative elements -->
             <div class="absolute top-0 right-0 w-40 h-40 bg-[#F58321]/5 rounded-full -mr-10 -mt-10"></div>
             <div class="absolute bottom-0 left-0 w-40 h-40 bg-[#F58321]/5 rounded-full -ml-10 -mb-10"></div>
             
-            <h3 class="text-lg font-bold text-center text-gray-800 mb-6 relative z-10">Top Performers</h3>
+            <h3 class="text-base sm:text-lg font-bold text-center text-gray-800 mb-4 sm:mb-6 relative z-10">Top Performers</h3>
             
             <!-- Custom Animation Styles -->
             <style>
@@ -337,13 +313,11 @@
                     height: 8px;
                     border-radius: 50%;
                     position: absolute;
-                    z-index: 1;
-                    opacity: 0.8;
                 }
             </style>
 
             <!-- Podium Display -->
-            <div class="flex items-end justify-center space-x-4 relative z-10 mb-4">
+            <div class="flex items-end justify-center space-x-2 sm:space-x-4 relative z-10 mb-4">
                 @php 
                     // Get top 3 performers
                     $topThree = array_slice($leaderboardData['top_performers'], 0, 3);
@@ -351,12 +325,12 @@
                     // Define medal styles for each position
                     $medalStyles = [
                         1 => [
-                            'avatar_size' => 'h-20 w-20',
+                            'avatar_size' => 'h-16 w-16 sm:h-20 sm:w-20',
                             'border' => 'border-[#FFD700]',
                             'glow' => 'gold-glow',
                             'badge_bg' => 'bg-[#FFD700]',
-                            'badge_size' => 'w-7 h-7',
-                            'podium_height' => 'h-24',
+                            'badge_size' => 'w-6 h-6 sm:w-7 sm:h-7',
+                            'podium_height' => 'h-16 sm:h-24',
                             'podium_bg' => 'bg-[#FFD700]',
                             'delay' => '0s',
                             'icon' => '<i class="fas fa-crown text-[#FFD700] text-xl"></i>',
@@ -365,12 +339,12 @@
                             'default_initials' => '--'
                         ],
                         2 => [
-                            'avatar_size' => 'h-16 w-16',
+                            'avatar_size' => 'h-12 w-12 sm:h-16 sm:w-16',
                             'border' => 'border-[#C0C0C0]',
                             'glow' => 'silver-glow',
                             'badge_bg' => 'bg-[#C0C0C0]',
-                            'badge_size' => 'w-6 h-6',
-                            'podium_height' => 'h-16',
+                            'badge_size' => 'w-5 h-5 sm:w-6 sm:h-6',
+                            'podium_height' => 'h-12 sm:h-16',
                             'podium_bg' => 'bg-[#C0C0C0]',
                             'delay' => '0.2s',
                             'icon' => '<i class="fas fa-medal text-[#C0C0C0] text-lg"></i>',
@@ -379,12 +353,12 @@
                             'default_initials' => '--'
                         ],
                         3 => [
-                            'avatar_size' => 'h-14 w-14',
+                            'avatar_size' => 'h-10 w-10 sm:h-14 sm:w-14',
                             'border' => 'border-[#CD7F32]',
                             'glow' => 'bronze-glow',
                             'badge_bg' => 'bg-[#CD7F32]',
-                            'badge_size' => 'w-6 h-6',
-                            'podium_height' => 'h-12',
+                            'badge_size' => 'w-5 h-5 sm:w-6 sm:h-6',
+                            'podium_height' => 'h-8 sm:h-12',
                             'podium_bg' => 'bg-[#CD7F32]',
                             'delay' => '0.4s',
                             'icon' => '<i class="fas fa-award text-[#CD7F32] text-lg"></i>',
@@ -396,6 +370,7 @@
                 @endphp
                 
                 <!-- 2nd Place -->
+                @if(isset($topThree[1]) && !empty($topThree[1]['name']))
                 <div class="flex flex-col items-center top-performer top-2">
                     <div class="relative float-animation" style="animation-delay: {{ $medalStyles[2]['delay'] }}">
                         <div class="{{ $medalStyles[2]['avatar_size'] }} rounded-full bg-white p-1 border-2 {{ $medalStyles[2]['border'] }} mb-2 {{ $medalStyles[2]['glow'] }}">
@@ -418,20 +393,18 @@
                             {!! $medalStyles[2]['icon'] !!}
                         </div>
                     </div>
-                    <p class="text-xs font-semibold text-gray-800">
-                        @if(isset($topThree[1]['name']))
-                            {{ explode(' ', $topThree[1]['name'])[0] }} {{ isset(explode(' ', $topThree[1]['name'])[1]) ? substr(explode(' ', $topThree[1]['name'])[1], 0, 1) . '.' : '' }}
-                        @else
-                            -
-                        @endif
+                    <p class="text-xs font-semibold text-gray-800 text-center">
+                        {{ explode(' ', $topThree[1]['name'])[0] }} {{ isset(explode(' ', $topThree[1]['name'])[1]) ? substr(explode(' ', $topThree[1]['name'])[1], 0, 1) . '.' : '' }}
                     </p>
                     <p class="text-xs font-bold text-[#F58321]">
                         {{ isset($topThree[1]['score_percentage']) ? $topThree[1]['score_percentage'] . '%' : '-' }}
                     </p>
-                    <div class="w-12 {{ $medalStyles[2]['podium_height'] }} {{ $medalStyles[2]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.3s;"></div>
+                    <div class="w-8 sm:w-12 {{ $medalStyles[2]['podium_height'] }} {{ $medalStyles[2]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.3s;"></div>
                 </div>
+                @endif
                 
                 <!-- 1st Place -->
+                @if(isset($topThree[0]) && !empty($topThree[0]['name']))
                 <div class="flex flex-col items-center top-performer top-1">
                     <div class="relative float-animation">
                         <div class="{{ $medalStyles[1]['avatar_size'] }} rounded-full bg-white p-1 border-2 {{ $medalStyles[1]['border'] }} mb-2 {{ $medalStyles[1]['glow'] }}">
@@ -458,7 +431,7 @@
                         <div class="confetti bg-[#FF8A3D] absolute -top-2 left-5" style="animation: float 2.5s infinite ease-in-out; transform: rotate(-20deg);"></div>
                         <div class="confetti bg-[#FFC107] absolute top-0 right-0" style="animation: float 2.8s infinite ease-in-out; transform: rotate(35deg);"></div>
                     </div>
-                    <p class="text-xs font-semibold text-gray-800">
+                    <p class="text-xs font-semibold text-gray-800 text-center">
                         @if(isset($topThree[0]['name']))
                             {{ explode(' ', $topThree[0]['name'])[0] }} {{ isset(explode(' ', $topThree[0]['name'])[1]) ? substr(explode(' ', $topThree[0]['name'])[1], 0, 1) . '.' : '' }}
                         @else
@@ -468,10 +441,12 @@
                     <p class="text-xs font-bold text-[#F58321]">
                         {{ isset($topThree[0]['score_percentage']) ? $topThree[0]['score_percentage'] . '%' : '-' }}
                     </p>
-                    <div class="w-12 {{ $medalStyles[1]['podium_height'] }} {{ $medalStyles[1]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.1s;"></div>
+                    <div class="w-8 sm:w-12 {{ $medalStyles[1]['podium_height'] }} {{ $medalStyles[1]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.1s;"></div>
                 </div>
+                @endif
                 
                 <!-- 3rd Place -->
+                @if(isset($topThree[2]) && !empty($topThree[2]['name']))
                 <div class="flex flex-col items-center top-performer top-3">
                     <div class="relative float-animation" style="animation-delay: {{ $medalStyles[3]['delay'] }}">
                         <div class="{{ $medalStyles[3]['avatar_size'] }} rounded-full bg-white p-1 border-2 {{ $medalStyles[3]['border'] }} mb-2 {{ $medalStyles[3]['glow'] }}">
@@ -494,7 +469,7 @@
                             {!! $medalStyles[3]['icon'] !!}
                         </div>
                     </div>
-                    <p class="text-xs font-semibold text-gray-800">
+                    <p class="text-xs font-semibold text-gray-800 text-center">
                         @if(isset($topThree[2]['name']))
                             {{ explode(' ', $topThree[2]['name'])[0] }} {{ isset(explode(' ', $topThree[2]['name'])[1]) ? substr(explode(' ', $topThree[2]['name'])[1], 0, 1) . '.' : '' }}
                         @else
@@ -504,18 +479,21 @@
                     <p class="text-xs font-bold text-[#F58321]">
                         {{ isset($topThree[2]['score_percentage']) ? $topThree[2]['score_percentage'] . '%' : '-' }}
                     </p>
-                    <div class="w-12 {{ $medalStyles[3]['podium_height'] }} {{ $medalStyles[3]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.5s;"></div>
+                    <div class="w-8 sm:w-12 {{ $medalStyles[3]['podium_height'] }} {{ $medalStyles[3]['podium_bg'] }} rounded-t-lg mt-2 grow-animation" style="animation-delay: 0.5s;"></div>
                 </div>
+                @endif
             </div>
+
             </div>
+          
         </div>
         @endif
 
         <!-- Leaderboard List -->
         @if(isset($leaderboardData['entries']) && count($leaderboardData['entries']) > 0)
-        <div class="bg-white rounded-xl shadow-md overflow-hidden mx-4 mb-4 ">
-            <div class="p-5 bg-[#FFF9F5] border-b border-gray-100">
-                <h3 class="font-bold text-gray-800 text-lg">All Participants</h3>
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mx-2 sm:mx-4 mb-4">
+            <div class="p-3 sm:p-5 bg-[#FFF9F5] border-b border-gray-100">
+                <h3 class="font-bold text-gray-800 text-base sm:text-lg">All Participants</h3>
             </div>
 
             <!-- Participant Rows - Only show participants ranked 4th and below -->
@@ -523,7 +501,7 @@
                 @foreach ($leaderboardData['entries'] as $entry)
                     <!-- removing condition of minimum 3 entries -->
                         <div
-                            class="p-4 flex items-center {{ $entry['is_current_user'] ? 'bg-[#FFF9F5] border-l-4 border-[#FF8A3D] rounded-lg shadow-md relative overflow-hidden hover:scale-[1.01] transition-transform duration-300' : 'hover:bg-gray-50' }}">
+                            class="p-2 sm:p-4 flex items-center {{ $entry['is_current_user'] ? 'bg-[#FFF9F5] border-l-4 border-[#FF8A3D] rounded-lg shadow-md relative overflow-hidden hover:scale-[1.01] transition-transform duration-300' : 'hover:bg-gray-50' }}">
                             @if ($entry['is_current_user'])
                                 <!-- Decorative elements for current user row -->
                                 <div class="absolute top-0 right-0 w-20 h-20 bg-[#F58321]/5 rounded-full -mr-5 -mt-5">
@@ -705,6 +683,159 @@
 
         .top-performer:hover {
             transform: translateY(-5px);
+        }
+
+        /* Mobile optimizations for phones < 400px */
+        @media (max-width: 399px) {
+            /* Header section adjustments */
+            .leadership-header {
+                padding: 0.75rem !important;
+            }
+            
+            .leadership-header .text-lg {
+                font-size: 1rem !important;
+                line-height: 1.25rem !important;
+            }
+            
+            /* Filter buttons */
+            .filter-buttons a {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            /* AACE cards grid */
+            .aace-grid {
+                gap: 0.25rem !important;
+            }
+            
+            .aace-card {
+                padding: 0.5rem !important;
+            }
+            
+            .aace-card .w-6 {
+                width: 1.25rem !important;
+                height: 1.25rem !important;
+            }
+            
+            .aace-card p {
+                font-size: 0.75rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+            
+            .aace-card .text-lg {
+                font-size: 1rem !important;
+            }
+            
+            /* Top performers section */
+            .top-performers-container {
+                padding: 0.75rem !important;
+                margin-bottom: 1rem !important;
+            }
+            
+            .top-performers-container h3 {
+                font-size: 0.875rem !important;
+                margin-bottom: 1rem !important;
+            }
+            
+            /* Podium adjustments */
+            .podium-container {
+                gap: 0.25rem !important;
+            }
+            
+            .podium-container .h-16 {
+                height: 2.5rem !important;
+                width: 2.5rem !important;
+            }
+            
+            .podium-container .h-12 {
+                height: 2rem !important;
+                width: 2rem !important;
+            }
+            
+            .podium-container .h-10 {
+                height: 1.75rem !important;
+                width: 1.75rem !important;
+            }
+            
+            .podium-container .w-8 {
+                width: 1.5rem !important;
+            }
+            
+            .podium-container .h-16.podium-height {
+                height: 2rem !important;
+            }
+            
+            .podium-container .h-12.podium-height {
+                height: 1.5rem !important;
+            }
+            
+            .podium-container .h-8 {
+                height: 1rem !important;
+            }
+            
+            /* Participant list */
+            .participants-list .p-2 {
+                padding: 0.5rem !important;
+            }
+            
+            .participants-list .w-10 {
+                width: 2rem !important;
+                height: 2rem !important;
+            }
+            
+            .participants-list .mx-3 {
+                margin-left: 0.5rem !important;
+                margin-right: 0.5rem !important;
+            }
+            
+            .participants-list h4 {
+                font-size: 0.875rem !important;
+            }
+            
+            .participants-list .text-xs {
+                font-size: 0.75rem !important;
+            }
+            
+            /* Performance stats card */
+            .stat-card {
+                padding: 0.25rem 0.5rem !important;
+            }
+            
+            .stat-card .text-xl {
+                font-size: 1.125rem !important;
+            }
+            
+            /* Streak and improvement badges */
+            .badge-container {
+                gap: 0.25rem !important;
+            }
+            
+            .badge-container > div {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
+            
+            /* Trophy icon */
+            .trophy-icon {
+                padding: 0.5rem !important;
+            }
+            
+            .trophy-icon i {
+                font-size: 1.5rem !important;
+            }
+            
+            /* Rank change indicators */
+            .rank-change-indicator {
+                width: 1rem !important;
+                height: 1rem !important;
+                font-size: 0.625rem !important;
+            }
+            
+            /* View Details button */
+            .view-details-btn {
+                padding: 0.25rem 0.5rem !important;
+                font-size: 0.75rem !important;
+            }
         }
     </style>
 @endpush

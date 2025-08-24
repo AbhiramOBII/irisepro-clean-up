@@ -134,10 +134,10 @@
         <!-- Task Description Card -->
         <div class="bg-white rounded-xl p-5 mb-4 shadow-md">
             <h3 class="text-lg font-bold text-gray-800 mb-3">Description</h3>
-            <p class="text-gray-600 mb-4">{{ $task->task_description ?? 'Complete a focused work session without distractions to improve productivity and earn points for your daily challenge.' }}</p>
+            <div class="text-gray-600 mb-4 prose prose-sm max-w-none">{!! $task->task_description ?? 'Complete a focused work session without distractions to improve productivity and earn points for your daily challenge.' !!}</div>
             <hr>
             <h3 class="text-lg font-bold text-gray-800 mb-3 mt-2">Instructions</h3>
-            <p class="text-gray-600 mb-4">{{ $task->task_instructions ?? 'Complete a focused work session without distractions to improve productivity and earn points for your daily challenge.' }}</p>
+            <div class="text-gray-600 mb-4 prose prose-sm max-w-none">{!! $task->task_instructions ?? 'Complete a focused work session without distractions to improve productivity and earn points for your daily challenge.' !!}</div>
             
             
             <!-- Multimedia Content Section -->

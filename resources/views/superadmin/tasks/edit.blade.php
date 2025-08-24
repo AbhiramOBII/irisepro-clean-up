@@ -19,6 +19,7 @@
     </a>
 </div>
 
+
 @if($errors->any())
     <div class="bg-red-600 text-white px-4 py-3 rounded mb-4">
         <ul class="mb-0">
@@ -140,12 +141,14 @@
                                class="block text-sm font-medium text-gray-700 mb-2">
                             {{ $subAttribute['display_name'] }}
                         </label>
+
+                        
                         <div class="flex items-center space-x-2">
                             <input type="number" 
                                    name="{{ $attributeTypeName }}_{{ $subAttribute['name'] }}" 
                                    id="{{ $attributeTypeName }}_{{ $subAttribute['name'] }}"
                                    min="0" max="5" step="1" 
-                                   value="{{ old($attributeTypeName . '_' . $subAttribute['name'], isset($existingScores[$attributeTypeName][$subAttribute['name']]) ? $existingScores[$attributeTypeName][$subAttribute['name']] : 5) }}"
+                                   value="{{ $existingScores[$attributeTypeName][$subAttribute['name']] ?? 0 }}"
                                    class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500 text-center">
                             <span class="text-sm text-gray-500">points</span>
                         </div>

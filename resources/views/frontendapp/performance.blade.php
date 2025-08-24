@@ -196,10 +196,8 @@
                     <div class="bg-gradient-to-br from-[#FFF9F5] to-[#FFF1E6] p-3 rounded-xl">
                         <div class="text-sm text-gray-600 mb-1">Leaderboard Position</div>
                         <div class="flex items-end">
-                            <span class="text-2xl font-bold text-[#F58321]">#{{ $performanceData['leaderboard_position'] }}</span>
-                            <span class="text-xs text-green-600 ml-2 mb-1 flex items-center">
-                                <i class="fas fa-arrow-up mr-1"></i>2 spots
-                            </span>
+                            <span class="text-2xl font-bold text-[#F58321]">#{{ $currentPosition }}</span>
+                            
                         </div>
                     </div>
                     
@@ -322,7 +320,7 @@
                                         <span class="text-sm font-bold">@if($performanceData['total_attitude_score'] > 0){{ round(($performanceData['student_attitude_total']/$performanceData['total_attitude_score'])*100,0) }}@else 0 @endif %</span>
                                     </div>
                                     <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-[#FFC107] h-2 rounded-full" style="width: @if($performanceData['total_attitude_score'] > 0){{ round(($performanceData['student_attitude_total']/$performanceData['total_attitude_score'])*100,0) }}@else 0 @endif %"></div>
+                                        <div class="bg-[#FFC107] h-2 rounded-full" style="width: @if($performanceData['total_attitude_score'] > 0){{ round(($performanceData['student_attitude_total']/$performanceData['total_attitude_score'])*100,0) }}@else 0 @endif%"></div>
                                     </div>
                                 </div>
                                 
@@ -390,7 +388,7 @@
                                 <h4 class="font-medium text-lg mb-2">{{ $task['task_title'] }}</h4>
                                 
                                 <!-- Row 3: Task Description -->
-                                <p class="text-xs text-gray-600 mb-3">{{ Str::limit($task['task_description'], 100) }}</p>
+                                <p class="text-xs text-gray-600 mb-3">{{ Str::limit(strip_tags($task['task_description']), 100) }}</p>
                                 
                                 <!-- Row 5: CTA -->
                                 <div class="flex justify-between items-center">

@@ -13,9 +13,22 @@ class TaskController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tasks = Task::with('taskScore')->latest()->paginate(10);
+        $query = Task::with('taskScore');
+        
+        // Apply search filter if provided
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('task_title', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('task_description', 'LIKE', '%' . $searchTerm . '%')
+                  ->orWhere('task_type', 'LIKE', '%' . $searchTerm . '%');
+            });
+        }
+        
+        $tasks = $query->latest()->paginate(10)->appends($request->query());
+        
         return view('superadmin.tasks.index', compact('tasks'));
     }
 
@@ -126,6 +139,9 @@ class TaskController extends Controller
         $taskScore = TaskScore::where('task_id', $task->id)->first();
         $existingScores = $taskScore ? $taskScore->attribute_score : [];
         
+        // Debug: Log the existing scores structure
+        \Log::info('Existing Scores Structure:', $existingScores);
+        
         // Structure AACE framework data for the form
         $aaceFramework = [];
         foreach ($attributes as $attribute) {
@@ -143,6 +159,9 @@ class TaskController extends Controller
                 ];
             }
         }
+        
+        // Debug: Log the framework structure
+        \Log::info('AACE Framework Structure:', $aaceFramework);
         
         return view('superadmin.tasks.edit', compact('task', 'aaceFramework', 'existingScores'));
     }

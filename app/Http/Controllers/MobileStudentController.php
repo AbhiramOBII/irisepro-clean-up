@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Student;
+Use App\Models\Batch;
 use App\Models\StudentOtp;
 use App\Models\Habit;
 use App\Models\Task;
@@ -168,7 +169,10 @@ class MobileStudentController extends Controller
         // Check for recently unlocked achievements
         $recentAchievements = $this->getRecentlyUnlockedAchievements($student);
 
-        return view('frontendapp.dashboard', compact('student', 'studentStatus', 'studentData', 'recentAchievements'));
+        // Get last 8 task performance data
+        $taskPerformanceData = $this->getLastTasksPerformance($student->id);
+
+        return view('frontendapp.dashboard', compact('student', 'studentStatus', 'studentData', 'recentAchievements', 'taskPerformanceData'));
     }
 
     /**
@@ -404,49 +408,6 @@ class MobileStudentController extends Controller
             'studentData'
         ));
     }
-    
-    /**
-     * Get recently unlocked achievements for celebration popup.
-     */
-    private function getRecentlyUnlockedAchievements($student)
-    {
-        // Get student's current performance data
-        $performanceData = $this->getStudentPerformanceForAchievements($student);
-        
-        // Get all achievements
-        $achievements = Achievement::orderBy('domain')->orderBy('threshold')->get();
-        
-        // Check which achievements are currently unlocked
-        $currentlyUnlocked = [];
-        foreach ($achievements as $achievement) {
-            $domainScore = $performanceData['domain_scores'][$achievement->domain] ?? 0;
-            
-            if ($domainScore >= $achievement->threshold) {
-                $currentlyUnlocked[] = $achievement;
-            }
-        }
-        
-        // Check if student has a session flag for showing achievements
-        // This prevents showing the same achievements repeatedly
-        $sessionKey = 'shown_achievements_' . $student->id;
-        $shownAchievements = session($sessionKey, []);
-        
-        // Filter out achievements that have already been shown
-        $newAchievements = [];
-        foreach ($currentlyUnlocked as $achievement) {
-            if (!in_array($achievement->id, $shownAchievements)) {
-                $newAchievements[] = $achievement;
-            }
-        }
-        
-        // Mark these achievements as shown in the session
-        if (!empty($newAchievements)) {
-            $newShownIds = array_merge($shownAchievements, array_column($newAchievements, 'id'));
-            session([$sessionKey => $newShownIds]);
-        }
-        
-        return $newAchievements;
-    }
 
     /**
      * Get student performance data for achievements calculation.
@@ -487,12 +448,12 @@ class MobileStudentController extends Controller
        $studentexecutionscore = $studentEvaluationResults->sum('execution_score');
        $studenttotalscore =    $studentattitudescore + $studentaptitudescore + $studentcommunicationscore + $studentexecutionscore;
        
-       //round it to 0 decimal places
-       $studenttotalpercentage = round(($studenttotalscore / $challengetotalscore) * 100, 0);
-       $studentattitudetotalpercentage = round(($studentattitudescore / $challengeattitudescore) * 100, 0);
-       $studentaptitudetotalpercentage = round(($studentaptitudescore / $challengeaptitudescore) * 100, 0);
-       $studentcommunicationtotalpercentage = round(($studentcommunicationscore / $challengecommunicationscore) * 100, 0);
-       $studentexecutiontotalpercentage = round(($studentexecutionscore / $challengeexecutionscore) * 100, 0);
+       //round it to 0 decimal places with division by zero checks
+       $studenttotalpercentage = $challengetotalscore > 0 ? round(($studenttotalscore / $challengetotalscore) * 100, 0) : 0;
+       $studentattitudetotalpercentage = $challengeattitudescore > 0 ? round(($studentattitudescore / $challengeattitudescore) * 100, 0) : 0;
+       $studentaptitudetotalpercentage = $challengeaptitudescore > 0 ? round(($studentaptitudescore / $challengeaptitudescore) * 100, 0) : 0;
+       $studentcommunicationtotalpercentage = $challengecommunicationscore > 0 ? round(($studentcommunicationscore / $challengecommunicationscore) * 100, 0) : 0;
+       $studentexecutiontotalpercentage = $challengeexecutionscore > 0 ? round(($studentexecutionscore / $challengeexecutionscore) * 100, 0) : 0;
        
        // Calculate AACE overall percentage (average of all four domains)
        $aacePercentage = 0;
@@ -631,9 +592,10 @@ class MobileStudentController extends Controller
             ->where('status', 'submitted')
             ->exists();
 
+        //get current position on leaderboard 
+        $currentPosition = $this->getLeaderboardPosition($student->id);
 
-
-        return view('frontendapp.performance', compact('student', 'performanceData', 'studentData', 'allTasks', 'hasSubmittedResponses'));
+        return view('frontendapp.performance', compact('student', 'performanceData', 'studentData', 'allTasks', 'hasSubmittedResponses','currentPosition'));
     }
 
     /**
@@ -803,69 +765,48 @@ class MobileStudentController extends Controller
 
         // Remove upcoming tasks section - only show attended tasks
 
-        // Sort task history by task number
-        usort($taskHistory, function ($a, $b) {
-            return $b['task_number'] - $a['task_number']; // Reverse order (latest first)
-        });
-
-        // Get last 8 tasks performance for progress bar
-        $last8Tasks = [];
-        $sortedTaskHistory = collect($taskHistory)->sortBy('task_number')->values();
-        
-        // Take the last 8 completed tasks
-        $completedTasks = $sortedTaskHistory->where('status', 'completed')->take(-8);
-        
-        foreach ($completedTasks as $index => $task) {
-            $last8Tasks[] = [
-                'task_number' => $task['task_number'],
-                'percentage' => $task['score'] ?? 0
-            ];
-        }
-        
-        // Fill remaining slots with empty tasks if less than 8
-        while (count($last8Tasks) < 8) {
-            $last8Tasks[] = [
-                'task_number' => count($last8Tasks) + 1,
-                'percentage' => 0
-            ];
+        // Sort task history by task number (only if there are tasks)
+        if (!empty($taskHistory)) {
+            usort($taskHistory, function ($a, $b) {
+                return $b['task_number'] - $a['task_number']; // Reverse order (latest first)
+            });
         }
 
         return [
             'student_name' => strtoupper($student->full_name ?? 'STUDENT'),
-            'completed_tasks' => $completedTasks,
-            'total_tasks' => $totalTasks,
-            'remaining_tasks' => $remainingTasks,
-            'highestScorePercentage' => $highestScorePercentage,
-            'avg_score' => round($avgTotal, 0),
-            'highest_score' => round($highestScorePercentage, 0),
-            'highest_score_task' => $highestScoreTask->task->task_title ?? 'N/A',
-            'leaderboard_position' => $leaderboardPosition,
-            'current_score' => round($currentScore, 0),
-            'total_possible_score' => $totalPossibleScore,
-            'max_possible_for_completed' => $maxPossibleForCompleted,
-            'progress_percentage' => $totalPossibleScore > 0 ? round(($currentScore / $totalPossibleScore) * 100, 1) : 0,
-            'completed_progress_percentage' => $totalTasks > 0 ? round(($maxPossibleForCompleted / $totalPossibleScore) * 100, 1) : 0,
-            'taskScores' => $taskScores,
-            'completedTaskScores' => $completedTaskScores,
+            'completed_tasks' => $completedTasks ?? 0,
+            'total_tasks' => $totalTasks ?? 0,
+            'remaining_tasks' => $remainingTasks ?? 0,
+            'highestScorePercentage' => $highestScorePercentage ?? 0,
+            'avg_score' => round($avgTotal ?? 0, 0),
+            'highest_score' => round($highestScorePercentage ?? 0, 0),
+            'highest_score_task' => isset($highestScoreTask->task->task_title) ? $highestScoreTask->task->task_title : 'N/A',
+            'leaderboard_position' => $leaderboardPosition ?? 0,
+            'current_score' => round($currentScore ?? 0, 0),
+            'total_possible_score' => $totalPossibleScore ?? 0,
+            'max_possible_for_completed' => $maxPossibleForCompleted ?? 0,
+            'progress_percentage' => ($totalPossibleScore ?? 0) > 0 ? round((($currentScore ?? 0) / $totalPossibleScore) * 100, 1) : 0,
+            'completed_progress_percentage' => ($totalTasks ?? 0) > 0 ? round((($maxPossibleForCompleted ?? 0) / ($totalPossibleScore ?? 1)) * 100, 1) : 0,
+            'taskScores' => $taskScores ?? [],
+            'completedTaskScores' => $completedTaskScores ?? [],
             'aace_scores' => [
-                'aptitude' => round($avgAptitude, 0),
-                'attitude' => round($avgAttitude, 0),
-                'communication' => round($avgCommunication, 0),
-                'execution' => round($avgExecution, 0)
+                'aptitude' => round($avgAptitude ?? 0, 0),
+                'attitude' => round($avgAttitude ?? 0, 0),
+                'communication' => round($avgCommunication ?? 0, 0),
+                'execution' => round($avgExecution ?? 0, 0)
             ],
-            'task_history' => $taskHistory,
-            'last_8_tasks' => $last8Tasks,
-            'total_aptitude_score' => $totalAptitudeScore,
-            'total_attitude_score' => $totalAttitudeScore,
-            'total_communication_score' => $totalCommunicationScore,
-            'total_execution_score' => $totalExecutionScore,
-            'total_score' => $totalScore,
-            'student_aptitude_total' => $studentAptitudeTotal,
-            'student_attitude_total' => $studentAttitudeTotal,
-            'student_communication_total' => $studentCommunicationTotal,
-            'student_execution_total' => $studentExecutionTotal,
-            'student_total_score' => $studentTotalScore,
-            'alltasktotalscore' => $alltasktotalscore
+            'task_history' => $taskHistory ?? [],
+            'total_aptitude_score' => $totalAptitudeScore ?? 0,
+            'total_attitude_score' => $totalAttitudeScore ?? 0,
+            'total_communication_score' => $totalCommunicationScore ?? 0,
+            'total_execution_score' => $totalExecutionScore ?? 0,
+            'total_score' => $totalScore ?? 0,
+            'student_aptitude_total' => $studentAptitudeTotal ?? 0,
+            'student_attitude_total' => $studentAttitudeTotal ?? 0,
+            'student_communication_total' => $studentCommunicationTotal ?? 0,
+            'student_execution_total' => $studentExecutionTotal ?? 0,
+            'student_total_score' => $studentTotalScore ?? 0,
+            'alltasktotalscore' => $alltasktotalscore ?? []
         ];
     }
 
@@ -970,10 +911,136 @@ class MobileStudentController extends Controller
             'audio_feedback' => $evaluationResult->audio_feedback ?? null,
             'feedback' => $evaluationResult->feedback,
             'attribute_scores' => $evaluationResult->attribute_scores
-
         ];
 
         return view('frontendapp.performance-detail', compact('student', 'performanceDetail', 'studentData'));
+    }
+
+    /**
+     * Get recently unlocked achievements for the student
+     */
+    private function getRecentlyUnlockedAchievements($student)
+    {
+        // Get student's performance data
+        $performanceData = $this->getStudentPerformanceForAchievements($student);
+        
+        // Get all achievements
+        $achievements = \App\Models\Achievement::orderBy('domain')->orderBy('threshold')->get();
+        
+        $currentlyUnlocked = [];
+        
+        // Check each achievement against student's performance
+        foreach ($achievements as $achievement) {
+            $domainScore = $performanceData['domain_scores'][$achievement->domain] ?? 0;
+            
+            if ($domainScore >= $achievement->threshold) {
+                $currentlyUnlocked[] = $achievement;
+            }
+        }
+        
+        // Check if student has a session flag for showing achievements
+        // This prevents showing the same achievements repeatedly
+        $sessionKey = 'shown_achievements_' . $student->id;
+        $shownAchievements = session($sessionKey, []);
+        
+        // Filter out achievements that have already been shown
+        $newAchievements = [];
+        foreach ($currentlyUnlocked as $achievement) {
+            if (!in_array($achievement->id, $shownAchievements)) {
+                $newAchievements[] = $achievement;
+            }
+        }
+        
+        // Mark these achievements as shown in the session
+        if (!empty($newAchievements)) {
+            $newShownIds = array_merge($shownAchievements, array_column($newAchievements, 'id'));
+            session([$sessionKey => $newShownIds]);
+        }
+        
+        return $newAchievements;
+    }
+
+    /**
+     * Get last 8 tasks performance data for the student
+     */
+    private function getLastTasksPerformance($studentId)
+    {
+        //Get batches student is associated with and pick the first batch. get from batch_student pivot table
+        
+        $studentData = $this->getStudentPercentage($studentId);
+        
+        if (!$studentData) {
+            return [
+                'tasks' => array_fill(0, 8, ['task_name' => 'No Task', 'percentage' => 0, 'short_name' => 'N/A']),
+                'average_score' => 0,
+                'best_task' => 'N/A',
+                'best_score' => 0
+            ];
+        }
+        
+        $percentages = $studentData['totalpercentage'] ?? [];
+        $bestTask = $studentData['best_task'] ?? null;
+        $bestScore = $studentData['best_score'] ?? 0;
+        
+
+        // Convert percentages to task data format - only include tasks with progress
+        $taskData = [];
+        $totalScore = 0;
+        $taskCount = 0;
+        
+        foreach ($percentages as $taskId => $percentage) {
+            if ($percentage > 0) { // Only include tasks with actual progress
+                $taskData[] = [
+                    'task_name' => 'Task #' . $taskId,
+                    'percentage' => $percentage,
+                    'short_name' => 'T' . $taskId
+                ];
+                $totalScore += $percentage;
+                $taskCount++;
+            }
+        }
+        
+        // If we have fewer than 8 tasks with progress, fill remaining slots
+        // But prioritize showing actual progress first
+        while (count($taskData) < 8) {
+            $taskData[] = [
+                'task_name' => 'No Task',
+                'percentage' => 0,
+                'short_name' => ''
+            ];
+        }
+        
+        // Don't reverse - show most recent tasks first
+        // $taskData = array_reverse($taskData);
+        
+        $averageScore = $taskCount > 0 ? round($totalScore / $taskCount, 1) : 0;
+        $bestTaskName = $bestTask ? ($bestTask->task_title ?? 'Task') : 'N/A';
+        
+        return [
+            'tasks' => $taskData,
+            'average_score' => $averageScore,
+            'best_task' => $bestTask,
+            'best_score' => $bestScore
+        ];
+    }
+
+    /**
+     * Get shortened task name for display
+     */
+    private function getShortTaskName($taskName)
+    {
+        if (strlen($taskName) <= 8) {
+            return $taskName;
+        }
+
+        // Try to get first word if it's meaningful
+        $words = explode(' ', $taskName);
+        if (strlen($words[0]) <= 8 && strlen($words[0]) >= 3) {
+            return $words[0];
+        }
+
+        // Otherwise truncate and add ellipsis
+        return substr($taskName, 0, 6) . '..';
     }
 
     /**
@@ -984,4 +1051,155 @@ class MobileStudentController extends Controller
         Auth::guard('student')->logout();
         return redirect()->route('mobile.splash')->with('message', 'Logged out successfully');
     }
+
+    public function getStudentPercentage($studentId)
+    {
+        $batch = DB::table('batch_student')
+            ->where('student_id', $studentId)
+            ->first();
+
+        if($batch){
+                
+        $challenge = Challenge::where('id', $batch->challenge_id)->first();
+
+        //Let us get all the tasks from challenge_task pivot table
+        $challenge_tasks = DB::table('challenge_task')
+            ->where('challenge_id', $batch->challenge_id)
+            ->get();
+        
+        //for the challenge tasks get the total score from task_score table 
+        $total_score = [];
+        foreach ($challenge_tasks as $challenge_task) {
+            $task_score = TaskScore::where('task_id', $challenge_task->task_id)->first();
+            $total_score[$challenge_task->task_id] = $task_score->total_score;
+        }
+        
+       
+      
+
+        $batchdetails = Batch::where('id', $batch->batch_id)->first();
+       
+        //check if batch status == ongoing 
+     
+        if($batchdetails->status == 'ongoing') {
+        // Get the last 8 task evaluations for the student
+        $evaluations = YashodarshiEvaluationResult::where('student_id', $studentId)
+        ->with(['task'])
+        ->orderBy('evaluated_at', 'desc')
+        ->limit(8)
+        ->get();
+      
+
+        //run a loop to get percentge scored by the student. Divide total_score from $evaluations and $total_score. add condition to check task_id. Round it off to 0 decimal
+        $totalpercentage = [];
+        foreach ($evaluations as $evaluation) {
+            $totalpercentage[$evaluation->task_id] = round(($evaluation->total_score / $total_score[$evaluation->task_id]) * 100,0);
+        }
+
+    
+
+        //get the best_task and best_score
+        if ($evaluations->isNotEmpty()) {
+            $best_task = $evaluations->max('total_score');
+
+            //for the best_score, best score must be taken from total percentage
+            $best_task_id = $evaluations->where('total_score', $best_task)->first()->task_id;
+            $best_task = $evaluations->where('task_id', $best_task_id)->first()->task;
+            $best_task_title = $best_task->task_title;
+            
+            //I need to get the max percentage from $totalpercentage
+            $best_score = !empty($totalpercentage) ? max($totalpercentage) : 0;
+        } else {
+            $best_task_title = 'No Task';
+            $best_score = 0;
+        }
+       
+        return [
+            'totalpercentage'=>$totalpercentage, 
+            'best_task'=>$best_task_title, 
+            'best_score'=>$best_score
+        ];
+
+    }
+    else{
+        return [
+            'totalpercentage'=>[], 
+            'best_task'=>'', 
+            'best_score'=>0
+        ];
+    }
+        
+        }
+
+    }
+
+    /**
+     * Get student's current position on the leaderboard
+     */
+    private function getLeaderboardPosition($studentId)
+    {
+        // Get all active students with their batch information
+        $students = Student::with(['batches' => function($query) {
+            $query->where('status', 'ongoing');
+        }])
+            ->where('status', 'active')
+            ->get();
+
+        // Filter out students who don't have any ongoing batches
+        $students = $students->filter(function($student) {
+            return $student->batches->isNotEmpty();
+        });
+
+        $studentIds = $students->pluck('id')->toArray();
+
+        // Get evaluation results for the last 14 days (default period)
+        $startDate = Carbon::now()->subDays(14);
+        $evaluationResults = YashodarshiEvaluationResult::where('evaluated_at', '>=', $startDate)
+            ->whereIn('student_id', $studentIds)
+            ->get()
+            ->groupBy('student_id');
+
+        // Calculate scores for each student
+        $leaderboardEntries = [];
+
+        foreach ($students as $student) {
+            $studentResults = $evaluationResults->get($student->id, collect());
+
+            if ($studentResults->isEmpty()) {
+                continue; // Skip students with no results
+            }
+
+            // Calculate total scores
+            $totalScore = $studentResults->sum('total_score');
+
+            // Get task scores for percentage calculation
+            $taskScores = TaskScore::whereIn('task_id', $studentResults->pluck('task_id')->toArray())->get();
+            $maxPossibleScore = $taskScores->sum('total_score');
+
+            // Calculate percentage based on total_score from task_scores table
+            $scorePercentage = $maxPossibleScore > 0 ? round(($totalScore / $maxPossibleScore) * 100, 1) : 0;
+
+            $leaderboardEntries[] = [
+                'student_id' => $student->id,
+                'score_percentage' => $scorePercentage
+            ];
+        }
+
+        // Sort by score percentage (descending)
+        usort($leaderboardEntries, function($a, $b) {
+            return $b['score_percentage'] <=> $a['score_percentage'];
+        });
+
+        // Find the student's position
+        $position = 0;
+        foreach ($leaderboardEntries as $index => $entry) {
+            if ($entry['student_id'] == $studentId) {
+                $position = $index + 1;
+                break;
+            }
+        }
+
+        return $position;
+    }
 }
+

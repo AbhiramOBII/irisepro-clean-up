@@ -124,20 +124,28 @@ class LeaderboardController extends Controller
             $communicationPercentage = $maxAACETotal > 0 ? round(($communicationScore / $maxAACETotal) * 100, 1) : 0;
             $executionPercentage = $maxAACETotal > 0 ? round(($executionScore / $maxAACETotal) * 100, 1) : 0;
 
-            // Get previous scores for comparison (from previous period)
-            $previousPeriodStart = (clone $startDate)->subDays($startDate->diffInDays(Carbon::now()));
-            $previousResults = YashodarshiEvaluationResult::where('student_id', $student->id)
-                ->where('evaluated_at', '>=', $previousPeriodStart)
-                ->where('evaluated_at', '<', $startDate)
-                ->get();
-
-            $previousTotalScore = $previousResults->sum('total_score');
-            $previousMaxScore = $previousResults->count() * 100;
-            $previousPercentage = $previousMaxScore > 0 ? round(($previousTotalScore / $previousMaxScore) * 100, 1) : 0;
-
-            // Calculate change in percentage
-            $changePercentage = $scorePercentage - $previousPercentage;
-            $changeDirection = $changePercentage > 0 ? 'up' : ($changePercentage < 0 ? 'down' : 'same');
+            // Calculate change based on recent performance trend
+            $recentResults = $studentResults->sortBy('evaluated_at');
+            $changeDirection = 'same';
+            $changePercentage = 0;
+            
+            if ($recentResults->count() >= 2) {
+                // Compare first half vs second half of results
+                $halfPoint = ceil($recentResults->count() / 2);
+                $firstHalf = $recentResults->take($halfPoint);
+                $secondHalf = $recentResults->skip($halfPoint);
+                
+                $firstHalfAvg = $firstHalf->avg('total_score');
+                $secondHalfAvg = $secondHalf->avg('total_score');
+                
+                if ($secondHalfAvg > $firstHalfAvg) {
+                    $changeDirection = 'up';
+                    $changePercentage = round((($secondHalfAvg - $firstHalfAvg) / max($firstHalfAvg, 1)) * 100, 1);
+                } elseif ($secondHalfAvg < $firstHalfAvg) {
+                    $changeDirection = 'down';
+                    $changePercentage = round((($firstHalfAvg - $secondHalfAvg) / max($firstHalfAvg, 1)) * 100, 1);
+                }
+            }
 
             // Get batch information for this student (using first batch if available)
             $currentBatch = $student->batches->first();
@@ -173,10 +181,26 @@ class LeaderboardController extends Controller
             return $b['score_percentage'] <=> $a['score_percentage'];
         });
 
-        // Assign ranks
+        // Get previous rankings for comparison
+        $previousRankings = $this->getPreviousRankings($studentIds, $timePeriod);
+
+        // Assign ranks and calculate rank changes
         $rank = 1;
         foreach ($leaderboardEntries as &$entry) {
             $entry['rank'] = $rank;
+            
+            // Calculate rank change
+            $previousRank = $previousRankings[$entry['student_id']] ?? null;
+            if ($previousRank !== null) {
+                $rankChange = $previousRank - $rank; // Positive = moved up, Negative = moved down
+                $entry['rank_change'] = $rankChange;
+                $entry['rank_change_direction'] = $rankChange > 0 ? 'up' : ($rankChange < 0 ? 'down' : 'same');
+                $entry['rank_change_value'] = abs($rankChange);
+            } else {
+                $entry['rank_change'] = 0;
+                $entry['rank_change_direction'] = 'new';
+                $entry['rank_change_value'] = 0;
+            }
 
             if ($entry['is_current_user']) {
                 $currentUserRank = $rank;
@@ -234,16 +258,16 @@ class LeaderboardController extends Controller
      */
     private function getAACERank($entries, $studentId, $component)
     {
-        // Create a copy of entries sorted by the specific AACE component
-        $sortedEntries = $entries;
-        usort($sortedEntries, function($a, $b) use ($component) {
-            return $b['aace_scores'][$component] <=> $a['aace_scores'][$component];
-        });
+        // Sort entries by the specific AACE component score
+        $sortedEntries = collect($entries)->sortByDesc(function($entry) use ($component) {
+            return $entry['aace_scores'][$component];
+        })->values()->toArray();
 
-        // Find rank
-        $rank = 0;
-        $previousRank = 0;
+        $rank = 1;
+        $previousRank = 1;
         $previousScore = -1;
+        $changeDirection = 'same';
+        $changeValue = 0;
 
         foreach ($sortedEntries as $index => $entry) {
             if ($entry['aace_scores'][$component] != $previousScore) {
@@ -253,20 +277,110 @@ class LeaderboardController extends Controller
 
             if ($entry['student_id'] == $studentId) {
                 $rank = $previousRank;
+                
+                // Calculate AACE component rank change based on previous period
+                $previousAACERankings = $this->getPreviousAACERankings(collect($entries)->pluck('student_id')->toArray(), $component);
+                $previousRank = $previousAACERankings[$studentId] ?? null;
+                
+                if ($previousRank !== null) {
+                    $rankChange = $previousRank - $rank; // Positive = moved up, Negative = moved down
+                    $changeDirection = $rankChange > 0 ? 'up' : ($rankChange < 0 ? 'down' : 'same');
+                    $changeValue = abs($rankChange);
+                } else {
+                    $changeDirection = 'new';
+                    $changeValue = 0;
+                }
                 break;
             }
         }
-
-        // Get change direction (mock data for now)
-        $changeDirections = ['up', 'down', 'same'];
-        $changeDirection = $changeDirections[array_rand($changeDirections)];
-        $changeValue = $changeDirection != 'same' ? rand(1, 3) : 0;
 
         return [
             'rank' => $rank,
             'change_direction' => $changeDirection,
             'change_value' => $changeValue
         ];
+    }
+
+    /**
+     * Get previous AACE rankings for a specific component
+     */
+    private function getPreviousAACERankings($studentIds, $component)
+    {
+        // This would use similar logic to getPreviousRankings but for AACE components
+        // For now, return empty array to avoid errors
+        return [];
+    }
+
+    /**
+     * Get previous rankings for comparison
+     */
+    private function getPreviousRankings($studentIds, $timePeriod)
+    {
+        // Calculate previous period dates
+        $previousStartDate = null;
+        $previousEndDate = null;
+        
+        switch ($timePeriod) {
+            case '7days':
+                $previousStartDate = Carbon::now()->subDays(14);
+                $previousEndDate = Carbon::now()->subDays(7);
+                break;
+            case '14days':
+                $previousStartDate = Carbon::now()->subDays(28);
+                $previousEndDate = Carbon::now()->subDays(14);
+                break;
+            case 'alltime':
+                // For all-time, compare with last month
+                $previousStartDate = Carbon::now()->subMonths(2);
+                $previousEndDate = Carbon::now()->subMonth();
+                break;
+            default:
+                $previousStartDate = Carbon::now()->subDays(28);
+                $previousEndDate = Carbon::now()->subDays(14);
+        }
+
+        // Get evaluation results for previous period
+        $previousEvaluationResults = YashodarshiEvaluationResult::where('evaluated_at', '>=', $previousStartDate)
+            ->where('evaluated_at', '<', $previousEndDate)
+            ->whereIn('student_id', $studentIds)
+            ->get()
+            ->groupBy('student_id');
+
+        $previousEntries = [];
+
+        // Calculate previous period scores
+        foreach ($studentIds as $studentId) {
+            $studentResults = $previousEvaluationResults->get($studentId, collect());
+            
+            if ($studentResults->isEmpty()) {
+                continue;
+            }
+
+            $totalScore = $studentResults->sum('total_score');
+            $taskScores = TaskScore::whereIn('task_id', $studentResults->pluck('task_id')->toArray())->get();
+            $maxPossibleScore = $taskScores->sum('total_score');
+            $scorePercentage = $maxPossibleScore > 0 ? round(($totalScore / $maxPossibleScore) * 100, 1) : 0;
+
+            $previousEntries[] = [
+                'student_id' => $studentId,
+                'score_percentage' => $scorePercentage
+            ];
+        }
+
+        // Sort previous entries by score
+        usort($previousEntries, function($a, $b) {
+            return $b['score_percentage'] <=> $a['score_percentage'];
+        });
+
+        // Create rank mapping
+        $previousRankings = [];
+        $rank = 1;
+        foreach ($previousEntries as $entry) {
+            $previousRankings[$entry['student_id']] = $rank;
+            $rank++;
+        }
+
+        return $previousRankings;
     }
 
     /**

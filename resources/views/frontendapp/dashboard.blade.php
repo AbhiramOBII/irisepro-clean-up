@@ -394,9 +394,9 @@
 
               
                  @if($studentStatus['student']['gender'] == 'male')
-                <img src="{{ asset('images/Boy-irisepro.gif') }}" alt="iRisePro Character" class="w-28 h-28 object-contain rounded-xl">
+                <img src="{{ asset('images/Boy-irisepro.gif') }}" alt="iRisePro Character" class="w-24 h-24 sm:w-28 sm:h-28 object-contain rounded-xl">
                 @else
-                <img src="{{ asset('images/Girl-irisepro.gif') }}" alt="iRisePro Character" class="w-28 h-28 object-contain rounded-xl">
+                <img src="{{ asset('images/Girl-irisepro.gif') }}" alt="iRisePro Character" class="w-24 h-24 sm:w-28 sm:h-28 object-contain rounded-xl">
                 @endif
             </div>
         </div>
@@ -973,90 +973,56 @@
         <div class="absolute bottom-0 left-0 w-24 h-24 bg-[#F58321]/5 rounded-full -ml-12 -mb-12 group-hover:bg-[#F58321]/10 transition-all duration-500"></div>
         
         <div class="relative z-10">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Last 8 Tasks Performance</h3>
-            
-            @php
-                // Get last 8 task performances for the student
-                $lastTaskPerformances = [];
-                if (isset($studentStatus['last_8_tasks'])) {
-                    $lastTaskPerformances = $studentStatus['last_8_tasks'];
-                } 
-                
-                else {
-                    // Default data if no tasks available
-                    $lastTaskPerformances = [
-                        ['task_number' => 1, 'percentage' => 0],
-                        ['task_number' => 2, 'percentage' => 0],
-                        ['task_number' => 3, 'percentage' => 0],
-                        ['task_number' => 4, 'percentage' => 0],
-                        ['task_number' => 5, 'percentage' => 0],
-                        ['task_number' => 6, 'percentage' => 0],
-                        ['task_number' => 7, 'percentage' => 0],
-                        ['task_number' => 8, 'percentage' => 0],
-                    ];
-                }
-             
-                
-                // Ensure we have exactly 8 items
-                while (count($lastTaskPerformances) < 8) {
-                    $lastTaskPerformances[] = ['task_number' => count($lastTaskPerformances) + 1, 'percentage' => 0];
-                }
-                $lastTaskPerformances = array_slice($lastTaskPerformances, -8);
-                
-                // Calculate average and best performance
-                $completedTasks = array_filter($lastTaskPerformances, function($task) {
-                    return $task['percentage'] > 0;
-                });
-                $totalPercentage = array_sum(array_column($completedTasks, 'percentage'));
-                $averagePercentage = count($completedTasks) > 0 ? round($totalPercentage / count($completedTasks), 1) : 0;
-                $bestTask = collect($lastTaskPerformances)->sortByDesc('percentage')->first();
-                $bestPercentage = $bestTask ? $bestTask['percentage'] : 0;
-                $bestTaskNumber = $bestTask ? $bestTask['task_number'] : 1;
-            @endphp
-            
-            <!-- SVG Bar Graph -->
+            <!-- Dynamic Task Performance Chart -->
             <svg width="100%" height="180" style="margin-bottom: 16px;">
                 <!-- Gradient definition -->
                 <defs>
-                    <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:#F58321;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#FF6B35;stop-opacity:1" />
+                    <linearGradient id="barGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" style="stop-color:#F58321" />
+                        <stop offset="100%" style="stop-color:#F9A949" />
                     </linearGradient>
                 </defs>
                 
-                @foreach($lastTaskPerformances as $index => $task)
+                @foreach($taskPerformanceData['tasks'] as $index => $task)
                     @php
                         $xPosition = 4 + ($index * 12); // 12% spacing between bars
-                        $barHeight = $task['percentage']; // Height as percentage
-                        $yPosition = 100 - $barHeight; // Y position (SVG coordinates are inverted)
-                        $textY = $yPosition > 10 ? $yPosition - 5 : $yPosition + 15; // Text position
+                        $barHeight = $task['percentage'] > 0 ? $task['percentage'] : 5; // Minimum 5% height for visibility
+                        $yPosition = 100 - $barHeight; // Calculate Y position from top
+                        $textY = $yPosition > 10 ? $yPosition - 5 : $yPosition + $barHeight + 15; // Position text above or below bar
                     @endphp
                     
                     <!-- Task Bar -->
-                    <rect x="{{ $xPosition }}%" y="{{ $yPosition }}%" width="6%" height="{{ $barHeight }}%" rx="3" fill="url(#barGradient)" />
+                    <rect x="{{ $xPosition }}%" y="{{ $yPosition }}%" width="6%" height="{{ $barHeight }}%" rx="3" 
+                          fill="{{ $task['percentage'] > 0 ? 'url(#barGradient)' : '#E5E7EB' }}" />
                     
                     @if($task['percentage'] > 0)
-                        <text x="{{ $xPosition + 3 }}%" y="{{ $textY }}%" text-anchor="middle" font-size="11" font-weight="bold" fill="#F58321">{{ $task['percentage'] }}%</text>
+                        <text x="{{ $xPosition + 3 }}%" y="{{ $textY }}%" text-anchor="middle" font-size="12" font-weight="bold" fill="#F58321">
+                            {{ $task['percentage'] }}%
+                        </text>
                     @endif
                 @endforeach
             </svg>
             
             <!-- Task labels -->
             <div class="flex justify-between mb-4 px-2">
-                @foreach($lastTaskPerformances as $task)
-                    <span class="text-xs font-medium text-gray-500">T{{ $task['task_number'] }}</span>
+                @foreach($taskPerformanceData['tasks'] as $task)
+                    <span class="text-xs font-medium text-gray-500" title="{{ $task['task_name'] }}">
+                        {{ $task['short_name'] }}
+                    </span>
                 @endforeach
             </div>
             
             <!-- Score Summary -->
-            <div class="flex justify-between items-center border-t border-gray-100 pt-4">
+            <div class="flex justify-between items-start border-t border-gray-100 pt-4">
                 <div>
-                    <div class="text-sm text-gray-500">Average Score</div>
-                    <div class="text-xl font-bold text-gray-800">{{ $averagePercentage }}%</div>
+                    <div class="text-sm text-gray-500">Best Score</div>
+                    <div class="text-xl font-bold text-gray-800">{{ $taskPerformanceData['best_score'] }}%</div>
                 </div>
-                <div>
+                <div class="text-right max-w-[50%]">
                     <div class="text-sm text-gray-500">Best Task</div>
-                    <div class="text-xl font-bold text-[#F58321]">Task {{ $bestTaskNumber }} ({{ $bestPercentage }}%)</div>
+                    <div class="text-lg font-bold text-[#F58321] break-words leading-tight" title="{{ $taskPerformanceData['best_task'] }}">
+                        {{ $taskPerformanceData['best_task'] }}
+                    </div>
                 </div>
             </div>
         </div>

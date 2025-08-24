@@ -3,7 +3,7 @@
     <!-- App logo and user profile -->
     <div class="flex justify-between items-center mb-4">
         <div class="flex items-center">
-            <img src="{{ asset('images/irisepro-logo.png') }}" alt="iRisePro Logo" class="h-20">
+            <a href="{{ route('mobile.dashboard') }}"><img src="{{ asset('images/irisepro-logo.png') }}" alt="iRisePro Logo" class="h-20"></a>
         </div>
         <div class="flex items-center space-x-3">
             <!-- Notifications Button -->
@@ -15,9 +15,9 @@
             </button>
            
             <!-- Settings Button -->
-            <button id="settingsBtn" class="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-card hover:bg-gray-50 transition-all duration-200">
+            <a href="{{ route('mobile.support') }}" id="settingsBtn" class="w-9 h-9 bg-white rounded-full flex items-center justify-center shadow-card hover:bg-gray-50 transition-all duration-200">
                 <i class="fas fa-cog text-gray-500"></i>
-            </button>
+            </a>
             
             <!-- User Avatar Dropdown -->
             <div class="relative">

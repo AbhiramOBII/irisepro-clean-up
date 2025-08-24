@@ -13,6 +13,38 @@
     </div>
 </div>
 
+<!-- Search Filter -->
+<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <form method="GET" action="{{ route('superadmin.tasks.index') }}" class="flex items-center space-x-4">
+        <div class="flex-1">
+            <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search Tasks</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" 
+                       name="search" 
+                       id="search"
+                       value="{{ request('search') }}"
+                       placeholder="Search by title, description, or type..."
+                       class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-orange-500 focus:border-orange-500">
+            </div>
+        </div>
+        <div class="flex space-x-2 pt-6">
+            <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md font-medium transition duration-200">
+                Search
+            </button>
+            @if(request('search'))
+                <a href="{{ route('superadmin.tasks.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium transition duration-200">
+                    Clear
+                </a>
+            @endif
+        </div>
+    </form>
+</div>
+
 
 <div class="bg-white rounded-xl shadow-lg overflow-x-auto border border-gray-100">
     <table class="w-full table-fixed divide-y divide-gray-200 min-w-[1200px]">
