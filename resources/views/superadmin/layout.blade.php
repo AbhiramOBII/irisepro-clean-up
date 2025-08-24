@@ -31,9 +31,9 @@
     </script>
 </head>
 <body class="bg-secondary min-h-screen font-sans">
-    <div class="flex h-screen">
+    <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <div class="w-64 bg-primary shadow-lg flex flex-col">
+        <div class="w-64 bg-primary shadow-lg flex flex-col min-h-screen">
             <div class="p-6 border-b border-primary-dark border-opacity-30">
                 <div class="flex items-center space-x-3">
                     <div class="p-2 bg-white bg-opacity-20 rounded-lg">
@@ -44,7 +44,7 @@
                     <h2 class="text-xl font-bold text-white">Super Admin</h2>
                 </div>
             </div>
-            <nav class="mt-2 flex-1 overflow-y-auto">
+            <nav class="mt-2 flex-1">
                 <div class="mb-4">
                     <p class="px-6 text-xs font-medium text-white text-opacity-70 uppercase tracking-wider mb-2">Main</p>
                     <a href="{{ route('superadmin.dashboard') }}" 
@@ -171,8 +171,8 @@
 
                 <div class="mb-4">
                     <p class="px-6 text-xs font-medium text-white text-opacity-70 uppercase tracking-wider mb-2">Reports</p>
-                    <a href="#" 
-                       class="flex items-center mx-3 px-4 py-2.5 text-white hover:bg-primary-dark rounded-lg transition duration-200 mb-1">
+                    <a href="{{ route('superadmin.reports.index') }}" 
+                       class="flex items-center mx-3 px-4 py-2.5 text-white hover:bg-primary-dark rounded-lg transition duration-200 mb-1 {{ request()->routeIs('superadmin.reports.*') ? 'bg-primary-dark' : '' }}">
                         <div class="p-1.5 bg-white bg-opacity-10 rounded mr-3">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
@@ -198,7 +198,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col">
             <!-- Top Navigation -->
             <header class="bg-white shadow-sm border-b border-gray-200">
                 <div class="w-[90%] mx-auto px-4 sm:px-6 ">
@@ -214,7 +214,7 @@
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-secondary">
+            <main class="flex-1 bg-secondary">
                 <div class="w-[90%] mx-auto py-6 sm:px-6 lg:px-8">
                     <div class="px-4 py-6 sm:px-0">
                         @if(session('success'))
@@ -236,4 +236,165 @@
         </div>
     </div>
 </body>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize CKEditor for task description
+    if (document.querySelector('#task_description')) {
+        ClassicEditor
+            .create(document.querySelector('#task_description'), {
+            toolbar: {
+                items: [
+                    'heading', '|',
+                    'bold', 'italic', 'underline', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'outdent', 'indent', '|',
+                    'link', 'blockQuote', '|',
+                    'undo', 'redo'
+                ]
+            },
+            heading: {
+                options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+                ]
+            }
+            })
+            .catch(error => {
+                console.error('Error initializing CKEditor for task description:', error);
+            });
+    }
+
+    // Initialize CKEditor for task instructions
+    if (document.querySelector('#task_instructions')) {
+        ClassicEditor
+            .create(document.querySelector('#task_instructions'), {
+            toolbar: {
+                items: [
+                    'heading', '|',
+                    'bold', 'italic', 'underline', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'outdent', 'indent', '|',
+                    'link', 'blockQuote', '|',
+                    'insertTable', '|',
+                    'undo', 'redo'
+                ]
+            },
+            heading: {
+                options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+                ]
+            },
+            table: {
+                contentToolbar: [
+                    'tableColumn',
+                    'tableRow',
+                    'mergeTableCells'
+                ]
+            }
+            })
+            .catch(error => {
+                console.error('Error initializing CKEditor for task instructions:', error);
+            });
+    }
+
+    // Initialize CKEditor for challenge description
+    if (document.querySelector('#description')) {
+        ClassicEditor
+            .create(document.querySelector('#description'), {
+                toolbar: {
+                    items: [
+                        'heading', '|',
+                        'bold', 'italic', 'underline', '|',
+                        'bulletedList', 'numberedList', '|',
+                        'outdent', 'indent', '|',
+                        'link', 'blockQuote', '|',
+                        'undo', 'redo'
+                    ]
+                },
+                heading: {
+                    options: [
+                        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                        { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                        { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                        { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+                    ]
+                }
+            })
+            .catch(error => {
+                console.error('Error initializing CKEditor for challenge description:', error);
+            });
+    }
+
+    // Initialize CKEditor for challenge features
+    if (document.querySelector('#features')) {
+        ClassicEditor
+            .create(document.querySelector('#features'), {
+                toolbar: {
+                    items: [
+                        'heading', '|',
+                        'bold', 'italic', 'underline', '|',
+                        'bulletedList', 'numberedList', '|',
+                        'outdent', 'indent', '|',
+                        'link', 'blockQuote', '|',
+                        'undo', 'redo'
+                    ]
+                },
+                heading: {
+                    options: [
+                        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                        { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                        { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                        { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+                    ]
+                }
+            })
+            .catch(error => {
+                console.error('Error initializing CKEditor for challenge features:', error);
+            });
+    }
+
+    // Existing totals calculation script
+    const inputs = document.querySelectorAll('input[type="number"][data-category]');
+    
+    function updateTotals() {
+        const categories = ['aptitude', 'attitude', 'communication', 'execution'];
+        let grandTotal = 0;
+        
+        categories.forEach(category => {
+            const categoryInputs = document.querySelectorAll(`input[data-category="${category}"]`);
+            let categoryTotal = 0;
+            
+            categoryInputs.forEach(input => {
+                categoryTotal += parseInt(input.value) || 0;
+            });
+            
+            const categoryTotalElement = document.querySelector(`.category-total[data-category="${category}"]`);
+            if (categoryTotalElement) {
+                categoryTotalElement.textContent = categoryTotal;
+            }
+            
+            grandTotal += categoryTotal;
+        });
+        
+        const grandTotalElement = document.getElementById('grand-total');
+        if (grandTotalElement) {
+            grandTotalElement.textContent = grandTotal;
+        }
+    }
+    
+    inputs.forEach(input => {
+        input.addEventListener('input', updateTotals);
+    });
+    
+    // Initial calculation
+    updateTotals();
+});
+</script>
 </html>

@@ -3,6 +3,14 @@
 @section('title', 'Edit Task')
 @section('page-title', 'Edit Task')
 
+@push('styles')
+<style>
+    .ck-editor__editable {
+        min-height: 200px;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-bold text-gray-900">Edit Task</h2>

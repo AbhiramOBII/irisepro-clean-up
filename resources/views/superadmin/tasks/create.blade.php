@@ -3,6 +3,14 @@
 @section('title', 'Create New Task')
 @section('page-title', 'Create New Task')
 
+@push('styles')
+<style>
+    .ck-editor__editable {
+        min-height: 200px;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-bold text-gray-900">Create New Task</h2>
@@ -234,4 +242,108 @@
         </button>
     </div>
 </form>
+
+@push('scripts')
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize CKEditor for task description
+    ClassicEditor
+        .create(document.querySelector('#task_description'), {
+            toolbar: {
+                items: [
+                    'heading', '|',
+                    'bold', 'italic', 'underline', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'outdent', 'indent', '|',
+                    'link', 'blockQuote', '|',
+                    'undo', 'redo'
+                ]
+            },
+            heading: {
+                options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+                ]
+            }
+        })
+        .catch(error => {
+            console.error('Error initializing CKEditor for task description:', error);
+        });
+
+    // Initialize CKEditor for task instructions
+    ClassicEditor
+        .create(document.querySelector('#task_instructions'), {
+            toolbar: {
+                items: [
+                    'heading', '|',
+                    'bold', 'italic', 'underline', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'outdent', 'indent', '|',
+                    'link', 'blockQuote', '|',
+                    'insertTable', '|',
+                    'undo', 'redo'
+                ]
+            },
+            heading: {
+                options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+                ]
+            },
+            table: {
+                contentToolbar: [
+                    'tableColumn',
+                    'tableRow',
+                    'mergeTableCells'
+                ]
+            }
+        })
+        .catch(error => {
+            console.error('Error initializing CKEditor for task instructions:', error);
+        });
+
+    // Existing totals calculation script
+    const inputs = document.querySelectorAll('input[type="number"][data-category]');
+    
+    function updateTotals() {
+        const categories = ['aptitude', 'attitude', 'communication', 'execution'];
+        let grandTotal = 0;
+        
+        categories.forEach(category => {
+            const categoryInputs = document.querySelectorAll(`input[data-category="${category}"]`);
+            let categoryTotal = 0;
+            
+            categoryInputs.forEach(input => {
+                categoryTotal += parseInt(input.value) || 0;
+            });
+            
+            const categoryTotalElement = document.querySelector(`.category-total[data-category="${category}"]`);
+            if (categoryTotalElement) {
+                categoryTotalElement.textContent = categoryTotal;
+            }
+            
+            grandTotal += categoryTotal;
+        });
+        
+        const grandTotalElement = document.getElementById('grand-total');
+        if (grandTotalElement) {
+            grandTotalElement.textContent = grandTotal;
+        }
+    }
+    
+    inputs.forEach(input => {
+        input.addEventListener('input', updateTotals);
+    });
+    
+    // Initial calculation
+    updateTotals();
+});
+</script>
+@endpush
+
 @endsection

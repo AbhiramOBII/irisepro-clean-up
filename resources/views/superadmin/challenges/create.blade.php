@@ -2,6 +2,14 @@
 
 @section('title', 'Create Challenge')
 
+@push('styles')
+<style>
+    .ck-editor__editable {
+        min-height: 200px;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="mx-auto">
     <div class="bg-white rounded-lg shadow-sm">

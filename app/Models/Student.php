@@ -64,4 +64,12 @@ class Student extends Authenticatable
                     ->withPivot('challenge_id', 'amount', 'payment_status', 'payment_time', 'payment_comments')
                     ->withTimestamps();
     }
+
+    /**
+     * Get the yashodarshi evaluation results for the student.
+     */
+    public function yashodarshiEvaluationResults()
+    {
+        return $this->hasMany(YashodarshiEvaluationResult::class);
+    }
 }

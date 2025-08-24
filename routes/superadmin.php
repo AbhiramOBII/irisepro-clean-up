@@ -13,6 +13,7 @@ use App\Http\Controllers\AchievementController;
 use App\Http\Controllers\SupportRequestController;
 use App\Http\Controllers\SuperAdminEnrollmentController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ReportController;
 
 // SuperAdmin Routes
 Route::get('/login', [SuperAdminAuthController::class, 'showLogin'])->name('superadmin.login');
@@ -91,4 +92,11 @@ Route::middleware('superadmin.auth')->group(function () {
     // Settings Routes
     Route::get('settings', [SettingsController::class, 'index'])->name('superadmin.settings');
     Route::put('settings/password', [SettingsController::class, 'updatePassword'])->name('superadmin.settings.password');
+
+    // Report Management Routes
+    Route::get('reports', [ReportController::class, 'index'])->name('superadmin.reports.index');
+    Route::get('reports/student-scores', [ReportController::class, 'studentScores'])->name('superadmin.reports.student-scores');
+    Route::get('reports/batch-comparison', [ReportController::class, 'batchComparison'])->name('superadmin.reports.batch-comparison');
+    Route::get('reports/all-batch-data', [ReportController::class, 'allbatchdata'])->name('superadmin.reports.allbatchdata');
+    Route::get('reports/export/student-scores', [ReportController::class, 'exportStudentScores'])->name('superadmin.reports.export.student-scores');
 });
