@@ -70,7 +70,7 @@
 
                     <td class="px-4 py-5 whitespace-nowrap text-center border-r border-gray-100">
                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full shadow-sm {{ $task->status == 'active' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-gray-100 text-gray-800 border border-gray-200' }}">
-                            {{ ucfirst($task->status) }}
+                            {{ ucfirst($task->task_type) }}
                         </span>
                     </td>
                     <td class="px-4 py-5 whitespace-nowrap text-center text-lg font-black text-gray-900 border-r border-gray-100 bg-gray-50">
