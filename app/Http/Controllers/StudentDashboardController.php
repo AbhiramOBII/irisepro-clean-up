@@ -269,7 +269,7 @@ class StudentDashboardController extends Controller
             ->get();
         
         $availableChallenges = $availableChallenges->map(function ($challenge) {
-            $challenge->amount = $challenge->special_price ?? $challenge->selling_price ?? $challenge->cost_price;
+            $challenge->amount = $challenge->special_price ?? $challenge->selling_cost ?? $challenge->cost;
             return $challenge;
         });
 
