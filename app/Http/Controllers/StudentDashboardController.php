@@ -258,7 +258,8 @@ class StudentDashboardController extends Controller
                 'challenges.title as challenge_title',
                 'challenges.description as challenge_description',
                 'challenges.cost_price as cost',
-                'challenges.selling_price as selling_cost'
+                'challenges.selling_price as selling_cost',
+                'challenges.special_price as special_price'
             )
             ->where('batches.status', 'active')
             ->where('batches.start_date', '>', Carbon::now()->addDays(2))
@@ -266,16 +267,11 @@ class StudentDashboardController extends Controller
             ->orderBy('batches.start_date', 'asc')
             ->limit(3)
             ->get();
-
-        // Debug: Log the actual cost values being fetched
-        foreach ($availableChallenges as $challenge) {
-            \Log::info('Challenge cost debug:', [
-                'challenge_id' => $challenge->id,
-                'challenge_title' => $challenge->challenge_title,
-                'cost_price' => $challenge->cost,
-                'raw_data' => (array) $challenge
-            ]);
-        }
+        
+        $availableChallenges = $availableChallenges->map(function ($challenge) {
+            $challenge->amount = $challenge->special_price ?? $challenge->selling_price ?? $challenge->cost_price;
+            return $challenge;
+        });
 
         return $availableChallenges;
     }
