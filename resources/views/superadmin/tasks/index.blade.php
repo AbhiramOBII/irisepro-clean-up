@@ -66,7 +66,10 @@
             @forelse($tasks as $task)
                 <tr class="hover:bg-gray-50 transition-colors duration-200">
                     <td class="px-4 py-5 whitespace-nowrap text-sm font-semibold text-gray-900 border-r border-gray-100">{{ $task->id }}</td>
-                    <td class="px-6 py-5 text-sm font-bold text-gray-900 border-r border-gray-100 max-w-xs break-words">{{ $task->task_title }}</td>
+                    <td class="px-6 py-5 text-sm font-bold text-gray-900 border-r border-gray-100 max-w-xs break-words">{{ $task->task_title }}
+                    <br><span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full shadow-sm {{ $task->status == 'active' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-gray-100 text-gray-800 border border-gray-200' }}">{{$task->status}}</span>
+
+                    </td>
 
                     <td class="px-4 py-5 whitespace-nowrap text-center border-r border-gray-100">
                         <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full shadow-sm {{ $task->status == 'active' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-gray-100 text-gray-800 border border-gray-200' }}">

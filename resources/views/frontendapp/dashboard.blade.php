@@ -46,7 +46,7 @@
                                     <h3 class="font-bold text-gray-800 text-lg">{{ $challenge->challenge_title ?? $challenge->title ?? 'Challenge' }}</h3>
                                     <p class="text-sm text-gray-500">60-Day Challenge</p>
                                 </div>
-                                <div class="text-[#F58321] font-bold text-lg">₹{{ number_format($challenge->amount) }}</div>
+                                <div class="text-[#F58321] font-bold text-lg">₹{{ number_format($challenge->amount ?? 7999) }}</div>
                             </div>
                             
                             <p class="text-gray-600 text-sm mb-4">{{ Str::limit($challenge->challenge_description ?? $challenge->description ?? 'Transform your life with this amazing challenge.', 80) }}</p>
